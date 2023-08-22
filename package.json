@@ -1,0 +1,22 @@
+{
+  "name": "desci-composites",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@ceramicnetwork/cli": "^2.35.0",
+    "@ceramicnetwork/streamid": "^2.17.0",
+    "@composedb/cli": "^0.4.5",
+    "@composedb/devtools": "^0.4.4",
+    "@composedb/devtools-node": "^0.4.4",
+    "@composedb/graphql-scalars": "^0.4.4"
+  },
+  "dependencies": {
+    "graphql": "^16.8.0"
+  }
+}

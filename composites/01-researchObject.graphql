@@ -1,0 +1,4 @@
+type ResearchObject @createModel(accountRelation: LIST, description: "A research object") {
+  author: DID! @documentAccount,
+  manifest: CID!
+}

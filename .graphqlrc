@@ -1,0 +1,6 @@
+{
+  "schema": [
+    "composites/*.graphql",
+    "node_modules/@composedb/graphql-scalars/dist/*"
+  ]
+}

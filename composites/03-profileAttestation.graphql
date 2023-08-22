@@ -1,0 +1,9 @@
+type Profile @loadModel(id: "$PROFILE_ID") {
+  id: ID!
+}
+
+type ProfileAttestation @createModel(accountRelation: LIST, description: "Profile attestation") {
+  author: DID! @documentAccount
+  profileId: StreamID! @documentReference(model: "Profile")
+  target: Profile! @relationDocument(property: "profileId")
+}

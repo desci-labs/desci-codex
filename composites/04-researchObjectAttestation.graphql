@@ -1,0 +1,9 @@
+type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
+  id: ID!
+}
+
+type ResearchObjectAttestation @createModel(accountRelation: LIST, description: "RO attestation") {
+  author: DID! @documentAccount
+  researchId: StreamID! @documentReference(model: "ResearchObject")
+  target: ResearchObject! @relationDocument(property: "researchId")
+}
