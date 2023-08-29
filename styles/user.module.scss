@@ -1,0 +1,23 @@
+@import "./colors.module.scss";
+.details {
+  border-bottom: 1px solid $borders;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height:120px;
+  .user {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .emoji {
+      font-size: 40px;
+      display: inline-block;
+    }
+    .names {
+
+    }
+    .follow {
+      align-self: flex-end;
+    }
+  }
+}

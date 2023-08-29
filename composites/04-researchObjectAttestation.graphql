@@ -4,6 +4,7 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
 
 type ResearchObjectAttestation @createModel(accountRelation: LIST, description: "RO attestation") {
   author: DID! @documentAccount
+  context: String! @string(maxLength: 1000)
   researchId: StreamID! @documentReference(model: "ResearchObject")
   target: ResearchObject! @relationDocument(property: "researchId")
 }

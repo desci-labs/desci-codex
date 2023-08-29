@@ -29,7 +29,7 @@ export const writeComposite = async (spinner) => {
 
   const researchObj = await createComposite(
     ceramic,
-    "./composites/01-researchObj.graphql"
+    "./composites/01-researchObject.graphql"
   );
 
   const orgComposite = await createComposite(
@@ -50,11 +50,11 @@ export const writeComposite = async (spinner) => {
   });
 
   const researchAttestationSchema = readFileSync(
-    "./composites/04-ResearchObjAttestation.graphql",
+    "./composites/04-researchObjectAttestation.graphql",
     {
       encoding: "utf-8",
     }
-  ).replace("$RESEARCH_ID", researchObj.modelIDs[0]);
+  ).replace("$RESEARCH_OBJECT_ID", researchObj.modelIDs[0]);
 
   const researchAttestationComposite = await Composite.create({
     ceramic,

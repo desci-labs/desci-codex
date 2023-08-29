@@ -4,6 +4,7 @@ type Profile @loadModel(id: "$PROFILE_ID") {
 
 type ProfileAttestation @createModel(accountRelation: LIST, description: "Profile attestation") {
   author: DID! @documentAccount
+  context: String! @string(maxLength: 1000)
   profileId: StreamID! @documentReference(model: "Profile")
   target: Profile! @relationDocument(property: "profileId")
 }

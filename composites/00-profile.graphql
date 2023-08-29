@@ -1,4 +1,5 @@
-type Profile @createModel(accountRelation: LIST, description: "An author profile") {
+type Profile @createModel(accountRelation: SINGLE, description: "An author profile") {
   author: DID! @documentAccount
   displayName: String! @string(maxLength: 250)
+  orcid: String @string(maxLength: 100)
 }

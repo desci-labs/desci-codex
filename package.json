@@ -4,19 +4,33 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate": "node scripts/command.mjs",
+    "dev": "node scripts/run.mjs",
+    "nextDev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "ceramic": "ceramic daemon --config composedb.config.json"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Edvard Hubinette",
   "devDependencies": {
     "@ceramicnetwork/cli": "^2.35.0",
     "@ceramicnetwork/streamid": "^2.17.0",
     "@composedb/cli": "^0.4.5",
     "@composedb/devtools": "^0.4.4",
     "@composedb/devtools-node": "^0.4.4",
-    "@composedb/graphql-scalars": "^0.4.4"
+    "@composedb/graphql-scalars": "^0.4.4",
+    "@types/react": "18.2.21",
+    "eslint": "8.48.0",
+    "eslint-config-next": "13.4.19"
   },
   "dependencies": {
-    "graphql": "^16.8.0"
+    "@datamodels/identity-profile-basic": "^0.2.0",
+    "@didtools/pkh-ethereum": "^0.4.1",
+    "did-session": "^2.0.1",
+    "graphql": "^16.8.0",
+    "next": "^13.4.19",
+    "react-icons": "^4.10.1",
+    "sass": "^1.66.1"
   }
 }
