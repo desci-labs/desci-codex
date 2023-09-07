@@ -1,16 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import type { BasicProfile } from "@datamodels/identity-profile-basic";
-import { startLitClient } from "../utils/client";
-import {
-  _encryptWithLit,
-  _decryptWithLit,
-  encodeb64,
-  decodeb64,
-} from "../utils/lit";
-import ceramicLogo from "../public/ceramic.png";
 import { useCeramicContext } from "../context";
 import { authenticateCeramic } from "../utils";
 import styles from "../styles/Home.module.css";

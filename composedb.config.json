@@ -29,7 +29,7 @@
     "local-directory": "./local-data/ceramic/statestore"
   },
   "indexing": {
-    "db": "sqlite:///home/m0ar/dev/desci/composedb/local-data/ceramic/indexing.sqlite",
+    "db": "sqlite:///home/m0ar/dev/desci/desci-composedb/local-data/ceramic/indexing.sqlite",
     "allow-queries-before-historical-sync": true,
     "models": []
   }

@@ -58,14 +58,14 @@ const Home: NextPage = () => {
       })
     })
     
-    //posts.sort((a,b)=> (new Date(b.created) - new Date(a.created)))
-    console.log(objects)
-    setObjects(objects) // reverse to get most recent msgs
+    console.log("Own research objects:", objects)
+    setObjects(objects)
+  }
   }
 
   useEffect(() => {
     getResearchObjects()
-  })
+  }, [])
 
   return (
     <>

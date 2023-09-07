@@ -4,8 +4,7 @@ import { toString } from "uint8arrays/to-string";
 import { writeFile } from "fs";
 import { DID } from "dids";
 import { Ed25519Provider } from "key-did-provider-ed25519";
-import { homedir } from "os";
-import { cwd } from "process";
+
 export const RunCommands = async () => {
   const generateAdminKeyDid = async () => {
     const seed = new Uint8Array(randomBytes(32));
