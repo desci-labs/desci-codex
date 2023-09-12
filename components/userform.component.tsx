@@ -1,11 +1,9 @@
-
 import { useState, useEffect } from 'react'
 import { authenticateCeramic } from '../utils'
 import { useCeramicContext } from '../context'
-
 import { Profile } from "../types"
-
 import styles from "../styles/profile.module.scss"
+import { mutationUpdateProfile, queryViewerProfile } from '../utils/queries'
 
 export const Userform = () => {
   const clients = useCeramicContext()
@@ -22,58 +20,28 @@ export const Userform = () => {
   const getProfile = async () => {
     setLoading(true)
     if (ceramic.did !== undefined) {
-      const profile = await composeClient.executeQuery(`
-        query {
-          viewer {
-            profile {
-              id
-              displayName
-              orcid
-            }
-          }
-        }
-      `);
-      setProfile(profile?.data?.viewer?.profile)
+      const profile = await queryViewerProfile(composeClient)
+      if (profile === null) {
+        console.log("Failed to fetch profile, maybe user isn't authenticated yet")
+      } else {
+        setProfile(profile)
+      }
       setLoading(false);
     }
   }
 
   const updateProfile = async () => {
     setLoading(true);
-    if (ceramic.did !== undefined) {
-      const update = await composeClient.executeQuery(`
-        mutation {
-          createProfile(input: {
-            content: {
-              displayName: "${profile?.displayName}"
-              orcid: "${profile?.orcid}"
-            }
-          }) 
-          {
-            document {
-              displayName
-              orcid
-            }
-          }
-        }
-      `);
-      if(update.errors){
-        alert(update.errors);
-      } else {
-        alert("Updated profile.")
-        setLoading(true)
-        const updatedProfile = await composeClient.executeQuery(`
-          query {
-            viewer {
-              profile {
-                id
-                displayName
-                orcid
-              }
-            }
-          }
-        `);
-        setProfile(updatedProfile?.data?.viewer?.profile)
+    if (ceramic.did !== undefined && profile !== undefined) {
+      let success = true
+      try {
+        await mutationUpdateProfile(composeClient, profile)
+      } catch(e) {
+        alert((e as Error).message)
+        success = false
+      }
+      if(success) {
+        await getProfile()
       }
       setLoading(false);
     }

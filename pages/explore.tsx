@@ -6,6 +6,7 @@ import Head from 'next/head'
 import styles from "../styles/Home.module.scss"
 import React from "react";
 import ResearchObject from '../components/researchObject.components';
+import { queryResearchObjects } from '../utils/queries';
 
 const ExplorePage: NextPage = () => {  
   const clients = useCeramicContext()
@@ -13,39 +14,8 @@ const ExplorePage: NextPage = () => {
   const [ objects, setObjects ] = useState<ROProps[] | []>([])
 
   const getResearchObjects = async () => {
-    const explore = await composeClient.executeQuery(`
-      query {
-        researchObjectIndex(first: 100) {
-          edges {
-            node {
-              id
-              title
-              manifest
-              owner {
-                profile {
-                  displayName
-                  orcid
-                }
-              }
-            }
-          }
-        }
-      }
-    `)
-    console.log("Explore:", JSON.stringify(explore, undefined, 2))
-    // TODO: Sort based off of "created date"
-    const objects: ROProps[] = []
-    explore.data?.researchObjectIndex?.edges.map(ro => {
-      objects.push({
-        id: ro.node.id,
-        title: ro.node.title,
-        manifest: ro.node.manifest,
-        profile: ro.node.owner.profile
-      })
-    })
-    
-    //posts.sort((a,b)=> (new Date(b.created) - new Date(a.created)))
-    setObjects(objects) // reverse to get most recent msgs
+    const researchObjects = await queryResearchObjects(composeClient)
+    setObjects(researchObjects)
   }
 
   useEffect(() => {

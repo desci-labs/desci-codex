@@ -3,40 +3,26 @@ import '../styles/globals.scss'
 import {CeramicWrapper, useCeramicContext} from "../context";
 import type { AppProps } from 'next/app'
 import { authenticateCeramic } from '../utils';
-import { useEffect, useState } from 'react';
-import { Profile } from '../types';
+import { useEffect } from 'react';
 import AuthPrompt from './did-select-popup';
 import { Sidebar } from '../components/sidebar.component';
 import { loadIfUninitialised } from '../utils/populate';
+import { queryViewerId } from '../utils/queries';
 
 let doInitCheck = true
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const { ceramic, composeClient } = useCeramicContext()
-  const [_profile, setProfile] = useState<Profile| undefined>()
 
   const handleLogin = async () => {
     await authenticateCeramic(ceramic, composeClient)
-    await getProfile()
+    await setViewerId()
   }
 
-  const getProfile = async () => {
+  const setViewerId = async () => {
     if(ceramic.did !== undefined) {
-      const profile = await composeClient.executeQuery(`
-        query {
-          viewer {
-            id
-            profile {
-              id
-              displayName
-              orcid
-            }
-          }
-        }
-      `);
-      localStorage.setItem("viewer", profile?.data?.viewer?.id)
-      
-      setProfile(profile?.data?.viewer?.profile)
+      const viewerId = await queryViewerId(composeClient)
+      localStorage.setItem("viewer", viewerId)
     }
   }
 
@@ -48,7 +34,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     }
     if(localStorage.getItem('logged_in')) {
       handleLogin()
-      getProfile()
+      setViewerId()
     }
   }, [])
 

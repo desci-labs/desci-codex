@@ -7,55 +7,21 @@ import styles from "../styles/Home.module.scss"
 import React from "react";
 import ResearchObject from '../components/researchObject.components';
 import { ResearchObjectForm } from '../components/roForm.component';
+import { queryViewerId, queryViewerResearchObjects } from '../utils/queries';
 
 const Home: NextPage = () => {  
   const clients = useCeramicContext()
-  const { composeClient } = clients
+  const { ceramic, composeClient } = clients
   const [ objects, setObjects ] = useState<ROProps[] | []>([])
 
   const getResearchObjects = async () => {
-    const profile = await composeClient.executeQuery(`
-        query {
-          viewer {
-            id
-            profile {
-              id
-              displayName
-              orcid
-            }
-          }
-        }
-      `);
-    console.log("Profile:", JSON.stringify(profile, undefined, 2))
-    localStorage.setItem("viewer", profile?.data?.viewer?.id)
+    if (ceramic.did !== undefined) {
+      const viewerId = await queryViewerId(composeClient)
+      localStorage.setItem("viewer", viewerId)
 
-    const ownResearchObjects = await composeClient.executeQuery(`
-        query MyQuery {
-          viewer {
-            researchObjectList(first: 100) {
-              edges {
-                node {
-                  id
-                  manifest
-                  title
-                }
-              }
-            }
-          }
-        }
-      `)
-
-    // TODO: Sort based off of "created date"
-    const objects: ROProps[] = []
-    ownResearchObjects.data?.viewer?.researchObjectList?.edges.map(ro => {
-      objects.push({
-        id: ro.node.id,
-        title: ro.node.title,
-        manifest: ro.node.manifest
-      })
-    })
-    console.log("Own research objects:", objects)
-    setObjects(objects)
+      const ownResearchObjects = await queryViewerResearchObjects(composeClient)
+      setObjects(ownResearchObjects)
+    }
   }
 
   useEffect(() => {
@@ -69,7 +35,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className = "content">
-        { ResearchObjectForm() }
+        { ResearchObjectForm(getResearchObjects) }
         <div className = { styles.postContainer }>
           <label><big>My research objects</big></label>
           {(objects).map(ro=> (

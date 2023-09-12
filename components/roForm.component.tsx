@@ -1,80 +1,38 @@
 import { useCeramicContext } from '../context'
-import { Profile, ROProps } from '../types'
-import { authenticateCeramic } from '../utils'
+import { ROProps } from '../types'
 import styles from '../styles/profile.module.scss'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { mutationUpdateResearchObject } from '../utils/queries'
 
-export const ResearchObjectForm = () => {
+export const ResearchObjectForm = (updateParent: () => void) => {
   const { ceramic, composeClient } = useCeramicContext()
-  const [profile, setProfile] = useState<Profile | undefined>()
   const [object, setObject] = useState<ROProps>({
-    id: "",
     title: "",
     manifest: "",
     profile: {}
   })
   const [loading, setLoading] = useState<boolean>(false)
 
-  const handleLogin = async () => {
-    await authenticateCeramic(ceramic, composeClient)
-  }
-
-  const getProfile = async () => {
-    setLoading(true)
-    if (ceramic.did !== undefined) {
-      const profile = await composeClient.executeQuery(`
-        query {
-          viewer {
-            profile {
-              id
-              displayName
-              orcid
-            }
-          }
-        }
-      `);
-      setProfile(profile?.data?.viewer?.profile)
-      setLoading(false);
-    }
-  }
-
   const createResearchObject = async () => {
     setLoading(true)
     if (ceramic.did !== undefined) {
-      const create = await composeClient.executeQuery(
-        `
-          mutation {
-            createResearchObject(input: {
-              content: {
-                title: "${object?.title}"
-                manifest: "${object?.manifest}"
-              }
-            })
-            {
-              document {
-                title
-                manifest
-              }
-            }
-          }
-        `
-      )
-      if (create.errors) {
-        alert(create.errors)
-      } else {
-        alert("Created research object.")
+      const inputs = {
+        title: object.title,
+        manifest: object.manifest
       }
+      try {
+        await mutationUpdateResearchObject(composeClient, inputs)
+      } catch(e) {
+        alert((e as Error).message)
+      }
+      updateParent()
     }
     setLoading(false)
   }
 
-  useEffect(() => {
-    getProfile()
-  }, [])
-
   return (
     <>
-      {ceramic.did === undefined && profile === undefined ? (
+      {ceramic.did === undefined ? (
         <div className="content">
         </div>
       ) : (
@@ -86,7 +44,7 @@ export const ResearchObjectForm = () => {
                 className=""
                 type="text"
                 onChange={(e) => {
-                  setObject({ ...object, title: e.target.value, profile: profile })
+                  setObject({ ...object, title: e.target.value })
                 }}
               />
             </div>

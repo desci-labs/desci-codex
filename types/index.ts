@@ -1,5 +1,5 @@
 export type Profile = {
-  id?: any
+  id?: string
   displayName?: string
   orcid?: string
 }

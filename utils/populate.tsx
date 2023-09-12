@@ -1,10 +1,10 @@
 import KeyDIDResolver from "key-did-resolver"
 import { Ed25519Provider } from "key-did-provider-ed25519"
-import { Profile, ROProps } from "../types"
 import { DID } from "dids"
 import { fromString } from "uint8arrays/from-string"
 import templateData from "../template_data.json"
 import { ComposeClient } from "@composedb/client"
+import { mutationUpdateProfile, mutationUpdateResearchObject } from "./queries"
 
 const didFromSeed = async (seed: string) => {
   const keyResolver = KeyDIDResolver.getResolver();
@@ -51,35 +51,9 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
   for (const [seed, data] of Object.entries(templateData)) {
     composeClient.setDID(await didFromSeed(seed))
     const { profile, researchObjects } = data
-    await createProfile(composeClient, profile)
+    await mutationUpdateProfile(composeClient, profile)
     await Promise.all(researchObjects.map(
-      ro => createResearchObject(composeClient, ro)
+      ro => mutationUpdateResearchObject(composeClient, ro)
     ))
   }
 }
-
-const createProfile = async (composeClient: ComposeClient, content: Profile) =>
-  await composeClient.executeQuery(initProfileMutation, content)
-
-const createResearchObject = async (composeClient: ComposeClient, content: ROProps) =>
-  await composeClient.executeQuery(initResearchObjectMutation, content)
-
-const initResearchObjectMutation =
-  `mutation InitRO($title: String!, $manifest: InterPlanetaryCID!) {
-    createResearchObject(input: { content: { title: $title, manifest: $manifest }}) {
-      document {
-        title
-        manifest
-      }
-    }
-  }`
-
-const initProfileMutation =
-  `mutation InitProfile($displayName: String!, $orcid: String) {
-    createProfile(input: {content: {displayName: $displayName, orcid: $orcid}}) {
-      document {
-        displayName
-        orcid
-      }
-    }
-  }`
