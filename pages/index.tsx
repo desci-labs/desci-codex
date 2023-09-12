@@ -1,11 +1,8 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react';
-
 import { useCeramicContext } from '../context';
 import { ROProps } from '../types';
-
 import Head from 'next/head'
-
 import styles from "../styles/Home.module.scss"
 import React from "react";
 import ResearchObject from '../components/researchObject.components';
@@ -57,10 +54,8 @@ const Home: NextPage = () => {
         manifest: ro.node.manifest
       })
     })
-    
     console.log("Own research objects:", objects)
     setObjects(objects)
-  }
   }
 
   useEffect(() => {

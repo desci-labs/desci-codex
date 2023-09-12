@@ -1,5 +1,9 @@
-type ResearchObject @createModel(accountRelation: LIST, description: "A research object") {
-  author: DID! @documentAccount,
-  title: String! @string(maxLength: 250),
+type ResearchObject
+  @createModel(accountRelation: LIST, description: "A research object") 
+  @createIndex(fields: [{ path: "title" }])
+{
+  owner: DID! @documentAccount
+  title: String! @string(maxLength: 250)
+  #contributors: [DID!] @accountReference
   manifest: CID!
 }

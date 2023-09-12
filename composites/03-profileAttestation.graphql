@@ -1,10 +1,15 @@
-type Profile @loadModel(id: "$PROFILE_ID") {
+type Statement @loadModel(id: "$STATEMENT_ID") {
   id: ID!
 }
 
-type ProfileAttestation @createModel(accountRelation: LIST, description: "Profile attestation") {
-  author: DID! @documentAccount
-  context: String! @string(maxLength: 1000)
-  profileId: StreamID! @documentReference(model: "Profile")
-  target: Profile! @relationDocument(property: "profileId")
+type UserAttestation
+  @createModel(accountRelation: LIST, description: "User attestation")
+  @createIndex(fields: [{ path: "revoked" }])
+  @createIndex(fields: [{ path: "statementId" }])
+{
+  source: DID! @documentAccount
+  target: DID! @accountReference
+  revoked: Boolean
+  statementId: StreamID! @documentReference(model: "Statement")
+  statement: Statement! @relationDocument(property: "statementId")
 }

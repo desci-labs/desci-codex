@@ -7,11 +7,13 @@ import { useEffect, useState } from 'react';
 import { Profile } from '../types';
 import AuthPrompt from './did-select-popup';
 import { Sidebar } from '../components/sidebar.component';
+import { loadIfUninitialised } from '../utils/populate';
+
+let doInitCheck = true
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
-  const clients = useCeramicContext()
-  const { ceramic, composeClient } = clients
-  const [profile, setProfile] = useState<Profile| undefined>()
+  const { ceramic, composeClient } = useCeramicContext()
+  const [_profile, setProfile] = useState<Profile| undefined>()
 
   const handleLogin = async () => {
     await authenticateCeramic(ceramic, composeClient)
@@ -37,8 +39,13 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       setProfile(profile?.data?.viewer?.profile)
     }
   }
+
   // Update to include refresh on auth
   useEffect(() => {
+    if(doInitCheck) {
+      loadIfUninitialised(composeClient)
+      doInitCheck = false
+    }
     if(localStorage.getItem('logged_in')) {
       handleLogin()
       getProfile()

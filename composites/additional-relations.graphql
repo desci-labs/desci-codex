@@ -1,0 +1,17 @@
+# This composite holds additional relations that cause circular dependencies when deploying
+type ResearchObjectAttestation @loadModel(id: "$RESEARCH_OBJECT_ATTESTATION_ID") {
+    id: ID!
+}
+type ProfileAttestation @loadModel(id: "$PROFILE_ATTESTATION_ID") {
+    id: ID!
+}
+
+type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
+  attestations: [ResearchObjectAttestation] @relationFrom(model: "ResearchObjectAttestation", property: "targetId")
+}
+
+type Profile @loadModel(id: "$PROFILE_ID") {
+  researchObjects: [ResearchObject] @relationFrom(model: "ResearchObject", property: "owner")
+  recievedAttestations: [ProfileAttestation] @relationFrom(model: "ProfileAttestation", property: "targetId")
+  #givenAttestations: [ProfileAttestation] @relationFrom(model: "ProfileAttestation", property: "source")
+}

@@ -8,7 +8,7 @@ const ResearchObject = ({ profile, title, manifest }: ROProps) => {
     <div className = {styles.post} >
       <div>{title}</div>
       { profile ? (<div><small>Author: {profile.displayName}</small></div>) : <></>}
-      <Link href = {`https://ipfs.io/ipfs/${manifest}`}>
+      <Link href = {`https://ipfs.desci.com/ipfs/${manifest}`}>
         { manifest }
       </Link>
     </div>

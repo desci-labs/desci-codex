@@ -50,5 +50,5 @@ export const authenticateCeramic = async (ceramic: CeramicApi, compose: ComposeC
   // Set our Ceramic DID to be our session DID.
   compose.setDID(session.did)
   ceramic.did = session.did
-  return
+  return session
 }

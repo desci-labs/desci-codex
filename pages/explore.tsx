@@ -1,11 +1,8 @@
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react';
-
 import { useCeramicContext } from '../context';
 import { ROProps } from '../types';
-
 import Head from 'next/head'
-
 import styles from "../styles/Home.module.scss"
 import React from "react";
 import ResearchObject from '../components/researchObject.components';
@@ -24,9 +21,10 @@ const ExplorePage: NextPage = () => {
               id
               title
               manifest
-              author {
+              owner {
                 profile {
                   displayName
+                  orcid
                 }
               }
             }
@@ -42,7 +40,7 @@ const ExplorePage: NextPage = () => {
         id: ro.node.id,
         title: ro.node.title,
         manifest: ro.node.manifest,
-        profile: ro.node.author.profile
+        profile: ro.node.owner.profile
       })
     })
     

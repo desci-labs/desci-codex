@@ -37,12 +37,17 @@ export const writeComposite = async (spinner) => {
     "./composites/02-organization.graphql"
   );
 
+  const statementComposite = await createComposite(
+    ceramic,
+    "./composites/05-statement.graphql"
+  );
+
   const profAttestationSchema = readFileSync(
     "./composites/03-profileAttestation.graphql",
     {
       encoding: "utf-8",
     }
-  ).replace("$PROFILE_ID", profileComposite.modelIDs[0]);
+  ).replace("$STATEMENT_ID", statementComposite.modelIDs[0]);
 
   const profAttestationComposite = await Composite.create({
     ceramic,
@@ -54,19 +59,37 @@ export const writeComposite = async (spinner) => {
     {
       encoding: "utf-8",
     }
-  ).replace("$RESEARCH_OBJECT_ID", researchObj.modelIDs[0]);
+  ).replace("$RESEARCH_OBJECT_ID", researchObj.modelIDs[0])
+  .replace("$STATEMENT_ID", statementComposite.modelIDs[0]);
 
   const researchAttestationComposite = await Composite.create({
     ceramic,
     schema: researchAttestationSchema,
   });
 
+  const additionalRelationsSchema = readFileSync(
+    "./composites/additional-relations.graphql",
+    {
+      encoding: "utf-8"
+    }
+  ).replace("$RESEARCH_OBJECT_ATTESTATION_ID", researchAttestationComposite.modelIDs[2])
+  .replace("$PROFILE_ATTESTATION_ID", profAttestationComposite.modelIDs[1])
+  .replace("$RESEARCH_OBJECT_ID", researchAttestationComposite.modelIDs[0])
+  .replace("$PROFILE_ID", profileComposite.modelIDs[0]);
+
+  const additionalRelationsComposite = await Composite.create({
+    ceramic,
+    schema: additionalRelationsSchema
+  });
+
   const composite = Composite.from([
     profileComposite,
     researchObj,
     orgComposite,
+    statementComposite,
     profAttestationComposite,
     researchAttestationComposite,
+    additionalRelationsComposite
    ]);
 
   await writeEncodedComposite(composite, "./src/__generated__/definition.json");

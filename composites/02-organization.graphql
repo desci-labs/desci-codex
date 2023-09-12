@@ -1,4 +1,8 @@
-type Organization @createModel(accountRelation: LIST, description: "An organization") {
+type Organization 
+  @createModel(accountRelation: LIST, description: "An organization")
+  @createIndex(fields: [{ path: "name" }])
+{
+  # TODO update
   author: DID! @documentAccount
   name: String! @string(maxLength: 250)
   members: [DID] @list(maxLength: 100000)

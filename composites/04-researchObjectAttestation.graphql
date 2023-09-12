@@ -2,9 +2,20 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
   id: ID!
 }
 
-type ResearchObjectAttestation @createModel(accountRelation: LIST, description: "RO attestation") {
-  author: DID! @documentAccount
-  context: String! @string(maxLength: 1000)
-  researchId: StreamID! @documentReference(model: "ResearchObject")
-  target: ResearchObject! @relationDocument(property: "researchId")
+type Statement @loadModel(id: "$STATEMENT_ID") {
+  id: ID!
+}
+
+type ResearchObjectAttestation
+  @createModel(accountRelation: LIST, description: "Research object attestation")
+  @createIndex(fields: [{ path: "revoked" }])
+  @createIndex(fields: [{ path: "targetId" }])
+  @createIndex(fields: [{ path: "statementId" }])
+{
+  source: DID! @documentAccount
+  targetId: StreamID! @documentReference(model: "ResearchObject")
+  target: ResearchObject! @relationDocument(property: "targetId")
+  statementId: StreamID! @documentReference(model: "Statement")
+  statement: Statement! @relationDocument(property: "statementId")
+  revoked: Boolean
 }

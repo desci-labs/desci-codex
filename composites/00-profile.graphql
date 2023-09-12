@@ -1,5 +1,8 @@
-type Profile @createModel(accountRelation: SINGLE, description: "An author profile") {
-  author: DID! @documentAccount
+type Profile 
+  @createModel(accountRelation: SINGLE, description: "An author profile") 
+  @createIndex(fields: [{ path: "orcid" }])
+{
+  owner: DID! @documentAccount
   displayName: String! @string(maxLength: 250)
   orcid: String @string(maxLength: 100)
 }

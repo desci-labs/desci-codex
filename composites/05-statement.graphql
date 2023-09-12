@@ -1,0 +1,8 @@
+type Statement 
+  @createModel(accountRelation: LIST, description: "A reusable attestation statement") 
+  @createIndex(fields: [{ path: "title" }])
+{
+  maintainer: DID! @documentAccount
+  title: String! @string(maxLength: 100)
+  description: String! @string(maxLength: 1000)
+}
