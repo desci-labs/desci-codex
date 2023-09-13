@@ -37,9 +37,9 @@ export const writeComposite = async (spinner) => {
     "./composites/02-organization.graphql"
   );
 
-  const statementComposite = await createComposite(
+  const claimComposite = await createComposite(
     ceramic,
-    "./composites/05-statement.graphql"
+    "./composites/05-claim.graphql"
   );
 
   const profAttestationSchema = readFileSync(
@@ -47,7 +47,7 @@ export const writeComposite = async (spinner) => {
     {
       encoding: "utf-8",
     }
-  ).replace("$STATEMENT_ID", statementComposite.modelIDs[0]);
+  ).replace("$CLAIM_ID", claimComposite.modelIDs[0]);
 
   const profAttestationComposite = await Composite.create({
     ceramic,
@@ -60,7 +60,7 @@ export const writeComposite = async (spinner) => {
       encoding: "utf-8",
     }
   ).replace("$RESEARCH_OBJECT_ID", researchObj.modelIDs[0])
-  .replace("$STATEMENT_ID", statementComposite.modelIDs[0]);
+  .replace("$CLAIM_ID", claimComposite.modelIDs[0]);
 
   const researchAttestationComposite = await Composite.create({
     ceramic,
@@ -86,7 +86,7 @@ export const writeComposite = async (spinner) => {
     profileComposite,
     researchObj,
     orgComposite,
-    statementComposite,
+    claimComposite,
     profAttestationComposite,
     researchAttestationComposite,
     additionalRelationsComposite

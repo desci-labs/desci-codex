@@ -1,15 +1,15 @@
-type Statement @loadModel(id: "$STATEMENT_ID") {
+type Claim @loadModel(id: "$CLAIM_ID") {
   id: ID!
 }
 
 type UserAttestation
   @createModel(accountRelation: LIST, description: "User attestation")
   @createIndex(fields: [{ path: "revoked" }])
-  @createIndex(fields: [{ path: "statementId" }])
+  @createIndex(fields: [{ path: "claimID" }])
 {
   source: DID! @documentAccount
   target: DID! @accountReference
   revoked: Boolean
-  statementId: StreamID! @documentReference(model: "Statement")
-  statement: Statement! @relationDocument(property: "statementId")
+  claimID: StreamID! @documentReference(model: "Claim")
+  claim: Claim! @relationDocument(property: "claimID")
 }

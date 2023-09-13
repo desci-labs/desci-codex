@@ -5,7 +5,7 @@ import { Profile } from "../types"
 import styles from "../styles/profile.module.scss"
 import { mutationUpdateProfile, queryViewerProfile } from '../utils/queries'
 
-export const Userform = () => {
+export const Userform = (props) => {
   const clients = useCeramicContext()
   const { ceramic, composeClient } = clients
 
@@ -54,15 +54,7 @@ export const Userform = () => {
   return (
     <>
       {profile === undefined && ceramic.did === undefined ? (
-        <div className="content">
-          <button
-            onClick={() => {
-              handleLogin();
-            }}
-          >
-            Login
-          </button>
-        </div>
+        <div className="content"/>
       ) : (
         <div className="content">
           <div className={styles.formGroup}>

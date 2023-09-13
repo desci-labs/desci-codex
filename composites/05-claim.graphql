@@ -1,8 +1,10 @@
-type Statement 
-  @createModel(accountRelation: LIST, description: "A reusable attestation statement") 
+type Claim
+  @createModel(accountRelation: LIST, description: "A reusable claim to be granted via attestation") 
   @createIndex(fields: [{ path: "title" }])
+  @createIndex(fields: [{ path: "badge" }])
 {
   maintainer: DID! @documentAccount
   title: String! @string(maxLength: 100)
   description: String! @string(maxLength: 1000)
+  badge: CID!
 }

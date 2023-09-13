@@ -7,11 +7,11 @@ type ProfileAttestation @loadModel(id: "$PROFILE_ATTESTATION_ID") {
 }
 
 type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
-  attestations: [ResearchObjectAttestation] @relationFrom(model: "ResearchObjectAttestation", property: "targetId")
+  attestations: [ResearchObjectAttestation] @relationFrom(model: "ResearchObjectAttestation", property: "targetID")
 }
 
 type Profile @loadModel(id: "$PROFILE_ID") {
   researchObjects: [ResearchObject] @relationFrom(model: "ResearchObject", property: "owner")
-  recievedAttestations: [ProfileAttestation] @relationFrom(model: "ProfileAttestation", property: "targetId")
+  recievedAttestations: [ProfileAttestation] @relationFrom(model: "ProfileAttestation", property: "targetID")
   #givenAttestations: [ProfileAttestation] @relationFrom(model: "ProfileAttestation", property: "source")
 }
