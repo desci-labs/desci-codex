@@ -6,9 +6,25 @@ export type Profile = {
 
 export type ROProps = {
   id?: string
-  profile?: Profile
   title: string
   manifest: string
+  profile?: Profile
+}
+
+export type Claim = {
+  id?: string,
+  title: string,
+  description: string,
+  badge?: string
+}
+
+export type Attestation = {
+  id?: string,
+  source?: string,
+  targetID: string,
+  claimID: string,
+  claim?: Claim ,
+  revoked: boolean
 }
 
 export type SidebarProps = {

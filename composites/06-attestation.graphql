@@ -1,0 +1,18 @@
+type Claim @loadModel(id: "$CLAIM_ID") {
+  id: ID!
+}
+
+type Attestation 
+  @createModel(accountRelation: LIST, description: "General attestation")
+  @createIndex(fields: [{ path: "targetID" }])
+  @createIndex(fields: [{ path: "claimID" }])
+  @createIndex(fields: [{ path: "revoked" }])
+{
+  source: DID! @documentAccount
+  # Any type of document, shown with relation on reciever end but cannot
+  # use @documentRelation without specifying single model
+  targetID: StreamID!
+  claimID: StreamID! @documentReference(model: "Claim")
+  claim: Claim! @relationDocument(property: "claimID")
+  revoked: Boolean
+}

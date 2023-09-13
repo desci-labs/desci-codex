@@ -2,8 +2,9 @@ import Link from "next/link"
 import styles from "../styles/Home.module.scss"
 
 import { ROProps } from "../types"
+import { PropsWithChildren } from "react"
 
-const ResearchObject = ({ profile, title, manifest }: ROProps) => {
+const ResearchObject = ({ profile, title, manifest, children }: PropsWithChildren<ROProps>) => {
   return (
     <div className = {styles.post} >
       <div>{title}</div>
@@ -11,6 +12,7 @@ const ResearchObject = ({ profile, title, manifest }: ROProps) => {
       <Link href = {`https://ipfs.desci.com/ipfs/${manifest}`}>
         { manifest }
       </Link>
+      { children }
     </div>
   )
 }

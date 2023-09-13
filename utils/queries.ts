@@ -1,6 +1,5 @@
 import { ComposeClient } from "@composedb/client";
-import { Profile, ROProps } from "../types";
-import { printError } from "graphql";
+import { Attestation, Claim, Profile, ROProps } from "../types";
 
 export const queryViewerId = async (composeClient: ComposeClient): Promise<string> => {
   const response = await composeClient.executeQuery<{viewer: { id: string}}>(`
@@ -11,6 +10,7 @@ export const queryViewerId = async (composeClient: ComposeClient): Promise<strin
     }`
   )
   if (response.errors || !response.data) {
+    console.error("Error:", response.errors?.toString())
     throw new Error(`Failed to query viewer id!`)
   }
   return response.data.viewer.id
@@ -32,6 +32,7 @@ export const queryViewerProfile = async (composeClient: ComposeClient): Promise<
     }`
   )
   if (response.errors || !response.data) {
+    console.error("Error:", response.errors?.toString())
     throw new Error(`Failed to query viewer profile!`)
   }
   return response.data.viewer.profile
@@ -60,6 +61,7 @@ export const queryResearchObjects = async (composeClient: ComposeClient): Promis
     }
   `)
   if (response.errors || !response.data) {
+    console.error("Error:", response.errors?.toString())
     throw new Error(`Failed to query research objects!`)
   }
   return response.data.researchObjectIndex.edges.map(e => e.node)
@@ -84,12 +86,13 @@ export const queryViewerResearchObjects = async (composeClient: ComposeClient): 
     }
   `)
   if (response.errors || !response.data) {
+    console.error("Error:", response.errors?.toString())
     throw new Error(`Failed to query viewer research objects!`)
   }
   return response.data.viewer.researchObjectList.edges.map(e => e.node)
 }
 
-export const mutationUpdateResearchObject = async (composeClient: ComposeClient, inputs: ROProps): Promise<void> => {
+export const mutationCreateResearchObject = async (composeClient: ComposeClient, inputs: ROProps): Promise<void> => {
   const response = await composeClient.executeQuery(`
     mutation ($title: String!, $manifest: InterPlanetaryCID!){
       createResearchObject(input: {
@@ -108,12 +111,13 @@ export const mutationUpdateResearchObject = async (composeClient: ComposeClient,
     inputs
   )
   if (response.errors) {
+    console.error("Error:", response.errors.toString())
     throw new Error("Failed to update research object!")
   }
 }
 
-export const mutationUpdateProfile = async (composeClient: ComposeClient, inputs: Profile) =>
-  await composeClient.executeQuery(`
+export const mutationCreateProfile = async (composeClient: ComposeClient, inputs: Profile) => {
+  const response = await composeClient.executeQuery(`
     mutation ($displayName: String!, $orcid: String!){
       createProfile(input: {
         content: {
@@ -130,3 +134,62 @@ export const mutationUpdateProfile = async (composeClient: ComposeClient, inputs
     }`,
     inputs
   )
+  if (response.errors) {
+    console.error("Error:", response.errors.toString())
+    throw new Error("Failed to create profile!")
+  }
+}
+
+export const mutationCreateClaim = async (composeClient: ComposeClient, inputs: Claim) => {
+  const response = await composeClient.executeQuery(`
+     mutation ($title: String!, $description: String!, $badge: InterPlanetaryCID){
+      createClaim(input: {
+        content: {
+          title: $title
+          description: $description
+          badge: $badge
+        }
+      })
+      {
+        document {
+          title
+          description
+          badge
+        }
+      }
+    }
+    `,
+    inputs
+  )
+  if (response.errors) {
+    console.error("Error:", response.errors.toString())
+    throw new Error("Failed to create claim!")
+  }
+}
+
+export const mutationCreateAttestation= async (composeClient: ComposeClient, inputs: Attestation) => {
+  const response = await composeClient.executeQuery(`
+     mutation ($targetID: CeramicStreamID!, $claimID: CeramicStreamID!, $revoked: Boolean!){
+      createAttestation(input: {
+        content: {
+          targetID: $targetID
+          claimID: $claimID
+          revoked: $revoked
+        }
+      })
+      {
+        document {
+          targetID
+          claimID
+          revoked
+        }
+      }
+    }
+    `,
+    inputs
+  )
+  if (response.errors) {
+    console.error("Error:", response.errors.toString())
+    throw new Error("Failed to create attestation!")
+  }
+}

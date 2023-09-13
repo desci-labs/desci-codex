@@ -7,6 +7,7 @@ import styles from "../styles/Home.module.scss"
 import React from "react";
 import ResearchObject from '../components/researchObject.components';
 import { queryResearchObjects } from '../utils/queries';
+import { AttestButton } from '../components/attestButton.component';
 
 const ExplorePage: NextPage = () => {  
   const clients = useCeramicContext()
@@ -38,7 +39,9 @@ const ExplorePage: NextPage = () => {
               title = { ro.title } 
               manifest = { ro.manifest } 
               profile = { ro.profile }
-            />
+            >
+              <AttestButton targetID={ ro.id! }/>
+            </ResearchObject>
           ))}
         </div>
       </div>

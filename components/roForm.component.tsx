@@ -2,7 +2,7 @@ import { useCeramicContext } from '../context'
 import { ROProps } from '../types'
 import styles from '../styles/profile.module.scss'
 import { useState } from 'react'
-import { mutationUpdateResearchObject } from '../utils/queries'
+import { mutationCreateResearchObject } from '../utils/queries'
 
 export const ResearchObjectForm = (updateParent: () => void) => {
   const { ceramic, composeClient } = useCeramicContext()
@@ -21,7 +21,7 @@ export const ResearchObjectForm = (updateParent: () => void) => {
         manifest: object.manifest
       }
       try {
-        await mutationUpdateResearchObject(composeClient, inputs)
+        await mutationCreateResearchObject(composeClient, inputs)
       } catch(e) {
         alert((e as Error).message)
       }

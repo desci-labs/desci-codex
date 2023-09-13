@@ -3,9 +3,9 @@ import { authenticateCeramic } from '../utils'
 import { useCeramicContext } from '../context'
 import { Profile } from "../types"
 import styles from "../styles/profile.module.scss"
-import { mutationUpdateProfile, queryViewerProfile } from '../utils/queries'
+import { mutationCreateProfile, queryViewerProfile } from '../utils/queries'
 
-export const Userform = (props) => {
+export const Userform = () => {
   const clients = useCeramicContext()
   const { ceramic, composeClient } = clients
 
@@ -22,7 +22,7 @@ export const Userform = (props) => {
     if (ceramic.did !== undefined) {
       const profile = await queryViewerProfile(composeClient)
       if (profile === null) {
-        console.log("Failed to fetch profile, maybe user isn't authenticated yet")
+        console.log("Failed to fetch profile, maybe user haven't created one yet")
       } else {
         setProfile(profile)
       }
@@ -35,7 +35,7 @@ export const Userform = (props) => {
     if (ceramic.did !== undefined && profile !== undefined) {
       let success = true
       try {
-        await mutationUpdateProfile(composeClient, profile)
+        await mutationCreateProfile(composeClient, profile)
       } catch(e) {
         alert((e as Error).message)
         success = false

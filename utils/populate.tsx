@@ -4,7 +4,7 @@ import { DID } from "dids"
 import { fromString } from "uint8arrays/from-string"
 import templateData from "../template_data.json"
 import { ComposeClient } from "@composedb/client"
-import { mutationUpdateProfile, mutationUpdateResearchObject } from "./queries"
+import { mutationCreateClaim, mutationCreateProfile, mutationCreateResearchObject } from "./queries"
 
 const didFromSeed = async (seed: string) => {
   const keyResolver = KeyDIDResolver.getResolver();
@@ -50,10 +50,15 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
   console.log("Original did: ", JSON.stringify(originalDID, undefined, 2))
   for (const [seed, data] of Object.entries(templateData)) {
     composeClient.setDID(await didFromSeed(seed))
-    const { profile, researchObjects } = data
-    await mutationUpdateProfile(composeClient, profile)
+    const { profile, researchObjects, claims } = data
+    await mutationCreateProfile(composeClient, profile)
     await Promise.all(researchObjects.map(
-      ro => mutationUpdateResearchObject(composeClient, ro)
+      ro => mutationCreateResearchObject(composeClient, ro)
     ))
+    await Promise.all(claims.map(c => mutationCreateClaim(composeClient, c)))
+  }
+
+  if (originalDID) {
+    composeClient.setDID(originalDID)
   }
 }

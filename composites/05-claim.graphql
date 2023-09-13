@@ -6,5 +6,5 @@ type Claim
   maintainer: DID! @documentAccount
   title: String! @string(maxLength: 100)
   description: String! @string(maxLength: 1000)
-  badge: CID!
+  badge: CID
 }

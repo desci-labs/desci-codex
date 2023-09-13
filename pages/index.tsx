@@ -40,9 +40,10 @@ const Home: NextPage = () => {
           <label><big>My research objects</big></label>
           {(objects).map(ro=> (
             <ResearchObject 
-              key = { ro.id } 
-              title = { ro.title } 
-              manifest = { ro.manifest } 
+              key = { ro.id }
+              id = { ro.id }
+              title = { ro.title }
+              manifest = { ro.manifest }
             />
           ))}
         </div>
