@@ -92,6 +92,38 @@ export const queryViewerResearchObjects = async (composeClient: ComposeClient): 
   return response.data.viewer.researchObjectList.edges.map(e => e.node)
 }
 
+export const queryResearchObjectAttestations = async (composeClient: ComposeClient, researchObjectID: string) => {
+  const response = await composeClient.executeQuery<
+    { node: { attestations: { edges: { node: Attestation }[] } } }
+  >(`
+    query ($id: ID!){
+      node(id: $id) {
+        ... on ResearchObject {
+          attestations(first: 10) {
+            edges {
+              node {
+                claim {
+                  title
+                }
+                source {
+                  profile {
+                    displayName
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `, { id: researchObjectID })
+  if (response.errors || !response.data) {
+    console.error("Error:", response.errors?.toString())
+    throw new Error(`Failed to query attestations on research object ${researchObjectID}!`)
+  }
+  return response.data.node.attestations.edges.map(e => e.node)
+}
+
 export const mutationCreateResearchObject = async (composeClient: ComposeClient, inputs: ROProps): Promise<void> => {
   const response = await composeClient.executeQuery(`
     mutation ($title: String!, $manifest: InterPlanetaryCID!){

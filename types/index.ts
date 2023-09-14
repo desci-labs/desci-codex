@@ -20,7 +20,7 @@ export type Claim = {
 
 export type Attestation = {
   id?: string,
-  source?: string,
+  source?: { profile: Profile },
   targetID: string,
   claimID: string,
   claim?: Claim ,
