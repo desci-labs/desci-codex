@@ -39,7 +39,7 @@ const ExplorePage: NextPage = () => {
               id = { ro.id }
               title = { ro.title } 
               manifest = { ro.manifest } 
-              profile = { ro.profile }
+              owner = { ro.owner }
             >
               <AttestButton targetID={ ro.id! }/>
               <AttestList targetID={ ro.id! }/>

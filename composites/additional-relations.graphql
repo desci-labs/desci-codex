@@ -22,4 +22,3 @@ type Profile @loadModel(id: "$PROFILE_ID") {
   recievedAttestations: [Attestation] @relationFrom(model: "Attestation", property: "targetID")
   #givenAttestations: [Attestation] @relationFrom(model: "Attestation", property: "source")
 }
-

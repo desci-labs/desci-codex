@@ -8,8 +8,7 @@ export const ResearchObjectForm = (updateParent: () => void) => {
   const { ceramic, composeClient } = useCeramicContext()
   const [object, setObject] = useState<ROProps>({
     title: "",
-    manifest: "",
-    profile: {}
+    manifest: ""
   })
   const [loading, setLoading] = useState<boolean>(false)
 

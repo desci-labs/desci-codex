@@ -52,10 +52,10 @@ export const writeComposite = async (spinner) => {
     schema: attestationSchema
   });
 
-  const profAttestationSchema = readFileSync(
-    "./composites/03-profileAttestation.graphql",
-    { encoding: "utf-8" }
-  ).replace("$CLAIM_ID", claimComposite.modelIDs[0]);
+  // const profAttestationSchema = readFileSync(
+  //   "./composites/03-profileAttestation.graphql",
+  //   { encoding: "utf-8" }
+  // ).replace("$CLAIM_ID", claimComposite.modelIDs[0]);
 
   // const profAttestationComposite = await Composite.create({
   //   ceramic,

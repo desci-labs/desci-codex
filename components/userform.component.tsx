@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { authenticateCeramic } from '../utils'
 import { useCeramicContext } from '../context'
 import { Profile } from "../types"
 import styles from "../styles/profile.module.scss"
@@ -11,11 +10,6 @@ export const Userform = () => {
 
   const [profile, setProfile] = useState<Profile | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
-
-  const handleLogin = async () => {
-    await authenticateCeramic(ceramic, composeClient)
-    await getProfile()
-  }
 
   const getProfile = async () => {
     setLoading(true)

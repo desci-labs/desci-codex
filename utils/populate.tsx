@@ -47,7 +47,6 @@ export const loadIfUninitialised = async (composeClient: ComposeClient) => {
 **/
 const loadTemplateData = async (composeClient: ComposeClient) => {
   const originalDID = composeClient.did
-  console.log("Original did: ", JSON.stringify(originalDID, undefined, 2))
   for (const [seed, data] of Object.entries(templateData)) {
     composeClient.setDID(await didFromSeed(seed))
     const { profile, researchObjects, claims } = data

@@ -44,6 +44,7 @@ const Home: NextPage = () => {
               id = { ro.id }
               title = { ro.title }
               manifest = { ro.manifest }
+              owner = { ro.owner }
             />
           ))}
         </div>

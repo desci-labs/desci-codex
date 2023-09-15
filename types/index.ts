@@ -4,11 +4,15 @@ export type Profile = {
   orcid?: string
 }
 
+export type DID = {
+  profile?: Profile
+}
+
 export type ROProps = {
   id?: string
   title: string
   manifest: string
-  profile?: Profile
+  owner?: DID
 }
 
 export type Claim = {
@@ -20,7 +24,7 @@ export type Claim = {
 
 export type Attestation = {
   id?: string,
-  source?: { profile: Profile },
+  source?: DID,
   targetID: string,
   claimID: string,
   claim?: Claim ,

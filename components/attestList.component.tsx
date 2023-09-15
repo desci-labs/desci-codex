@@ -15,7 +15,6 @@ export const AttestList = ({ targetID }: AttestListProps) => {
   const getAttestations = async () => {
     setLoading(true)
     const attestations = await queryResearchObjectAttestations(composeClient, targetID)
-    console.log("Attestations:", JSON.stringify(attestations, undefined, 2))
     setAttestations(attestations)
     setLoading(false)
   }
