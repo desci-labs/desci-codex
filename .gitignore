@@ -6,3 +6,4 @@ admin_seed.txt
 local-data
 src/__generated__/*
 composedb.config.json
+.env
