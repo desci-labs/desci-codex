@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useCeramicContext } from "@/context";
 import { ROProps } from "@/types";
 import Head from "next/head";
@@ -15,14 +15,14 @@ const ExplorePage: NextPage = () => {
   const { composeClient } = clients;
   const [objects, setObjects] = useState<ROProps[] | []>([]);
 
-  const getResearchObjects = async () => {
+  const getResearchObjects = useCallback(async () => {
     const researchObjects = await queryResearchObjects(composeClient);
     setObjects(researchObjects);
-  };
+  }, [composeClient]);
 
   useEffect(() => {
     getResearchObjects();
-  }, []);
+  }, [getResearchObjects]);
 
   return (
     <>
