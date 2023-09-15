@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import nodesLogo from "@/public/nodes.png";
 
-import { FaHome, FaUser, FaHashtag } from "react-icons/fa";
+import { FaHome, FaUser, FaHashtag, FaDoorClosed } from "react-icons/fa";
 
 export const Sidebar = () => {
   return (
@@ -20,6 +20,9 @@ export const Sidebar = () => {
         </Link>
         <Link href="/explore">
           <FaHashtag /> Explore
+        </Link>
+        <Link href="/logout">
+          <FaDoorClosed /> Logout
         </Link>
       </div>
     </div>
