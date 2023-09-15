@@ -3,7 +3,7 @@ import "@/styles/globals.scss";
 import { CeramicWrapper, useCeramicContext } from "@/context";
 import type { AppProps } from "next/app";
 import { authenticateCeramic } from "@/utils";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import AuthPrompt from "@/components/AuthPrompt";
 import { Sidebar } from "@/components/Sidebar";
 import { loadIfUninitialised } from "@/utils/populate";
@@ -14,17 +14,17 @@ let doInitCheck = true;
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const { ceramic, composeClient } = useCeramicContext();
 
-  const handleLogin = async () => {
-    await authenticateCeramic(ceramic, composeClient);
-    await setViewerId();
-  };
-
-  const setViewerId = async () => {
+  const setViewerId = useCallback(async () => {
     if (ceramic.did !== undefined) {
       const viewerId = await queryViewerId(composeClient);
       localStorage.setItem("viewer", viewerId);
     }
-  };
+  }, [ceramic.did, composeClient]);
+
+  const handleLogin = useCallback(async () => {
+    await authenticateCeramic(ceramic, composeClient);
+    await setViewerId();
+  }, [ceramic, composeClient, setViewerId]);
 
   // Update to include refresh on auth
   useEffect(() => {
@@ -36,7 +36,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       handleLogin();
       setViewerId();
     }
-  }, []);
+  }, [composeClient, handleLogin, setViewerId]);
 
   return (
     <div>

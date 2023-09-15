@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useCeramicContext } from "@/context";
 import { Profile } from "@/types";
 import styles from "@/styles/profile.module.scss";
@@ -12,7 +12,7 @@ export const UserForm = () => {
   const [profile, setProfile] = useState<Profile | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const getProfile = async () => {
+  const getProfile = useCallback(async () => {
     setLoading(true);
     if (ceramic.did !== undefined) {
       const profile = await queryViewerProfile(composeClient);
@@ -25,7 +25,7 @@ export const UserForm = () => {
       }
       setLoading(false);
     }
-  };
+  }, [setLoading, setProfile, composeClient, ceramic.did]);
 
   const updateProfile = async () => {
     setLoading(true);
@@ -46,7 +46,7 @@ export const UserForm = () => {
 
   useEffect(() => {
     getProfile();
-  }, []);
+  }, [getProfile]);
 
   return (
     <>
