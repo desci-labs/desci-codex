@@ -4,7 +4,11 @@ import { authenticateCeramic } from "@/utils";
 import { useCeramicContext } from "@/context";
 import { useSearchParams } from "next/navigation";
 
-const AuthPrompt = () => {
+interface AuthPromptProps {
+  setOrcidJwt: (jwt: string | undefined) => void;
+}
+
+const AuthPrompt = ({ setOrcidJwt }: AuthPromptProps) => {
   const query = useSearchParams();
   const code = query.get("code") as string;
   const logout = query.get("logout") as string;
@@ -26,9 +30,10 @@ const AuthPrompt = () => {
 
   useEffect(() => {
     const orcidToken = localStorage.getItem("orcid:idToken");
+    setOrcidJwt(orcidToken || undefined);
 
     setIsVisible(!orcidToken);
-  }, [code]);
+  }, [code, setOrcidJwt]);
 
   const handleOpen = () => {
     if (localStorage.getItem("logged_in")) {

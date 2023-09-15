@@ -39,6 +39,8 @@ export default function OrcidCodeProcess() {
           window.localStorage.setItem("orcid:idToken", id_token);
           window.localStorage.setItem("orcid:refresh_token", refresh_token);
           window.localStorage.setItem("orcid:access_token", access_token);
+
+          window.postMessage("orcid:login");
         }
         if (window.location.search.indexOf("code=") > -1) {
           router.push("/");
