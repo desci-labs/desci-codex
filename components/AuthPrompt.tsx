@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 const AuthPrompt = () => {
   const query = useSearchParams();
   const code = query.get("code") as string;
+  const logout = query.get("logout") as string;
   const [isVisible, setIsVisible] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const clients = useCeramicContext();
@@ -21,13 +22,13 @@ const AuthPrompt = () => {
     } else {
       setIsLoading(true);
     }
-  }, [code]);
+  }, [code, logout]);
 
   useEffect(() => {
     const orcidToken = localStorage.getItem("orcid:idToken");
 
     setIsVisible(!orcidToken);
-  }, []);
+  }, [code]);
 
   const handleOpen = () => {
     if (localStorage.getItem("logged_in")) {
