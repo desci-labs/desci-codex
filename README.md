@@ -6,6 +6,7 @@ based on a Ceramic demo at ETHDenver and snippets from Mark Krasner.
 1. Install your dependencies:
 
 ```bash
+nvm use # ensure node 18 selected according to .nvmrc
 npm install
 ```
 
@@ -15,7 +16,7 @@ npm install
 npm run generate
 ```
 
-3. Finally, run your application in a new terminal (first ensure you are running node v16 in your terminal):
+3. Finally, run your application in a new terminal:
 
 ```bash
 npm run dev
