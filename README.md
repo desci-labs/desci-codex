@@ -6,7 +6,7 @@ based on a Ceramic demo at ETHDenver and snippets from Mark Krasner.
 1. Install your dependencies:
 
 ```bash
-nvm use # ensure node 18 selected according to .nvmrc
+nvm use # ensure node 20 is selected according to .nvmrc
 npm install
 ```
 
