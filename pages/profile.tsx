@@ -1,6 +1,6 @@
-import type { NextPage } from 'next'
-import Head from 'next/head'
-import { Userform } from '../components/userform.component'
+import type { NextPage } from "next";
+import Head from "next/head";
+import { UserForm } from "@/components/UserForm";
 
 const ProfilePage: NextPage = () => {
   return (
@@ -8,13 +8,13 @@ const ProfilePage: NextPage = () => {
       <Head>
         <title>Profile</title>
       </Head>
-      <div className = "content">
+      <div className="content">
         <div>
-          <Userform />
+          <UserForm />
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default ProfilePage
+export default ProfilePage;

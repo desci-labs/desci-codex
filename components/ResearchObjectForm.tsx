@@ -1,49 +1,49 @@
-import { useCeramicContext } from '../context'
-import { ROProps } from '../types'
-import styles from '../styles/profile.module.scss'
-import { useState } from 'react'
-import { mutationCreateResearchObject } from '../utils/queries'
+"use client";
+import { useCeramicContext } from "@/context";
+import { ROProps } from "@/types";
+import styles from "@/styles/profile.module.scss";
+import { useState } from "react";
+import { mutationCreateResearchObject } from "@/utils/queries";
 
 export const ResearchObjectForm = (updateParent: () => void) => {
-  const { ceramic, composeClient } = useCeramicContext()
+  const { ceramic, composeClient } = useCeramicContext();
   const [object, setObject] = useState<ROProps>({
     title: "",
     manifest: ""
-  })
-  const [loading, setLoading] = useState<boolean>(false)
+  });
+  const [loading, setLoading] = useState<boolean>(false);
 
   const createResearchObject = async () => {
-    setLoading(true)
+    setLoading(true);
     if (ceramic.did !== undefined) {
       const inputs = {
         title: object.title,
-        manifest: object.manifest
-      }
+        manifest: object.manifest,
+      };
       try {
-        await mutationCreateResearchObject(composeClient, inputs)
-      } catch(e) {
-        alert((e as Error).message)
+        await mutationCreateResearchObject(composeClient, inputs);
+      } catch (e) {
+        alert((e as Error).message);
       }
-      updateParent()
+      updateParent();
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <>
       {ceramic.did === undefined ? (
-        <div className="content">
-        </div>
+        <div className="content"></div>
       ) : (
         <div className="">
-          <div className={ styles.formGroup }>
+          <div className={styles.formGroup}>
             <div className="">
               <label>Title</label>
               <input
                 className=""
                 type="text"
                 onChange={(e) => {
-                  setObject({ ...object, title: e.target.value })
+                  setObject({ ...object, title: e.target.value });
                 }}
               />
             </div>
@@ -52,23 +52,22 @@ export const ResearchObjectForm = (updateParent: () => void) => {
               <input
                 type="text"
                 onChange={(e) => {
-                  setObject({ ...object, manifest: e.target.value })
+                  setObject({ ...object, manifest: e.target.value });
                 }}
               />
             </div>
             <div className="">
               <button
                 onClick={() => {
-                  createResearchObject()
+                  createResearchObject();
                 }}
               >
-                {loading ? 'Loading...' : 'Create Research Object'}
+                {loading ? "Loading..." : "Create Research Object"}
               </button>
             </div>
           </div>
         </div>
       )}
     </>
-  )
-}
-
+  );
+};

@@ -40,8 +40,8 @@ input {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width:100%;
-  padding:0;
+  width: 100%;
+  padding: 0;
 }
 
 .composite {
@@ -55,8 +55,19 @@ input {
   bottom: 0;
   right: 0;
   z-index: 9999;
-  background-color: rgba(0, 0, 0, 0.5);
+  // background-color: rgba(0, 0, 0, 0.5);
   display: hidden;
+  &::before {
+    content: " ";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+  }
 
   h2 {
     text-align: center;
@@ -69,6 +80,7 @@ input {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 1);
 
     span {
       padding: 4px;
