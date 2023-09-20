@@ -58,6 +58,7 @@ export const authenticateCeramic = async (
     // TODO: update resources to only provide access to our composities
     session = await DIDSession.authorize(authMethod, {
       resources: ["ceramic://*"],
+      expiresInSecs: 60 * 60 * 24 * 7, // 1 week
     });
     // Set the session in localStorage.
     localStorage.setItem("did", session.serialize());
