@@ -6,33 +6,29 @@ import nodesLogo from "@/public/nodes.png";
 import { FaHome, FaUser, FaHashtag, FaDoorClosed } from "react-icons/fa";
 import { ConnectedWallet, useWallets } from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
+import { useOrcidWalletContext } from "./OrcidWalletProvider";
+import { useCeramicContext } from "@/context";
 
-interface SidebarProps {
-  userAccount: string;
-}
+interface SidebarProps {}
 
-export const Sidebar = ({ userAccount }: SidebarProps) => {
-  const { wallets } = useWallets();
-  const [embeddedWallet, setEmbeddedWallet] = useState<
-    ConnectedWallet | undefined
-  >();
-  useEffect(() => {
-    // debugger;
-    const wallet = wallets.find(
-      (wallet) => wallet.walletClientType === "privy"
-    );
-    setEmbeddedWallet(wallet);
-  }, [wallets]);
+export const Sidebar = ({}: SidebarProps) => {
+  /**
+   * Privy
+   */
+  // const { wallets } = useWallets();
+  // const [embeddedWallet, setEmbeddedWallet] = useState<
+  //   ConnectedWallet | undefined
+  // >();
+  // useEffect(() => {
+  //   // debugger;
+  //   const wallet = wallets.find(
+  //     (wallet) => wallet.walletClientType === "privy"
+  //   );
+  //   setEmbeddedWallet(wallet);
+  // }, [wallets]);
 
-  const [acct, setAcct] = useState<string>();
-
-  useEffect(() => {
-    console.log("USER ACCOUNT", userAccount);
-    // debugger;
-    if (userAccount) {
-      setAcct(userAccount);
-    }
-  }, [userAccount]);
+  const { userAccount, orcidId, ensureProvider } = useOrcidWalletContext();
+  const { ceramic } = useCeramicContext();
 
   return (
     <div className="sidebar">
@@ -52,12 +48,30 @@ export const Sidebar = ({ userAccount }: SidebarProps) => {
         <Link href="/logout">
           <FaDoorClosed /> Logout
         </Link>
-        <textarea>
-          {embeddedWallet
-            ? JSON.stringify(embeddedWallet)
-            : "no privy orcid wallet"}
-        </textarea>
-        <div>torus: {acct || "no torus orcid wallet"}</div>
+        {/* <textarea
+          value={
+            embeddedWallet
+              ? JSON.stringify(embeddedWallet)
+              : "no privy orcid wallet"
+          }
+          readOnly
+        ></textarea> */}
+        <div>signer: {ceramic?.did?.parent || "no torus orcid wallet"}</div>
+        <div>orcid: {orcidId || "not signed in orcid"}</div>
+        <div>
+          torus:{" "}
+          {userAccount || (
+            <>
+              <button
+                onClick={() => {
+                  ensureProvider(null);
+                }}
+              >
+                reconnect torus
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

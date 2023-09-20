@@ -3,12 +3,12 @@ import React, { useEffect, useState } from "react";
 import { authenticateCeramic } from "@/utils";
 import { useCeramicContext } from "@/context";
 import { useSearchParams } from "next/navigation";
+import { useOrcidWalletContext } from "./OrcidWalletProvider";
 
-interface AuthPromptProps {
-  setOrcidJwt: (jwt: string | undefined) => void;
-}
+interface AuthPromptProps {}
 
-const AuthPrompt = ({ setOrcidJwt }: AuthPromptProps) => {
+const AuthPrompt = ({}: AuthPromptProps) => {
+  const { setOrcidJwt } = useOrcidWalletContext();
   const query = useSearchParams();
   const code = query.get("code") as string;
   const logout = query.get("logout") as string;
