@@ -76,7 +76,7 @@ const OrcidWalletProvider = ({ children }: OrcidWalletProviderProps) => {
   };
   const ensureProvider = useCallback(
     async (callback: any, force?: boolean) => {
-      debugger;
+      //   debugger;
       const idToken = localStorage.getItem("orcid:idToken");
       const serializedToken = "" + localStorage.getItem("orcid:idToken");
       return await new Promise<SafeEventEmitterProvider | null>(
@@ -194,12 +194,12 @@ const OrcidWalletProvider = ({ children }: OrcidWalletProviderProps) => {
   };
 
   const handleGetAccount = useCallback(async () => {
-    debugger;
+    // debugger;
     setLoadingAccount(true);
     const newProvider: SafeEventEmitterProvider | null | undefined =
       await ensureProvider(null);
     setTimeout(async () => {
-      debugger;
+      //   debugger;
       if (!newProvider && !provider) {
         return;
       }
