@@ -39,6 +39,17 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
     }
   }, [composeClient, handleLogin, setViewerId]);
 
+  /**
+   * Register service worker (torus)
+   */
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/torus-sw/sw.js")
+        .then((registration) => console.log("scope is: ", registration.scope));
+    }
+  }, []);
+
   return (
     <div>
       <OrcidWalletProvider>

@@ -1,3 +1,4 @@
+"use client";
 import { CustomChainConfig, SafeEventEmitterProvider } from "@web3auth/base";
 import {
   PropsWithChildren,
@@ -12,7 +13,35 @@ import { authenticateCeramic } from "@/utils";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { Web3Auth } from "@web3auth/single-factor-auth";
 import { useCeramicContext } from "@/context";
+import { TorusServiceProvider } from "@tkey/service-provider-torus";
+import ThresholdKey from "@tkey/core";
+import TorusStorageLayer from "@tkey/storage-layer-torus";
+
 interface OrcidWalletProviderProps extends PropsWithChildren {}
+
+const web3AuthClientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID!;
+let customAuthArgs = {};
+let tKey: ThresholdKey;
+if (typeof window !== "undefined") {
+  customAuthArgs = {
+    web3AuthClientId,
+    baseUrl: `${window.location.origin}/torus-sw`,
+    network: "sapphire_devnet", // based on the verifier network.
+    uxMode: "popup", // or redirect
+  };
+  const serviceProvider = new TorusServiceProvider({
+    enableLogging: false,
+    customAuthArgs: customAuthArgs as any,
+  });
+  const storageLayer = new TorusStorageLayer({
+    hostUrl: "https://metadata.tor.us",
+  });
+  tKey = new ThresholdKey({
+    enableLogging: true,
+    serviceProvider,
+    storageLayer,
+  });
+}
 
 const chainConfig: CustomChainConfig = {
   chainNamespace: "eip155",
@@ -24,19 +53,20 @@ const chainConfig: CustomChainConfig = {
   ticker: "ETH",
   tickerName: "Ethereum",
 };
-const web3auth = new Web3Auth({
-  clientId: process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID!, // Get your Client ID from Web3Auth Dashboard
-  web3AuthNetwork: "testnet",
-  usePnPKey: false,
-});
-const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig },
-});
-web3auth.init(privateKeyProvider);
+// const web3auth = new Web3Auth({
+//   clientId: web3AuthClientId, // Get your Client ID from Web3Auth Dashboard
+//   web3AuthNetwork: "testnet",
+//   usePnPKey: false,
+// });
+// const privateKeyProvider = new EthereumPrivateKeyProvider({
+//   config: { chainConfig },
+// });
+// web3auth.init(privateKeyProvider);
 
 interface OrcidWalletContextProps {
   setOrcidJwt: Function;
   ensureProvider: Function;
+  signMessage: Function;
   userAccount: string | undefined;
   orcidId: string | undefined;
 }
@@ -46,6 +76,7 @@ const OrcidWalletContext = createContext<OrcidWalletContextProps>({
   ensureProvider: () => {},
   userAccount: undefined,
   orcidId: undefined,
+  signMessage: () => {},
 });
 
 export const useOrcidWalletContext = () => useContext(OrcidWalletContext);
@@ -55,6 +86,9 @@ const OrcidWalletProvider = ({ children }: OrcidWalletProviderProps) => {
   const [orcidJwt, setOrcidJwt] = useState<string | undefined>();
   const [orcidId, setOrcidId] = useState<string | undefined>();
 
+  const [user, setUser] = useState<any>(null);
+  const [privateKey, setPrivateKey] = useState<any>();
+  const [oAuthShare, setOAuthShare] = useState<any>();
   const [provider, setProvider] = useState<any>();
 
   const [loadingAccount, setLoadingAccount] = useState(false);
@@ -63,6 +97,39 @@ const OrcidWalletProvider = ({ children }: OrcidWalletProviderProps) => {
   const [loadingTxn, setLoadingTxn] = useState(false);
   const [userAccount, setUserAccount] = useState("");
   const [txnHash, setTxnHash] = useState("");
+
+  useEffect(() => {
+    const init = async () => {
+      // Initialization of Service Provider
+      try {
+        await (tKey.serviceProvider as any).init();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    init();
+    const ethProvider = async () => {
+      const ethereumPrivateKeyProvider = new EthereumPrivateKeyProvider({
+        config: {
+          /*
+            pass the chain config that you want to connect with
+            all chainConfig fields are required.
+            */
+          chainConfig,
+        },
+      });
+      /*
+        pass user's private key here.
+        after calling setupProvider, we can use
+        */
+      if (privateKey) {
+        await ethereumPrivateKeyProvider.setupProvider(privateKey);
+        console.log("eth provider", ethereumPrivateKeyProvider.provider);
+        setProvider(ethereumPrivateKeyProvider.provider);
+      }
+    };
+    ethProvider();
+  }, [privateKey]);
 
   const parseToken = (token: string) => {
     try {
@@ -109,22 +176,21 @@ const OrcidWalletProvider = ({ children }: OrcidWalletProviderProps) => {
                   clearInterval(timer);
 
                   try {
-                    const web3authSfaprovider = await web3auth.connect({
-                      verifier: "orcid",
-                      verifierId: sub,
-                      idToken: newToken!,
+                    const loginResponse = await (
+                      tKey.serviceProvider as any
+                    ).triggerLogin({
+                      typeOfLogin: "jwt",
+                      verifier: "orcid-sandbox-new",
+                      clientId: process.env.NEXT_PUBLIC_ORCID_CLIENT_ID!,
+                      jwtParams: {
+                        id_token: newToken!,
+                      },
                     });
-
-                    if (web3authSfaprovider) {
-                      setProvider(web3authSfaprovider);
-                      resolve(web3authSfaprovider);
-                      const rpc = new RPC(web3authSfaprovider);
-                      const userAccount = await rpc.getAccounts();
-
-                      setUserAccount(userAccount);
-                    } else {
-                      alert("fail provider");
-                    }
+                    const user = loginResponse.userInfo;
+                    console.log("[torus loginResponse]", loginResponse);
+                    setUser(loginResponse.userInfo);
+                    setOAuthShare(loginResponse.privateKey);
+                    setUserAccount(loginResponse.finalKeyData.evmAddress);
                   } catch (err) {
                     // await handleLogin();
 
@@ -245,9 +311,21 @@ const OrcidWalletProvider = ({ children }: OrcidWalletProviderProps) => {
     }
   }, [orcidJwt]);
 
+  const signMessage = async (): Promise<any> => {
+    if (!provider) {
+      console.log("provider not initialized yet");
+      return;
+    }
+    const web3 = new RPC(provider);
+
+    const signedMessage = await web3.signMessage("hello");
+
+    return signedMessage;
+  };
+
   return (
     <OrcidWalletContext.Provider
-      value={{ setOrcidJwt, userAccount, orcidId, ensureProvider }}
+      value={{ signMessage, setOrcidJwt, userAccount, orcidId, ensureProvider }}
     >
       {children}
     </OrcidWalletContext.Provider>
