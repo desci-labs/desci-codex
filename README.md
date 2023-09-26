@@ -26,3 +26,12 @@ npm run dev
 
 ## Reset
 To clean everything up, delete `local-data`. This is necessary when changing networks, for example.
+
+## Tests
+There is a test suite running through API operations demonstrating the functional protocol
+requirements in an isolated ceramic instance not to dirty down the state, but can also be
+run against the dev process. Not both at the same time though, because the ports overlap.
+
+```bash
+make test
+```

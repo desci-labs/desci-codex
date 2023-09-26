@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "ceramic": "ceramic daemon --config composedb.config.json"
+    "ceramic": "ceramic daemon --config composedb.config.json",
+    "test": "vitest --run --config vitest.config.ts"
   },
   "author": "Edvard Hubinette",
   "devDependencies": {
@@ -20,11 +21,16 @@
     "@composedb/devtools": "^0.5.0",
     "@composedb/devtools-node": "^0.5.0",
     "@composedb/graphql-scalars": "^0.5.0",
+    "@composedb/types": "^0.5.0",
     "@types/react": "18.2.21",
     "eslint": "8.48.0",
-    "eslint-config-next": "13.4.19"
+    "eslint-config-next": "13.4.19",
+    "key-did-resolver": "^3.0.0",
+    "vite-tsconfig-paths": "^4.2.1",
+    "vitest": "^0.34.5"
   },
   "dependencies": {
+    "@ceramicnetwork/http-client": "^2.31.0",
     "@composedb/client": "^0.5.0",
     "@datamodels/identity-profile-basic": "^0.2.0",
     "@didtools/pkh-ethereum": "^0.4.1",

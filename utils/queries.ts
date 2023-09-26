@@ -1,7 +1,10 @@
 import { ComposeClient } from "@composedb/client";
 import { Attestation, Claim, Profile, ROProps } from "../types";
+import { ExecutionResult } from "graphql";
 
-export const queryViewerId = async (composeClient: ComposeClient): Promise<string> => {
+export const queryViewerId = async (
+  composeClient: ComposeClient
+): Promise<string> => {
   const response = await composeClient.executeQuery<{viewer: { id: string}}>(`
     query {
       viewer {
@@ -9,17 +12,16 @@ export const queryViewerId = async (composeClient: ComposeClient): Promise<strin
       }
     }`
   )
-  if (response.errors || !response.data) {
-    console.error("Error:", response.errors?.toString())
-    throw new Error(`Failed to query viewer id!`)
-  }
-  return response.data.viewer.id
+  assertQueryErrors(response, 'viewer id');
+  return response.data!.viewer.id
 }
 
 /**
  * Queries for the viewer profile, which could be null if authentication isn't done yet
 */
-export const queryViewerProfile = async (composeClient: ComposeClient): Promise<Profile | null> => {
+export const queryViewerProfile = async (
+  composeClient: ComposeClient
+): Promise<Profile | null> => {
   const response = await composeClient.executeQuery<{ viewer: { profile: Profile | null} }>(`
     query {
       viewer {
@@ -31,14 +33,62 @@ export const queryViewerProfile = async (composeClient: ComposeClient): Promise<
       }
     }`
   )
-  if (response.errors || !response.data) {
-    console.error("Error:", response.errors?.toString())
-    throw new Error(`Failed to query viewer profile!`)
-  }
-  return response.data.viewer.profile
+  assertQueryErrors(response, 'viewer profile')
+  return response.data!.viewer.profile
 }
 
-export const queryResearchObjects = async (composeClient: ComposeClient): Promise<ROProps[]> => {
+export const queryViewerResearchObjects = async (
+  composeClient: ComposeClient
+): Promise<ROProps[]> => {
+  const response = await composeClient.executeQuery<
+    { viewer: { researchObjectList: { edges: { node: ROProps }[] } } }
+  >(`
+    query {
+      viewer {
+        researchObjectList(first: 100) {
+          edges {
+            node {
+              id
+              title
+              manifest
+            }
+          }
+        }
+      }
+    }
+  `)
+  assertQueryErrors(response, 'viewer research objects')
+  return response.data!.viewer.researchObjectList.edges.map(e => e.node)
+}
+
+export const queryViewerClaims = async (
+  composeClient: ComposeClient
+): Promise<Claim[]> => {
+  const response = await composeClient.executeQuery<
+    { viewer:{ claimList: { edges: { node: Claim}[] } } }
+  >(`
+    query {
+      viewer {
+        claimList(first: 100) {
+          edges {
+            node {
+              id
+              title
+              description 
+              badge 
+            }
+          }
+        }
+      }
+    }
+  `)
+  assertQueryErrors(response, 'viewer claims')
+  return response.data!.viewer.claimList.edges.map(e => e.node)
+}
+
+export const queryResearchObjects = async (
+  composeClient: ComposeClient
+): Promise<ROProps[]> => {
   const response = await composeClient.executeQuery<
     { researchObjectIndex: { edges: { node: ROProps }[] } }
   >(`
@@ -60,39 +110,14 @@ export const queryResearchObjects = async (composeClient: ComposeClient): Promis
       }
     }
   `)
-  if (response.errors || !response.data) {
-    console.error("Error:", response.errors?.toString())
-    throw new Error(`Failed to query research objects!`)
-  }
-  return response.data.researchObjectIndex.edges.map(e => e.node)
+  assertQueryErrors(response, 'research objects')
+  return response.data!.researchObjectIndex.edges.map(e => e.node)
 }
 
-export const queryViewerResearchObjects = async (composeClient: ComposeClient): Promise<ROProps[]> => {
-  const response = await composeClient.executeQuery<
-    { viewer: { researchObjectList: { edges: { node: ROProps }[] } } }
-  >(`
-    query {
-      viewer {
-        researchObjectList(first: 100) {
-          edges {
-            node {
-              id
-              title
-              manifest
-            }
-          }
-        }
-      }
-    }
-  `)
-  if (response.errors || !response.data) {
-    console.error("Error:", response.errors?.toString())
-    throw new Error(`Failed to query viewer research objects!`)
-  }
-  return response.data.viewer.researchObjectList.edges.map(e => e.node)
-}
-
-export const queryResearchObjectAttestations = async (composeClient: ComposeClient, researchObjectID: string) => {
+export const queryResearchObjectAttestations = async (
+  composeClient: ComposeClient,
+  researchObjectID: string
+) => {
   const response = await composeClient.executeQuery<
     { node: { attestations: { edges: { node: Attestation }[] } } }
   >(`
@@ -117,17 +142,44 @@ export const queryResearchObjectAttestations = async (composeClient: ComposeClie
       }
     }
   `, { id: researchObjectID })
-  if (response.errors || !response.data) {
-    console.error("Error:", response.errors?.toString())
-    throw new Error(`Failed to query attestations on research object ${researchObjectID}!`)
-  }
-  return response.data.node.attestations.edges.map(e => e.node)
+  assertQueryErrors(response, `attestations on research object ${researchObjectID}`)
+  return response.data!.node.attestations.edges.map(e => e.node)
 }
 
-export const mutationCreateResearchObject = async (composeClient: ComposeClient, inputs: ROProps): Promise<void> => {
-  const response = await composeClient.executeQuery(`
+export const mutationCreateResearchObject = async (
+  composeClient: ComposeClient,
+  inputs: ROProps
+): Promise<string> => {
+  const response = await composeClient.executeQuery<
+      { createResearchObject: { document: { id: string } } }
+    >(`
     mutation ($title: String!, $manifest: InterPlanetaryCID!){
       createResearchObject(input: {
+        content: {
+          title: $title
+          manifest: $manifest
+        }
+      })
+      {
+        document {
+          id
+        }
+      }
+    }`,
+    inputs
+  )
+  assertMutationErrors(response, 'create research object')
+  return response.data!.createResearchObject.document.id
+}
+
+export const mutationUpdateResearchObject = async (
+  composeClient: ComposeClient,
+  inputs: ROProps
+): Promise<void> => {
+  // REQUIRE ID
+  const response = await composeClient.executeQuery(`
+    mutation ($title: String!, $manifest: InterPlanetaryCID!){
+      updateResearchObject(input: {
         content: {
           title: $title
           manifest: $manifest
@@ -142,14 +194,16 @@ export const mutationCreateResearchObject = async (composeClient: ComposeClient,
     }`,
     inputs
   )
-  if (response.errors) {
-    console.error("Error:", response.errors.toString())
-    throw new Error("Failed to update research object!")
-  }
+  assertMutationErrors(response, 'update research object')
 }
 
-export const mutationCreateProfile = async (composeClient: ComposeClient, inputs: Profile) => {
-  const response = await composeClient.executeQuery(`
+export const mutationCreateProfile = async (
+  composeClient: ComposeClient,
+  inputs: Profile
+): Promise<string> => {
+  const response = await composeClient.executeQuery<
+      { createProfile: { document: { id: string } } }
+    >(`
     mutation ($displayName: String!, $orcid: String!){
       createProfile(input: {
         content: {
@@ -159,21 +213,23 @@ export const mutationCreateProfile = async (composeClient: ComposeClient, inputs
       })
       {
         document {
-          displayName
-          orcid
+          id
         }
       }
     }`,
     inputs
   )
-  if (response.errors) {
-    console.error("Error:", response.errors.toString())
-    throw new Error("Failed to create profile!")
-  }
+  assertMutationErrors(response, 'create profile')
+  return response.data!.createProfile.document.id
 }
 
-export const mutationCreateClaim = async (composeClient: ComposeClient, inputs: Claim) => {
-  const response = await composeClient.executeQuery(`
+export const mutationCreateClaim = async (
+  composeClient: ComposeClient,
+  inputs: Claim
+): Promise<string> => {
+  const response = await composeClient.executeQuery<
+      { createClaim: { document: { id: string } } }
+    >(`
      mutation ($title: String!, $description: String!, $badge: InterPlanetaryCID){
       createClaim(input: {
         content: {
@@ -184,23 +240,24 @@ export const mutationCreateClaim = async (composeClient: ComposeClient, inputs: 
       })
       {
         document {
-          title
-          description
-          badge
+          id
         }
       }
     }
     `,
     inputs
   )
-  if (response.errors) {
-    console.error("Error:", response.errors.toString())
-    throw new Error("Failed to create claim!")
-  }
+  assertMutationErrors(response, 'create claim')
+  return response.data!.createClaim.document.id
 }
 
-export const mutationCreateAttestation= async (composeClient: ComposeClient, inputs: Attestation) => {
-  const response = await composeClient.executeQuery(`
+export const mutationCreateAttestation = async (
+  composeClient: ComposeClient, 
+  inputs: Attestation
+): Promise<string> => {
+  const response = await composeClient.executeQuery<
+      { createAttestation: { document: { id: string } } }
+    >(`
      mutation ($targetID: CeramicStreamID!, $claimID: CeramicStreamID!, $revoked: Boolean!){
       createAttestation(input: {
         content: {
@@ -211,17 +268,36 @@ export const mutationCreateAttestation= async (composeClient: ComposeClient, inp
       })
       {
         document {
-          targetID
-          claimID
-          revoked
+          id
         }
       }
     }
     `,
     inputs
   )
-  if (response.errors) {
-    console.error("Error:", response.errors.toString())
-    throw new Error("Failed to create attestation!")
+  assertMutationErrors(response, 'create attestation')
+  return response.data!.createAttestation.document.id
+}
+
+type SimpleMutationResult = Pick<ExecutionResult, 'errors'>
+type SimpleQueryResult = Pick<ExecutionResult, 'errors' | 'data'>
+
+const assertMutationErrors = (
+  result: SimpleMutationResult,
+  queryDescription: string
+) => {
+  if (result.errors) {
+    console.error('Error:', result.errors.toString())
+    throw new Error(`Mutation failed: ${queryDescription}`)
   }
+}
+
+const assertQueryErrors = (
+  result: SimpleQueryResult,
+  queryDescription: string
+) => {
+    if (result.errors || !result.data) {
+        console.error("Error:", result.errors?.toString());
+        throw new Error(`Query failed: ${queryDescription}!`);
+    }
 }
