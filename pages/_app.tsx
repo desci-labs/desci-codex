@@ -29,7 +29,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
   // Update to include refresh on auth
   useEffect(() => {
     if (doInitCheck) {
-      loadIfUninitialised(composeClient);
+      loadIfUninitialised(ceramic);
       doInitCheck = false;
     }
     if (localStorage.getItem("logged_in")) {
