@@ -5,6 +5,9 @@ import { fromString } from "uint8arrays/from-string"
 import templateData from "../template_data.json"
 import { ComposeClient } from "@composedb/client"
 import { mutationCreateClaim, mutationCreateProfile, mutationCreateResearchObject } from "./queries"
+import { CeramicClient } from "@ceramicnetwork/http-client"
+import { definition } from '@/src/__generated__/definition'
+import { RuntimeCompositeDefinition } from "@composedb/types"
 
 const didFromSeed = async (seed: string) => {
   const keyResolver = KeyDIDResolver.getResolver();
@@ -20,7 +23,13 @@ const didFromSeed = async (seed: string) => {
 }
 
 type ProfileIndexResults = { data: { profileIndex: { edges: []}}}
-export const loadIfUninitialised = async (composeClient: ComposeClient) => {
+export const loadIfUninitialised = async (ceramic: CeramicClient) => {
+  const composeClient = new ComposeClient(
+    {
+      ceramic,
+      definition: definition as RuntimeCompositeDefinition
+    }
+  )
   const firstProfile = await composeClient.executeQuery(`
     query {
       profileIndex(first: 1) {
@@ -46,7 +55,6 @@ export const loadIfUninitialised = async (composeClient: ComposeClient) => {
  * seed runs mutations to create instances of the data
 **/
 const loadTemplateData = async (composeClient: ComposeClient) => {
-  const originalDID = composeClient.did
   for (const [seed, data] of Object.entries(templateData)) {
     composeClient.setDID(await didFromSeed(seed))
     const { profile, researchObjects, claims } = data
@@ -55,9 +63,5 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
       ro => mutationCreateResearchObject(composeClient, ro)
     ))
     await Promise.all(claims.map(c => mutationCreateClaim(composeClient, c)))
-  }
-
-  if (originalDID) {
-    composeClient.setDID(originalDID)
   }
 }
