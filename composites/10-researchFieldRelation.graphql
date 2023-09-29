@@ -1,0 +1,19 @@
+type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
+  id: ID!
+}
+
+type ResearchField @loadModel(id: "$RESEARCH_FIELD_ID") {
+  id: ID!
+}
+
+type ResearchFieldRelation
+  @createModel(accountRelation: LIST, description: "Association between a research object and a field")
+{
+  owner: DID! @documentAccount
+
+  researchObjectID: StreamID! @documentReference(model: "ResearchObject")
+  researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+
+  fieldID: StreamID! @documentReference(model: "ResearchField")
+  field: ResearchField! @relationDocument(property: "fieldID")
+}

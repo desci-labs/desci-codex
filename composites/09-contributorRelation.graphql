@@ -1,0 +1,36 @@
+type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
+  id: ID!
+}
+
+type Profile @loadModel(id: "$PROFILE_ID") {
+  id: ID!
+}
+
+type ContributorRelation
+  @createModel(accountRelation: LIST, description: "List a contributor on a research object")
+  @createIndex(fields: [{ path: "role" }])
+  @createIndex(fields: [{ path: "contributorID" }])
+  #@createIndex(fields: [{ path: ["info", "orcid"] }])
+  #@createIndex(fields: [{ path: ["info", "googleScholar"] }])
+{
+  owner: DID! @documentAccount
+
+  # E.g. credit taxonomy
+  role: String! @string(maxLength: 256)
+
+  researchObjectID: StreamID! @documentReference(model: "ResearchObject")
+  researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+
+  contributorID: StreamID @documentReference(model: "Profile")
+  contributor: Profile @relationDocument(property: "contributorID")
+
+  # In case the author doesn't have a profile in the protocol, manual information can be listed.
+  # Otherwise, depend on what the author lists on this profile instead
+  info: FallbackInfo
+}
+
+type FallbackInfo {
+  orcid: String @string(maxLength: 256)
+  googleScholar: String @string(maxLength: 256)
+  publicKey: String @string(maxLength: 512)
+}

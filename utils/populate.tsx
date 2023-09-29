@@ -4,10 +4,11 @@ import { DID } from "dids"
 import { fromString } from "uint8arrays/from-string"
 import templateData from "../template_data.json"
 import { ComposeClient } from "@composedb/client"
-import { mutationCreateClaim, mutationCreateProfile, mutationCreateResearchObject } from "./queries"
+import { mutationCreateClaim, mutationCreateProfile, mutationCreateResearchComponent, mutationCreateResearchObject } from "./queries"
 import { CeramicClient } from "@ceramicnetwork/http-client"
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from "@composedb/types"
+import { ROProps, ResearchComponent } from "@/types"
 
 const didFromSeed = async (seed: string) => {
   const keyResolver = KeyDIDResolver.getResolver();
@@ -60,8 +61,24 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
     const { profile, researchObjects, claims } = data
     await mutationCreateProfile(composeClient, profile)
     await Promise.all(researchObjects.map(
-      ro => mutationCreateResearchObject(composeClient, ro)
+      async roTemplate => {
+        const ro: ROProps = { 
+          title: roTemplate.title,
+          manifest: roTemplate.manifest
+        }
+        const researchObjectID = await mutationCreateResearchObject(composeClient, ro)
+        roTemplate.components.map(async c => 
+          mutationCreateResearchComponent(
+            composeClient, 
+            { 
+              ...c,
+              researchObjectID
+            } as ResearchComponent
+          )
+        )
+      }
     ))
     await Promise.all(claims.map(c => mutationCreateClaim(composeClient, c)))
   }
+  console.log("Loading template data done!")
 }

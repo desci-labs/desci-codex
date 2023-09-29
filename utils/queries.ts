@@ -1,5 +1,5 @@
 import { ComposeClient } from "@composedb/client";
-import { Attestation, Claim, Profile, ROProps } from "../types";
+import { Attestation, Claim, ResearchComponent, Profile, ROProps } from "../types";
 import { ExecutionResult } from "graphql";
 
 export const queryViewerId = async (
@@ -170,6 +170,34 @@ export const mutationCreateResearchObject = async (
   )
   assertMutationErrors(response, 'create research object')
   return response.data!.createResearchObject.document.id
+}
+
+export const mutationCreateResearchComponent = async (
+  composeClient: ComposeClient,
+  inputs: ResearchComponent
+): Promise<string> => {
+  const response = await composeClient.executeQuery<
+      { createResearchComponent: { document: { id: string } } }
+    >(`
+    mutation ($name: String!, $type: ResearchComponentComponentType!, $dagNode: InterPlanetaryCID!, $researchObjectID: CeramicStreamID!){
+      createResearchComponent(input: {
+        content: {
+          name: $name
+          type: $type
+          dagNode: $dagNode
+          researchObjectID: $researchObjectID
+        }
+      })
+      {
+        document {
+          id
+        }
+      }
+    }`,
+    inputs
+  )
+  assertMutationErrors(response, 'create research object')
+  return response.data!.createResearchComponent.document.id
 }
 
 export const mutationUpdateResearchObject = async (

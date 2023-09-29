@@ -6,6 +6,7 @@ type UserAttestation
   @createModel(accountRelation: LIST, description: "User attestation")
   @createIndex(fields: [{ path: "revoked" }])
   @createIndex(fields: [{ path: "claimID" }])
+  @createIndex(fields: [{ path: "target" }])
 {
   source: DID! @documentAccount
   target: DID! @accountReference

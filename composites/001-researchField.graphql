@@ -1,0 +1,6 @@
+type ResearchField
+  @createModel(accountRelation: LIST, description: "A particular field of research")
+{
+  owner: DID! @documentAccount
+  title: String! @string(maxLength: 256)
+}
