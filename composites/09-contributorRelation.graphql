@@ -24,8 +24,8 @@ type ContributorRelation
   contributorID: StreamID @documentReference(model: "Profile")
   contributor: Profile @relationDocument(property: "contributorID")
 
-  # In case the author doesn't have a profile in the protocol, manual information can be listed.
-  # Otherwise, depend on what the author lists on this profile instead
+  # In case the author doesn't have a profile in the protocol, manual information
+  # can be listed. Otherwise, depend on what the author lists on this profile instead
   info: FallbackInfo
 }
 

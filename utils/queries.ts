@@ -1,5 +1,5 @@
 import { ComposeClient } from "@composedb/client";
-import { Attestation, Claim, ResearchComponent, Profile, ROProps } from "../types";
+import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation } from "../types";
 import { ExecutionResult } from "graphql";
 
 export const queryViewerId = async (
@@ -232,7 +232,7 @@ export const mutationCreateProfile = async (
   const response = await composeClient.executeQuery<
       { createProfile: { document: { id: string } } }
     >(`
-    mutation ($displayName: String!, $orcid: String!){
+    mutation ($displayName: String!, $orcid: String){
       createProfile(input: {
         content: {
           displayName: $displayName
@@ -302,9 +302,61 @@ export const mutationCreateAttestation = async (
     }
     `,
     inputs
-  )
+  );
   assertMutationErrors(response, 'create attestation')
   return response.data!.createAttestation.document.id
+}
+
+export const mutationCreateContributorRelation = async (
+  composeClient: ComposeClient,
+  inputs: ContributorRelation
+): Promise<string> => {
+  const response = await composeClient.executeQuery<
+    { createContributorRelation: { document: { id: string }}}
+  >(`
+    mutation ($role: String!, $contributorID: CeramicStreamID!, $researchObjectID: CeramicStreamID!) {
+      createContributorRelation(input: {
+        content: {
+          role: $role
+          contributorID: $contributorID
+          researchObjectID: $researchObjectID
+        }
+      })
+      {
+        document {
+          id
+        }
+      }
+    }
+  `, inputs
+  );
+  assertMutationErrors(response, 'create contributor relation');
+  return response.data!.createContributorRelation.document.id;
+}
+
+export const mutationCreateResearchField = async (
+  composeClient: ComposeClient,
+  inputs: { title: string }
+): Promise<string> => {
+  const response = await composeClient.executeQuery<
+    { createResearchField: { document: { id: string }}}
+  >(`
+    mutation ($title: String!) {
+      createResearchField(input: {
+        content: {
+          title: $title
+        }
+      })
+      {
+        document {
+          id
+        }
+      }
+    }
+  `, inputs
+  );
+  assertMutationErrors(response, 'create research field');
+  return response.data!.createResearchField.document.id;
 }
 
 type SimpleMutationResult = Pick<ExecutionResult, 'errors'>

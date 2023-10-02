@@ -44,6 +44,14 @@ export type Attestation = {
   revoked: boolean
 }
 
+export type ContributorRelation = {
+  id?: string,
+  role: string,
+  // info
+  contributorID: string,
+  researchObjectID: string
+}
+
 export type SidebarProps = {
   displayName?: string
   id?: string
