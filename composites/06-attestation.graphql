@@ -2,7 +2,7 @@ type Claim @loadModel(id: "$CLAIM_ID") {
   id: ID!
 }
 
-type Attestation 
+type Attestation
   @createModel(accountRelation: LIST, description: "General attestation")
   @createIndex(fields: [{ path: "targetID" }])
   @createIndex(fields: [{ path: "claimID" }])

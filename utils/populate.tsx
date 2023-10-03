@@ -2,13 +2,34 @@ import KeyDIDResolver from "key-did-resolver"
 import { Ed25519Provider } from "key-did-provider-ed25519"
 import { DID } from "dids"
 import { fromString } from "uint8arrays/from-string"
-import templateData from "../template_data.json"
+import untypedTemplateData from "../template_data.json"
 import { ComposeClient } from "@composedb/client"
-import { mutationCreateAttestation, mutationCreateClaim, mutationCreateContributorRelation, mutationCreateProfile, mutationCreateResearchComponent, mutationCreateResearchField, mutationCreateResearchObject } from "./queries"
+import { 
+  mutationCreateAttestation,
+  mutationCreateClaim,
+  mutationCreateContributorRelation,
+  mutationCreateProfile,
+  mutationCreateReferenceRelation,
+  mutationCreateResearchComponent,
+  mutationCreateResearchField,
+  mutationCreateResearchFieldRelation,
+  mutationCreateResearchObject
+} from "./queries"
 import { CeramicClient } from "@ceramicnetwork/http-client"
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from "@composedb/types"
 import { Attestation, ROProps, ResearchComponent } from "@/types"
+import { 
+  AttestationTemplate,
+  ContributorRelationTemplate,
+  DataTemplate,
+  ObjectPath,
+  ReferenceRelationTemplate,
+  ResearchFieldRelationTemplate,
+  ResearchObjectTemplate
+} from "./templateData"
+
+const templateData: DataTemplate = untypedTemplateData;
 
 const didFromSeed = async (seed: string) => {
   const keyResolver = KeyDIDResolver.getResolver();
@@ -55,17 +76,29 @@ export const loadIfUninitialised = async (ceramic: CeramicClient) => {
 type ActorDataStreamIDs = {
   profile?: string
   researchObjects: {
-    researchObject: string,
+    id: string,
     components: string[]
-    // omitted due to not being targets for anything atm
-    // contributors: string[],
-    // references: string[],
-    // researchFields: string[]
   }[],
   claims: string[],
+  researchFields: string[],
   attestations: string[],
-  researchFields: string[]
+  contributorRelations: string[],
+  referenceRelations: string[],
+  researchFieldRelations: string[]
 }
+
+const freshActorRecord = (profile: string): ActorDataStreamIDs => (
+  {
+    profile,
+    researchObjects: [],
+    claims: [],
+    attestations: [],
+    researchFields: [],
+    contributorRelations: [],
+    referenceRelations: [],
+    researchFieldRelations: []
+  }
+)
 
 type StreamIndex = Record<string, ActorDataStreamIDs>
 
@@ -94,12 +127,24 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
         roTemplate => loadResearchObject(roTemplate, composeClient)
       )
     );
-    
-    await Promise.all(
-      template.contributorRelations.map((contTemplate: any)=> loadContributorRelation(
-        contTemplate, streamIndex, composeClient
-      ))
-    )
+
+    streamIndex[seed].contributorRelations = await Promise.all(
+      template.contributorRelations.map((contTemplate: any) => 
+        loadContributorRelation(contTemplate, streamIndex, composeClient)
+      )
+    );
+
+    streamIndex[seed].referenceRelations = await Promise.all(
+      template.referenceRelations.map((refTemplate: any) =>
+        loadReferenceRelation(refTemplate, streamIndex, composeClient)
+      )
+    );
+
+    streamIndex[seed].researchFieldRelations = await Promise.all(
+      template.researchFieldRelations.map((fieldRelTemplate: any) =>
+        loadResearchFieldRelation(fieldRelTemplate, streamIndex, composeClient)
+      )
+    );
 
     streamIndex[seed].claims = await Promise.all(
       template.claims.map(c => mutationCreateClaim(composeClient, c))
@@ -116,18 +161,8 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
   console.log("Loading template data done!")
 }
 
-const freshActorRecord = (profile: string): ActorDataStreamIDs => (
-  {
-    profile,
-    researchObjects: [],
-    claims: [],
-    attestations: [],
-    researchFields: []
-  }
-)
-
 const loadResearchObject = async (
-  roTemplate: any,
+  roTemplate: ResearchObjectTemplate,
   composeClient: ComposeClient
 ): Promise<ActorDataStreamIDs['researchObjects'][number]> => {
   const roProps: ROProps = { 
@@ -149,29 +184,63 @@ const loadResearchObject = async (
     )
   );
 
-  return { researchObject, components }
+  return { id: researchObject, components }
 }
 
 const loadContributorRelation = async (
-  contributorTemplate: any,
+  contTemplate: ContributorRelationTemplate,
   streamIndex: StreamIndex,
   composeClient: ComposeClient
-): Promise<void> => {
-  const { role, researchObjectPath, contributorPath } = contributorTemplate;
+): Promise<string> => {
+  const { role, researchObjectPath, contributorPath } = contTemplate;
   const researchObjectID = recursePathToID(streamIndex, researchObjectPath);
   const contributorID = recursePathToID(streamIndex, contributorPath);
-  await mutationCreateContributorRelation(
+  return await mutationCreateContributorRelation(
     composeClient, 
     {
         role,
         contributorID,
         researchObjectID
     }
-  )
+  );
+}
+
+const loadReferenceRelation = async (
+  refTemplate: ReferenceRelationTemplate,
+  streamIndex: StreamIndex,
+  composeClient: ComposeClient
+): Promise<string> => {
+  const { toPath, fromPath } = refTemplate;
+  const toID = recursePathToID(streamIndex, toPath);
+  const fromID = recursePathToID(streamIndex, fromPath);
+  return await mutationCreateReferenceRelation(
+    composeClient, 
+    {
+      toID,
+      fromID
+    }
+  );
+}
+
+const loadResearchFieldRelation = async (
+  fieldRelTemplate: ResearchFieldRelationTemplate,
+  streamIndex: StreamIndex,
+  composeClient: ComposeClient
+): Promise<string> => {
+  const { researchObjectPath, fieldPath } = fieldRelTemplate;
+  const researchObjectID = recursePathToID(streamIndex, researchObjectPath);
+  const fieldID = recursePathToID(streamIndex, fieldPath);
+  return await mutationCreateResearchFieldRelation(
+    composeClient, 
+    {
+      researchObjectID,
+      fieldID
+    }
+  );
 }
 
 const loadAttestation = async (
-  attestationTemplate: any,
+  attestationTemplate: AttestationTemplate,
   streamIndex: StreamIndex,
   composeClient: ComposeClient
 ): Promise<ActorDataStreamIDs['attestations'][number]> => {
@@ -183,7 +252,5 @@ const loadAttestation = async (
 }
 
 // Oblivious to human faults, enjoy the footgun
-const recursePathToID = (object: any, path: string[]): string => {
-  if (path.length === 0) { return object }
-  return recursePathToID(object[path[0]], path.slice(1))
-}
+const recursePathToID = (object: any, path: ObjectPath): string =>
+  path.length ? recursePathToID(object[path[0]], path.slice(1)) : object

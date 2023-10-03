@@ -1,5 +1,5 @@
 import { ComposeClient } from "@composedb/client";
-import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation } from "../types";
+import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation, ReferenceRelation, ResearchFieldRelation } from "../types";
 import { ExecutionResult } from "graphql";
 
 export const queryViewerId = async (
@@ -121,7 +121,7 @@ export const queryResearchObjectAttestations = async (
   const response = await composeClient.executeQuery<
     { node: { attestations: { edges: { node: Attestation }[] } } }
   >(`
-    query ($id: ID!){
+    query ($id: ID!) {
       node(id: $id) {
         ... on ResearchObject {
           attestations(first: 10) {
@@ -332,6 +332,58 @@ export const mutationCreateContributorRelation = async (
   );
   assertMutationErrors(response, 'create contributor relation');
   return response.data!.createContributorRelation.document.id;
+}
+
+export const mutationCreateReferenceRelation = async (
+  composeClient: ComposeClient,
+  inputs: ReferenceRelation
+): Promise<string> => {
+  const response = await composeClient.executeQuery<
+    { createReferenceRelation: { document: { id: string }}}
+  >(`
+    mutation ($fromID: CeramicStreamID!, $toID: CeramicStreamID!) {
+      createReferenceRelation(input: {
+        content: {
+          fromID: $fromID
+          toID: $toID
+        }
+      })
+      {
+        document {
+          id
+        }
+      }
+    }
+  `, inputs
+  );
+  assertMutationErrors(response, 'create reference relation');
+  return response.data!.createReferenceRelation.document.id;
+}
+
+export const mutationCreateResearchFieldRelation = async (
+  composeClient: ComposeClient,
+  inputs: ResearchFieldRelation
+): Promise<string> => {
+  const response = await composeClient.executeQuery<
+    { createResearchFieldRelation: { document: { id: string }}}
+  >(`
+    mutation ($fieldID: CeramicStreamID!, $researchObjectID: CeramicStreamID!) {
+      createResearchFieldRelation(input: {
+        content: {
+          researchObjectID: $researchObjectID
+          fieldID: $fieldID
+        }
+      })
+      {
+        document {
+          id
+        }
+      }
+    }
+  `, inputs
+  );
+  assertMutationErrors(response, 'create research field relation');
+  return response.data!.createResearchFieldRelation.document.id;
 }
 
 export const mutationCreateResearchField = async (
