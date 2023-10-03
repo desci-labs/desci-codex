@@ -4,12 +4,12 @@ import { RuntimeCompositeDefinition } from '@composedb/types'
 import { test, describe, beforeAll } from 'vitest'
 import {
   mutationCreateAttestation, mutationCreateClaim, mutationCreateProfile,
-  mutationCreateResearchObject, queryViewerClaims, queryViewerResearchObjects
+  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchObject, queryViewerClaims, queryViewerProfile, queryViewerResearchObjects
 } from '../utils/queries'
 import { randomDID } from './util'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 import { writeComposite } from 'scripts/composites.mjs'
-import { DID } from 'dids'
+import { setTimeout } from "timers/promises";
 
 const CERAMIC_API = 'http:/localhost:7007'
 const TIMEOUT = 7000
@@ -24,16 +24,16 @@ describe('ComposeDB nodes', () => {
     } catch (e) {
       console.error('Failed connection to Ceramic. Run with "make test" or against live devserver!')
       process.exit(1)
-    }
+    };
 
     // Takes a spinner param which just screws with our test output
-    await writeComposite({ info: () => { }, succeed: () => { } })
-  })
+    await writeComposite({ info: () => { }, succeed: () => { } });
+  });
 
   describe('Single user creation', async () => {
-    const composeClient = freshClient()
-    const user = await randomDID()
-    composeClient.setDID(user)
+    const composeClient = freshClient();
+    const user = await randomDID();
+    composeClient.setDID(user);
 
     // Create mutations error on failure and are otherwise successful
     test('research object', async () =>
@@ -44,7 +44,7 @@ describe('ComposeDB nodes', () => {
           manifest: A_CID
         }
       )
-    )
+    );
 
     test('profile', async () =>
       await mutationCreateProfile(
@@ -53,9 +53,12 @@ describe('ComposeDB nodes', () => {
           displayName: 'First Lastname',
           orcid: 'orcidHandle'
         }
-      )
-      // No idea why this one takes 3 seconds :shrug:
-      , TIMEOUT)
+      ),
+      // SINGLE accountRelation instances will ask the network for previous
+      // creations, which slowly times out. PR allowing setting this timeout
+      // in progress: https://github.com/ceramicstudio/js-composedb/pull/182
+      TIMEOUT
+    );
 
     test('claim', async () =>
       await mutationCreateClaim(
@@ -66,7 +69,7 @@ describe('ComposeDB nodes', () => {
           badge: A_CID
         }
       )
-    )
+    );
 
     test('attestation to own research object', async () => {
       const myResearchObject = await mutationCreateResearchObject(
@@ -75,7 +78,7 @@ describe('ComposeDB nodes', () => {
           title: 'Test',
           manifest: A_CID
         }
-      )
+      );
       const myClaim = await mutationCreateClaim(
         composeClient,
         {
@@ -83,7 +86,7 @@ describe('ComposeDB nodes', () => {
           description: 'The point of the claim',
           badge: A_CID
         }
-      )
+      );
       await mutationCreateAttestation(
         composeClient,
         {
@@ -91,93 +94,145 @@ describe('ComposeDB nodes', () => {
           claimID: myClaim,
           revoked: false
         }
-      )
-    })
+      );
+    });
 
     test('organization', async () => {
       // pending membership modelling
     })
-  })
+  });
 
   describe('Attest', async () => {
     const composeClient = freshClient()
+    composeClient.setDID(await randomDID())
+    const testClaim = await mutationCreateClaim(
+      composeClient,
+      {
+        title: 'Test',
+        description: 'A nice explanation'
+      }
+    );
 
-    test.todo('to self', async () => {
+    test('to own profile', async () => {
       const user = await randomDID()
       composeClient.setDID(user) 
-      const claim = await mutationCreateClaim(
+
+      const ownProfile = await mutationCreateProfile(
         composeClient,
         {
-          title: 'Cool',
-          description: 'Very interesting person'
+          displayName: 'First Lastname',
+          orcid: 'orcidHandle'
         }
-      )
-      // TODO update claim
+      );
+
+      await mutationCreateAttestation(
+        composeClient,
+        {
+          targetID: ownProfile,
+          claimID: testClaim,
+          revoked: false
+        }
+      );
     })
 
     test('other users research object', async () => {
-      const user1 = await randomDID()
-      composeClient.setDID(user1)
+      const user1 = await randomDID();
+      composeClient.setDID(user1);
       const user1ResearchObject = await mutationCreateResearchObject(
         composeClient,
         {
           title: 'Paper',
           manifest: A_CID
         }
-      )
+      );
 
-      const user2 = await randomDID()
-      composeClient.setDID(user2)
-      const user2Claim = await mutationCreateClaim(
-        composeClient,
-        {
-          title: 'Great',
-          description: 'Incredibly nice work'
-        }
-      )
+      const user2 = await randomDID();
+      composeClient.setDID(user2);
       await mutationCreateAttestation(
         composeClient,
         {
           targetID: user1ResearchObject,
-          claimID: user2Claim,
+          claimID: testClaim,
           revoked: false
         }
-      )
+      );
     })
 
-    test('revokation', async () => {
-      const user = await randomDID()
-      composeClient.setDID(user)
-      const user1ResearchObject = await mutationCreateResearchObject(
+    test('updated with revokation', async () => {
+      const user = await randomDID();
+      composeClient.setDID(user);
+      const researchObject = await mutationCreateResearchObject(
         composeClient,
         {
           title: 'Paper',
           manifest: A_CID
         }
-      )
+      );
 
-      const user2 = await randomDID()
-      composeClient.setDID(user2)
-      const user2Claim = await mutationCreateClaim(
+      const attestation = await mutationCreateAttestation(
         composeClient,
         {
-          title: 'Great',
-          description: 'Incredibly nice work'
-        }
-      )
-      await mutationCreateAttestation(
-        composeClient,
-        {
-          targetID: user1ResearchObject,
-          claimID: user2Claim,
+          targetID: researchObject,
+          claimID: testClaim,
           revoked: false
         }
-      )
+      );
+
+      await mutationUpdateAttestation(
+        composeClient,
+        {
+          id: attestation,
+          revoked: true
+        }
+      );
     })
   })
 
-  describe('Updating objects', async () => {
-    test.todo('')
+  describe('Updating', async () => {
+    const composeClient = freshClient();
+    const user = await randomDID();
+    composeClient.setDID(user);
+
+    test('a research object', async () => {
+      const researchObject = await mutationCreateResearchObject(
+        composeClient,
+        {
+          title: 'Test',
+          manifest: A_CID
+        }
+      );
+      await mutationUpdateResearchObject(
+        composeClient,
+        {
+          id: researchObject,
+          title: 'A fancy new title',
+          manifest: "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa"
+        }
+      );
+    });
+
+    test('a profile', async () => {
+      await mutationCreateProfile(
+        composeClient,
+        {
+          displayName: "My Name",
+          orcid: "@handle"
+        }
+      );
+
+      // Ceramic node takes a little while syncing this with the "network"
+      // since it has the SINGLE accountRelation
+      await setTimeout(500);
+      // Apparently create acts as an upsert on SINGLE accountRelation models
+      await mutationCreateProfile(
+        composeClient,
+        {
+          displayName: "New Name",
+          orcid: "@handle"
+        }
+      );
+    }, TIMEOUT);
+
   })
 
   describe('Querying relations', async () => {

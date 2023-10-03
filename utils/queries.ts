@@ -202,21 +202,23 @@ export const mutationCreateResearchComponent = async (
 
 export const mutationUpdateResearchObject = async (
   composeClient: ComposeClient,
-  inputs: ROProps
+  inputs: Partial<ROProps> & { id: string }
 ): Promise<void> => {
-  // REQUIRE ID
+  const gqlParamTypes: Record<string, string> = {
+    manifest: "InterPlanetaryCID",
+    title: "String"
+  };
+  
+  const [params, content] = getQueryFields(gqlParamTypes, inputs);
   const response = await composeClient.executeQuery(`
-    mutation ($title: String!, $manifest: InterPlanetaryCID!){
+    mutation ($id: ID!, ${params}){
       updateResearchObject(input: {
-        content: {
-          title: $title
-          manifest: $manifest
-        }
+        id: $id
+        content: { ${content} }
       })
       {
         document {
-          title
-          manifest
+          id
         }
       }
     }`,
@@ -305,6 +307,38 @@ export const mutationCreateAttestation = async (
   );
   assertMutationErrors(response, 'create attestation')
   return response.data!.createAttestation.document.id
+}
+
+export const mutationUpdateAttestation = async (
+  composeClient: ComposeClient, 
+  inputs: Partial<Attestation> & { id: string }
+): Promise<string> => {
+  const gqlParamTypes: Record<string, string> = {
+    targetID: "CeramicStreamID",
+    claimID: "CeramicStreamID",
+    revoked: "Boolean"
+  };
+
+  const [params, content] = getQueryFields(gqlParamTypes, inputs);
+  const response = await composeClient.executeQuery<
+      { updateAttestation: { document: { id: string } } }
+    >(`
+     mutation ($id: ID!, ${params}){
+      updateAttestation(input: {
+        id: $id
+        content: { ${content} }
+      })
+      {
+        document {
+          id
+        }
+      }
+    }
+    `,
+    inputs
+  );
+  assertMutationErrors(response, 'update attestation')
+  return response.data!.updateAttestation.document.id
 }
 
 export const mutationCreateContributorRelation = async (
@@ -433,3 +467,29 @@ const assertQueryErrors = (
         throw new Error(`Query failed: ${queryDescription}!`);
     }
 }
+
+/** Get query parameters and doc content string depending on which
+* input parameters are supplied. E.g. this input:
+*   graphQLParamTypes = { field: "String!" }
+*   inputs = { field: "hello"}
+* would yield:
+*   ["$field: String!", "field: $field"]
+* which is what the GraphQL needs to put in the query/mutation parameters
+* and the 'content' field, respectively.
+*
+* This function ignore any the id property because it need to be supplied
+* in a special spot and for mutations only.
+*/
+const getQueryFields = (
+  graphQLParamTypes: Record<string, string>,
+  inputs: Record<string, unknown>
+) =>
+  Object.keys(inputs)
+  .filter(p => p !== 'id')
+  .reduce<[string[], string[]]>(
+    (acc, next) => [
+      [...acc[0], `$${next}: ${graphQLParamTypes[next]}`],
+      [...acc[1], `${next}: $${next}`]
+    ],
+    [[],[]]
+  ).map(stringArr => stringArr.join(', '));

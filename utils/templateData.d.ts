@@ -1,7 +1,3 @@
-type RequiredKeys<T> = {
-  [K in keyof T as (undefined extends T[K] ? never : K)]: T[K]
-};
-
 export type Seed = string;
 // Address properties and array indices for indicating the future StreamID,
 // will be resolved to the actual stream when the template is instantiated
