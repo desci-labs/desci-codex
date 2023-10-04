@@ -114,8 +114,8 @@ describe('ComposeDB nodes', () => {
     );
 
     test('to own profile', async () => {
-      const user = await randomDID()
-      composeClient.setDID(user) 
+      const user = await randomDID();
+      composeClient.setDID(user);
 
       const ownProfile = await mutationCreateProfile(
         composeClient,
