@@ -2,25 +2,38 @@ export type Profile = {
   id?: string
   displayName?: string
   orcid?: string
-}
+};
 
 export type DID = {
   profile?: Profile
-}
+};
 
 export type ROProps = {
   id?: string
   title: string
   manifest: string
+  components?: ResearchComponent[]
   owner?: DID
-}
+};
+
+export type ResearchComponent = {
+  owner?: DID
+  name: string
+  type: ComponentType
+  dagNode: string
+  researchObjectID: string
+};
+
+export type ComponentType =
+  "DATA_BUCKET" |
+  "UNKNOWN"
 
 export type Claim = {
   id?: string,
   title: string,
   description: string,
   badge?: string
-}
+};
 
 export type Attestation = {
   id?: string,
@@ -29,9 +42,34 @@ export type Attestation = {
   claimID: string,
   claim?: Claim ,
   revoked: boolean
-}
+};
+
+export type ContributorRelation = {
+  id?: string,
+  role: string,
+  // info
+  contributorID: string,
+  researchObjectID: string
+};
+
+export type ReferenceRelation = {
+  id?: string,
+  toID: string,
+  fromID: string
+};
+
+export type ResearchFieldRelation = {
+  id?: string,
+  fieldID: string,
+  researchObjectID: string
+};
 
 export type SidebarProps = {
   displayName?: string
   id?: string
-}
+};
+
+export type RequiredKeys<T> = {
+  [K in keyof T as (undefined extends T[K] ? never : K)]: T[K]
+};
+

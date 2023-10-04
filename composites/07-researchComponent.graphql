@@ -1,0 +1,31 @@
+type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
+  id: ID!
+}
+
+type ResearchComponent
+  @createModel(
+    accountRelation: LIST,
+    description: "A contextualized DAG pointer for a research object, adding metadata to the contents"
+  )
+  @createIndex(fields: [{ path: "dagNode" }])
+  @createIndex(fields: [{ path: "researchObjectID" }])
+{
+  owner: DID! @documentAccount
+  name: String! @string(maxLength: 512)
+  type: ComponentType!
+  dagNode: CID!
+  # The associated research object in which this component lives
+  researchObjectID: StreamID! @documentReference(model: "ResearchObject")
+  researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+}
+
+# Problematic to have hardcoded since extension will change the Component model
+enum ComponentType {
+  DATA_BUCKET
+  UNKNOWN
+  PDF
+  CODE
+  VIDEO
+  DATA
+  LINK
+}

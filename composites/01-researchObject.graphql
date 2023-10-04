@@ -3,7 +3,7 @@ type ResearchObject
   @createIndex(fields: [{ path: "title" }])
 {
   owner: DID! @documentAccount
+  version: CommitID! @documentVersion
   title: String! @string(maxLength: 250)
-  #contributors: [DID!] @accountReference
   manifest: CID!
 }

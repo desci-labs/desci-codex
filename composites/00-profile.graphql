@@ -1,8 +1,13 @@
 type Profile 
   @createModel(accountRelation: SINGLE, description: "An author profile") 
   @createIndex(fields: [{ path: "orcid" }])
+  @createIndex(fields: [{ path: "googleScholar" }])
+  @createIndex(fields: [{ path: "publicKey" }])
 {
   owner: DID! @documentAccount
-  displayName: String! @string(maxLength: 250)
-  orcid: String @string(maxLength: 100)
+  version: CommitID! @documentVersion
+  displayName: String! @string(maxLength: 256)
+  orcid: String @string(maxLength: 256)
+  googleScholar: String @string(maxLength: 256)
+  publicKey: String @string(maxLength: 512)
 }

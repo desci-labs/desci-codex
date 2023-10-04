@@ -1,49 +1,197 @@
 {
+  "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f": {
+    "profile": {
+      "displayName": "DeSci Labs"
+    },
+    "researchObjects": [],
+    "claims": [
+      {
+        "title": "Quality Stuff",
+        "description": "Awarded to great things"
+      },
+      {
+        "title": "Data Available",
+        "description": "This research object has a dataset attached"
+      }
+    ],
+    "researchFields": [
+      { "title": "Cosmology" },
+      { "title": "Psychology"}
+    ],
+    "contributorRelations": [],
+    "referenceRelations": [],
+    "researchFieldRelations": [],
+    "attestations": []
+  },
   "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0": {
     "profile": {
       "displayName": "Tinky-Winky",
       "orcid": "teletub-tw"
     },
+    "researchFields": [],
     "researchObjects": [
       {
         "title": "Sunrises in Teletubbyland",
-        "manifest": "bafkreiepot62powegf7tt73gyiz24facsdloywggattt2asz5y4eaqhkyi"
+        "manifest": "bafkreiepot62powegf7tt73gyiz24facsdloywggattt2asz5y4eaqhkyi",
+        "components": [
+          {
+            "name": "A fancy dataset",
+            "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
+            "type": "DATA"
+          }
+        ]
       },
       {
         "title": "TeletubbyPlanet Orbital Behaviour",
-        "manifest": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xalp7i"
+        "manifest": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xalp7i",
+        "components": []
       }
     ],
-    "claims": []
+    "contributorRelations": [],
+    "referenceRelations": [
+      {
+        "fromPath": [
+          "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
+          "researchObjects",
+          1,
+          "id"
+        ],
+        "toPath": [
+          "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
+          "researchObjects",
+          0,
+          "id"
+        ]
+      }
+    ],
+    "researchFieldRelations": [
+      {
+        "researchObjectPath": [
+          "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
+          "researchObjects",
+          0,
+          "id"
+        ],
+        "fieldPath": [
+          "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
+          "researchFields",
+          0
+        ]
+      },
+      {
+        "researchObjectPath": [
+          "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
+          "researchObjects",
+          1,
+          "id"
+        ],
+        "fieldPath": [
+          "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
+          "researchFields",
+          0
+        ]
+      }
+    ],
+    "claims": [],
+    "attestations": []
   },
   "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015": {
     "profile": {
       "displayName": "Laa-Laa",
       "orcid": "teletub-ll"
     },
+    "researchFields": [],
     "researchObjects": [
       {
         "title": "Teletubby Folklore",
-        "manifest": "bafkreieodz3e4kzbnlg4nka5pwrgafwuuemfuejxqa5dpdaqlgt6bjs7fm"
+        "manifest": "bafkreieodz3e4kzbnlg4nka5pwrgafwuuemfuejxqa5dpdaqlgt6bjs7fm",
+        "components": [
+          {
+            "name": "Some cool data I found",
+            "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
+            "type": "DATA"
+          }
+        ]
       }
     ],
-    "claims": []
+    "contributorRelations": [
+      {
+        "role": "Co-Author",
+        "researchObjectPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchObjects",
+          0,
+          "id"
+        ],
+        "contributorPath": [
+          "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
+          "profile"
+        ]
+      }
+    ],
+    "referenceRelations": [],
+    "researchFieldRelations": [
+      {
+        "researchObjectPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchObjects",
+          0,
+          "id"
+        ],
+        "fieldPath": [
+          "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
+          "researchFields",
+          1
+        ]
+      }
+    ],
+    "claims": [],
+    "attestations": [
+      {
+        "targetPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchObjects",
+          0,
+          "id"
+        ],
+        "claimPath": [
+          "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
+          "claims",
+          1
+        ]
+      }
+    ]
   },
   "fdda86398d9559fdc448be872f8e69dc11d9a19ae4707c7903fad530aa165b2c": {
     "profile": {
       "displayName": "Sun Baby",
       "orcid": "teletub-sb"
     },
+    "researchFields": [],
     "researchObjects": [
       {
         "title": "Solar Mind Control",
-        "manifest": "bafkreifixmk6tierh6qompfouk63r6clg5jbeuvwherrxacq4uoedk4o5q"
+        "manifest": "bafkreifixmk6tierh6qompfouk63r6clg5jbeuvwherrxacq4uoedk4o5q",
+        "components": []
       }
     ],
-    "claims": [
+    "contributorRelations": [],
+    "referenceRelations": [],
+    "researchFieldRelations": [],
+    "claims": [],
+    "attestations": [
       {
-        "title": "Quality Stuff",
-        "description": "Awarded to great things"
+        "targetPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchObjects",
+          0,
+          "id"
+        ],
+        "claimPath": [
+          "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
+          "claims",
+          0
+        ]
       }
     ]
   }

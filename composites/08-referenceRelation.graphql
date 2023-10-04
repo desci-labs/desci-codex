@@ -1,0 +1,15 @@
+type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
+  id: ID!
+}
+
+type ReferenceRelation 
+  @createModel(accountRelation: LIST, description: "Indicate a reference between research objects")
+{
+  owner: DID! @documentAccount
+
+  fromID: StreamID! @documentReference(model: "ResearchObject")
+  from: ResearchObject! @relationDocument(property: "fromID")
+
+  toID: StreamID! @documentReference(model: "ResearchObject")
+  to: ResearchObject! @relationDocument(property: "toID")
+}
