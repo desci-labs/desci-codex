@@ -1,15 +1,16 @@
 import { ComposeClient } from '@composedb/client'
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from '@composedb/types'
-import { test, describe, beforeAll } from 'vitest'
+import { test, describe, beforeAll, expect } from 'vitest'
 import {
   mutationCreateAttestation, mutationCreateClaim, mutationCreateProfile,
-  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchObject, queryViewerClaims, queryViewerProfile, queryViewerResearchObjects
+  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchObject, queryResearchObjects
 } from '../utils/queries'
 import { randomDID } from './util'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 import { writeComposite } from 'scripts/composites.mjs'
 import { setTimeout } from "timers/promises";
+import { ROProps } from '@/types'
 
 const CERAMIC_API = 'http:/localhost:7007'
 const TIMEOUT = 7000
@@ -30,23 +31,23 @@ describe('ComposeDB nodes', () => {
     await writeComposite({ info: () => { }, succeed: () => { } });
   });
 
-  describe('Single user creation', async () => {
+  describe('User', async () => {
     const composeClient = freshClient();
     const user = await randomDID();
     composeClient.setDID(user);
 
     // Create mutations error on failure and are otherwise successful
-    test('research object', async () =>
-      await mutationCreateResearchObject(
+    test('can create research object', async () => {
+      mutationCreateResearchObject(
         composeClient,
         {
           title: 'Test',
           manifest: A_CID
         }
-      )
-    );
+      );
+    });
 
-    test('profile', async () =>
+    test('can create profile', async () =>
       await mutationCreateProfile(
         composeClient,
         {
@@ -60,7 +61,7 @@ describe('ComposeDB nodes', () => {
       TIMEOUT
     );
 
-    test('claim', async () =>
+    test('can create claim', async () =>
       await mutationCreateClaim(
         composeClient,
         {
@@ -71,7 +72,7 @@ describe('ComposeDB nodes', () => {
       )
     );
 
-    test('attestation to own research object', async () => {
+    test('can attest to own research object', async () => {
       const myResearchObject = await mutationCreateResearchObject(
         composeClient,
         {
@@ -97,12 +98,12 @@ describe('ComposeDB nodes', () => {
       );
     });
 
-    test('organization', async () => {
+    test.skip('organization', async () => {
       // pending membership modelling
     })
   });
 
-  describe('Attest', async () => {
+  describe('Attestations', async () => {
     const composeClient = freshClient()
     composeClient.setDID(await randomDID())
     const testClaim = await mutationCreateClaim(
@@ -113,7 +114,7 @@ describe('ComposeDB nodes', () => {
       }
     );
 
-    test('to own profile', async () => {
+    test('can be made to own profile', async () => {
       const user = await randomDID();
       composeClient.setDID(user);
 
@@ -135,7 +136,7 @@ describe('ComposeDB nodes', () => {
       );
     })
 
-    test('other users research object', async () => {
+    test('can be made to other users research object', async () => {
       const user1 = await randomDID();
       composeClient.setDID(user1);
       const user1ResearchObject = await mutationCreateResearchObject(
@@ -158,7 +159,7 @@ describe('ComposeDB nodes', () => {
       );
     })
 
-    test('updated with revokation', async () => {
+    test('can be updated with revokation', async () => {
       const user = await randomDID();
       composeClient.setDID(user);
       const researchObject = await mutationCreateResearchObject(
@@ -188,12 +189,12 @@ describe('ComposeDB nodes', () => {
     })
   })
 
-  describe('Updating', async () => {
+  describe('User', async () => {
     const composeClient = freshClient();
     const user = await randomDID();
     composeClient.setDID(user);
 
-    test('a research object', async () => {
+    test('can update research object', async () => {
       const researchObject = await mutationCreateResearchObject(
         composeClient,
         {
@@ -211,7 +212,7 @@ describe('ComposeDB nodes', () => {
       );
     });
 
-    test('a profile', async () => {
+    test('can update profile', async () => {
       await mutationCreateProfile(
         composeClient,
         {
@@ -235,7 +236,7 @@ describe('ComposeDB nodes', () => {
 
   })
 
-  describe('Querying relations', async () => {
+  describe.skip('Querying relations', async () => {
     test.todo('')
   })
 })
