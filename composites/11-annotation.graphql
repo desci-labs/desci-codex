@@ -1,0 +1,24 @@
+type ResearchComponent @loadModel(id: "$RESEARCH_COMPONENT_ID") {
+  id: ID!
+}
+
+type Claim @loadModel(id: "$CLAIM_ID") {
+  id: ID!
+}
+
+type Annotation
+  @createModel(accountRelation: LIST, description: "Research component commentary")
+{
+  owner: DID! @documentAccount
+  comment: String! @string(maxLength: 1024)
+
+  componentID: StreamID! @documentReference(model: "ResearchComponent")
+  component: ResearchComponent! @relationDocument(property: "componentID")
+  
+  # A way to identify the location of the annotation in the target component
+  # payload, for example a JSON path, line number, or coordinates in a pdf
+  path: String @string(maxLength: 512)
+
+  claimID: StreamID @documentReference(model: "Claim")
+  claim: Claim @relationDocument(property: "claimID")
+}
