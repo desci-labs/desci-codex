@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { copyFileSync, readFileSync } from "fs";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import {
   createComposite,
@@ -160,11 +160,23 @@ export const writeComposite = async (spinner) => {
     "./src/__generated__/definition.json"
   );
 
-  await deployComposite.startIndexingOn(ceramic);
+  // This is rediculous but there is a combination of things forcing
+  // requirements on the filenames
+  copyFileSync(
+    './src/__generated__/definition.js',
+    './src/__generated__/definition.mjs'
+  );
+  const { definition } = await import('../src/__generated__/definition.mjs');
+  const aliases = Object.entries(definition.models)
+    .map(([name, model]) => [name, model.id]);
+  // console.log('ALIASES:', aliases)
+
+  const aliasedDeployComposite = deployComposite.setAliases(
+    Object.fromEntries(aliases)
+  );
+  await aliasedDeployComposite.startIndexingOn(ceramic);
   spinner.succeed("composite deployed & ready for use");
 };
-
-
 
 /**
  * Authenticating DID for publishing composite

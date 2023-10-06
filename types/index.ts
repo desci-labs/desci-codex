@@ -44,6 +44,16 @@ export type Attestation = {
   revoked: boolean
 };
 
+export type Annotation = {
+  id?: string,
+  comment: string,
+  path: string,
+  componentID: string,
+  component?: ResearchComponent,
+  claimID: string,
+  claim?: Claim
+};
+
 export type ContributorRelation = {
   id?: string,
   role: string,
@@ -72,4 +82,3 @@ export type SidebarProps = {
 export type RequiredKeys<T> = {
   [K in keyof T as (undefined extends T[K] ? never : K)]: T[K]
 };
-

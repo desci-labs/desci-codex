@@ -50,6 +50,13 @@ export type AttestationTemplate = {
   claimPath: ObjectPath
 };
 
+export type AnnotationTemplate = {
+  comment: string,
+  path: string,
+  componentPath: ObjectPath,
+  claimPath: ObjectPath
+};
+
 export type ActorTemplate = {
   profile: ProfileTemplate,
   researchObjects: ResearchObjectTemplate[],

@@ -1,16 +1,15 @@
 import { ComposeClient } from '@composedb/client'
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from '@composedb/types'
-import { test, describe, beforeAll, expect } from 'vitest'
+import { test, describe, beforeAll } from 'vitest'
 import {
   mutationCreateAttestation, mutationCreateClaim, mutationCreateProfile,
-  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchObject, queryResearchObjects
+  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchObject
 } from '../utils/queries'
 import { randomDID } from './util'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 import { writeComposite } from 'scripts/composites.mjs'
 import { setTimeout } from "timers/promises";
-import { ROProps } from '@/types'
 
 const CERAMIC_API = 'http:/localhost:7007'
 const TIMEOUT = 7000
