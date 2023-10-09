@@ -176,17 +176,19 @@ export const mutationCreateResearchComponent = async (
   composeClient: ComposeClient,
   inputs: ResearchComponent
 ): Promise<string> => {
+  const gqlTypes: Partial<Record<keyof ResearchComponent, string>> = {
+    name: "String!",
+    mimeType: "String!",
+    dagNode: "InterPlanetaryCID!",
+    researchObjectID: "CeramicStreamID!"
+  };
+  const [params, content] = getQueryFields(gqlTypes, inputs);
   const response = await composeClient.executeQuery<
       { createResearchComponent: { document: { id: string } } }
     >(`
-    mutation ($name: String!, $type: ResearchComponentComponentType!, $dagNode: InterPlanetaryCID!, $researchObjectID: CeramicStreamID!){
+    mutation ( ${params} ){
       createResearchComponent(input: {
-        content: {
-          name: $name
-          type: $type
-          dagNode: $dagNode
-          researchObjectID: $researchObjectID
-        }
+        content: { ${content} }
       })
       {
         document {
@@ -196,15 +198,15 @@ export const mutationCreateResearchComponent = async (
     }`,
     inputs
   )
-  assertMutationErrors(response, 'create research object')
-  return response.data!.createResearchComponent.document.id
+  assertMutationErrors(response, 'create research object');
+  return response.data!.createResearchComponent.document.id;
 }
 
 export const mutationUpdateResearchObject = async (
   composeClient: ComposeClient,
   inputs: Partial<ROProps> & { id: string }
 ): Promise<void> => {
-  const gqlParamTypes: Record<string, string> = {
+  const gqlParamTypes: Partial<Record<keyof typeof inputs, string>> = {
     manifest: "InterPlanetaryCID",
     title: "String"
   };
@@ -223,8 +225,8 @@ export const mutationUpdateResearchObject = async (
       }
     }`,
     inputs
-  )
-  assertMutationErrors(response, 'update research object')
+  );
+  assertMutationErrors(response, 'update research object');
 }
 
 export const mutationCreateProfile = async (
@@ -249,8 +251,8 @@ export const mutationCreateProfile = async (
     }`,
     inputs
   )
-  assertMutationErrors(response, 'create profile')
-  return response.data!.createProfile.document.id
+  assertMutationErrors(response, 'create profile');
+  return response.data!.createProfile.document.id;
 }
 
 export const mutationCreateClaim = async (
@@ -337,8 +339,8 @@ export const mutationUpdateAttestation = async (
     `,
     inputs
   );
-  assertMutationErrors(response, 'update attestation')
-  return response.data!.updateAttestation.document.id
+  assertMutationErrors(response, 'update attestation');
+  return response.data!.updateAttestation.document.id;
 }
 
 export const mutationCreateContributorRelation = async (
@@ -453,19 +455,19 @@ const assertMutationErrors = (
   queryDescription: string
 ) => {
   if (result.errors) {
-    console.error('Error:', result.errors.toString())
+    console.error('Error:', result.errors.toString());
     throw new Error(`Mutation failed: ${queryDescription}`)
-  }
+  };
 }
 
 const assertQueryErrors = (
   result: SimpleQueryResult,
   queryDescription: string
 ) => {
-    if (result.errors || !result.data) {
-        console.error("Error:", result.errors?.toString());
-        throw new Error(`Query failed: ${queryDescription}!`);
-    }
+  if (result.errors || !result.data) {
+      console.error("Error:", result.errors?.toString());
+      throw new Error(`Query failed: ${queryDescription}!`);
+  };
 }
 
 /** Get query parameters and doc content string depending on which

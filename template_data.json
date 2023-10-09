@@ -21,7 +21,8 @@
     "contributorRelations": [],
     "referenceRelations": [],
     "researchFieldRelations": [],
-    "attestations": []
+    "attestations": [],
+    "annotations": []
   },
   "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0": {
     "profile": {
@@ -37,7 +38,7 @@
           {
             "name": "A fancy dataset",
             "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
-            "type": "DATA"
+            "mimeType": "text/csv"
           }
         ]
       },
@@ -93,7 +94,8 @@
       }
     ],
     "claims": [],
-    "attestations": []
+    "attestations": [],
+    "annotations": []
   },
   "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015": {
     "profile": {
@@ -109,7 +111,7 @@
           {
             "name": "Some cool data I found",
             "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
-            "type": "DATA"
+            "mimeType": "text/csv"
           }
         ]
       }
@@ -160,7 +162,8 @@
           1
         ]
       }
-    ]
+    ],
+    "annotations": []
   },
   "fdda86398d9559fdc448be872f8e69dc11d9a19ae4707c7903fad530aa165b2c": {
     "profile": {
@@ -191,6 +194,24 @@
           "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
           "claims",
           0
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "comment": "I viewed this dataset and it seems to check out!",
+        "path": ".",
+        "componentPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchObjects",
+          0,
+          "components",
+          0
+        ],
+        "claimPath": [
+          "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
+          "claims",
+          1
         ]
       }
     ]

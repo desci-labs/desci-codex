@@ -19,48 +19,54 @@ export type ROProps = {
 export type ResearchComponent = {
   owner?: DID
   name: string
-  type: ComponentType
+  mimeType: string
   dagNode: string
   researchObjectID: string
 };
 
-export type ComponentType =
-  "DATA_BUCKET" |
-  "UNKNOWN"
-
 export type Claim = {
-  id?: string,
-  title: string,
-  description: string,
+  id?: string
+  title: string
+  description: string
   badge?: string
 };
 
 export type Attestation = {
-  id?: string,
-  source?: DID,
-  targetID: string,
-  claimID: string,
-  claim?: Claim ,
+  id?: string
+  source?: DID
+  targetID: string
+  claimID: string
+  claim?: Claim 
   revoked: boolean
 };
 
+export type Annotation = {
+  id?: string
+  comment: string
+  path: string
+  componentID: string
+  component?: ResearchComponent
+  claimID: string
+  claim?: Claim
+};
+
 export type ContributorRelation = {
-  id?: string,
-  role: string,
+  id?: string
+  role: string
   // info
-  contributorID: string,
+  contributorID: string
   researchObjectID: string
 };
 
 export type ReferenceRelation = {
-  id?: string,
-  toID: string,
+  id?: string
+  toID: string
   fromID: string
 };
 
 export type ResearchFieldRelation = {
-  id?: string,
-  fieldID: string,
+  id?: string
+  fieldID: string
   researchObjectID: string
 };
 
@@ -72,4 +78,3 @@ export type SidebarProps = {
 export type RequiredKeys<T> = {
   [K in keyof T as (undefined extends T[K] ? never : K)]: T[K]
 };
-

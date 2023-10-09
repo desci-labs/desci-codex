@@ -11,7 +11,7 @@ export type ProfileTemplate = {
 export type ComponentTemplate = {
   name: string,
   dagNode: string,
-  type: string
+  mimeType: string
 };
 
 export type ResearchObjectTemplate = {
@@ -47,6 +47,13 @@ export type ResearchFieldRelationTemplate = {
 
 export type AttestationTemplate = {
   targetPath: ObjectPath,
+  claimPath: ObjectPath
+};
+
+export type AnnotationTemplate = {
+  comment: string,
+  path: string,
+  componentPath: ObjectPath,
   claimPath: ObjectPath
 };
 

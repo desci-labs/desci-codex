@@ -7,6 +7,8 @@ type Profile
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
   displayName: String! @string(maxLength: 256)
+  # Should probably be generic key-value pairs, but that won't work with indexing
+  # for filter and sort
   orcid: String @string(maxLength: 256)
   googleScholar: String @string(maxLength: 256)
   publicKey: String @string(maxLength: 512)
