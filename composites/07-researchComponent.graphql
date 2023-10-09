@@ -12,20 +12,10 @@ type ResearchComponent
 {
   owner: DID! @documentAccount
   name: String! @string(maxLength: 512)
-  type: ComponentType!
+  mimeType: String! @string(maxLength: 128)
   dagNode: CID!
+
   # The associated research object in which this component lives
   researchObjectID: StreamID! @documentReference(model: "ResearchObject")
   researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
-}
-
-# Problematic to have hardcoded since extension will change the Component model
-enum ComponentType {
-  DATA_BUCKET
-  UNKNOWN
-  PDF
-  CODE
-  VIDEO
-  DATA
-  LINK
 }

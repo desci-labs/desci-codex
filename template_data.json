@@ -38,7 +38,7 @@
           {
             "name": "A fancy dataset",
             "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
-            "type": "DATA"
+            "mimeType": "text/csv"
           }
         ]
       },
@@ -111,7 +111,7 @@
           {
             "name": "Some cool data I found",
             "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
-            "type": "DATA"
+            "mimeType": "text/csv"
           }
         ]
       }

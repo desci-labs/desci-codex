@@ -11,7 +11,7 @@ export type ProfileTemplate = {
 export type ComponentTemplate = {
   name: string,
   dagNode: string,
-  type: string
+  mimeType: string
 };
 
 export type ResearchObjectTemplate = {
