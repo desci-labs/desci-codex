@@ -1,5 +1,5 @@
 import { ComposeClient } from "@composedb/client";
-import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation, ReferenceRelation, ResearchFieldRelation } from "../types";
+import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation, ReferenceRelation, ResearchFieldRelation, MetadataFragment, MutationTarget, Annotation } from "../types";
 import { ExecutionResult } from "graphql";
 
 export const queryViewerId = async (
@@ -341,7 +341,69 @@ export const mutationUpdateAttestation = async (
   );
   assertMutationErrors(response, 'update attestation');
   return response.data!.updateAttestation.document.id;
+};
+
+export const mutationCreateAnnotation = async (
+  composeClient: ComposeClient, 
+  inputs: Annotation
+): Promise<string> => {
+  const gqlTypes: Record<string, string> = {
+    comment: "String!",
+    targetID: "CeramicStreamID!",
+    path: "String",
+    claimID: "CeramicStreamID"
+  };
+  const [params, content] = getQueryFields(gqlTypes, inputs);
+  const response = await composeClient.executeQuery<
+      { createAnnotation: { document: { id: string } } }
+    >(`
+     mutation (${params}){
+      createAnnotation(input: {
+        content: { ${content} }
+      })
+      {
+        document {
+          id
+        }
+      }
+    }
+    `,
+    inputs
+  );
+  assertMutationErrors(response, 'create annotation')
+  return response.data!.createAnnotation.document.id
 }
+
+export const mutationCreateMetadataFragment = async (
+  composeClient: ComposeClient, 
+  inputs: MetadataFragment
+): Promise<string> => {
+  const gqlParamTypes: Record<string, string> = {
+    targetID: "CeramicStreamID!",
+    annotationID: "CeramicStreamID!",
+    fragment: "String!"
+  };
+
+  const [params, content] = getQueryFields(gqlParamTypes, inputs);
+  const response = await composeClient.executeQuery<
+      { createMetadataFragment: { document: { id: string } } }
+    >(`
+     mutation (${params}){
+      createMetadataFragment(input: {
+        content: { ${content} }
+      })
+      {
+        document {
+          id
+        }
+      }
+    }
+    `,
+    inputs
+  );
+  assertMutationErrors(response, 'create metadata fragment');
+  return response.data!.createMetadataFragment.document.id;
+};
 
 export const mutationCreateContributorRelation = async (
   composeClient: ComposeClient,

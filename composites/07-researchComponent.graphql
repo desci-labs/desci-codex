@@ -8,7 +8,7 @@ type ResearchComponent
     description: "A contextualized DAG pointer for a research object, adding metadata to the contents"
   )
   @createIndex(fields: [{ path: "dagNode" }])
-  @createIndex(fields: [{ path: "researchObjectID" }])
+  @createIndex(fields: [{ path: "mimeType" }])
 {
   owner: DID! @documentAccount
   name: String! @string(maxLength: 512)

@@ -4,8 +4,6 @@ type Claim @loadModel(id: "$CLAIM_ID") {
 
 type Attestation
   @createModel(accountRelation: LIST, description: "General attestation")
-  @createIndex(fields: [{ path: "targetID" }])
-  @createIndex(fields: [{ path: "claimID" }])
   @createIndex(fields: [{ path: "revoked" }])
 {
   source: DID! @documentAccount

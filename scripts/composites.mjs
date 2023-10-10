@@ -1,4 +1,4 @@
-import { copyFileSync, readFileSync } from "fs";
+import { readFileSync } from "fs";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import {
   createComposite,
@@ -102,20 +102,27 @@ export const writeComposite = async (spinner) => {
   const annotationSchema = readFileSync(
     "./composites/11-annotation.graphql",
     { encoding: "utf-8"}
-  ).replace("$RESEARCH_COMPONENT_ID", componentComposite.modelIDs[1])
-  .replace("$CLAIM_ID", researchFieldComposite.modelIDs[0]);
+  ).replace("$CLAIM_ID", claimComposite.modelIDs[0]);
 
   const annotationComposite = await Composite.create({
     ceramic,
     schema: annotationSchema
   });
 
+  const metadataFragmentSchema = readFileSync(
+    "./composites/12-metadataFragment.graphql",
+    { encoding: 'utf8' }
+  ).replace("$ANNOTATION_ID", annotationComposite.modelIDs[1]);
+
+  const metadataFragmentComposite = await Composite.create({
+    ceramic,
+    schema: metadataFragmentSchema
+  });
+
   const additionalRelationsSchema = readFileSync(
     "./composites/additional-relations.graphql",
     { encoding: "utf-8" }
   )
-  // .replace("$RESEARCH_OBJECT_ATTESTATION_ID", researchAttestationComposite.modelIDs[2])
-  // .replace("$PROFILE_ATTESTATION_ID", profAttestationComposite.modelIDs[1])
   .replace("$ATTESTATION_ID", attestationComposite.modelIDs[1])
   .replace("$CLAIM_ID", claimComposite.modelIDs[0])
   .replace("$RESEARCH_OBJECT_ID", researchObjComposite.modelIDs[0])
@@ -125,7 +132,8 @@ export const writeComposite = async (spinner) => {
   .replace("$REFERENCE_RELATION_ID", referenceRelationComposite.modelIDs[1])
   .replace("$RESEARCH_FIELD_ID", researchFieldComposite.modelIDs[0])
   .replace("$RESEARCH_FIELD_RELATION_ID", researchFieldRelationComposite.modelIDs[2])
-  .replace("$ANNOTATION_ID", annotationComposite.modelIDs[2]);
+  .replace("$ANNOTATION_ID", annotationComposite.modelIDs[1])
+  .replace("$METADATA_FRAGMENT_ID", metadataFragmentComposite.modelIDs[1]);
 
   const additionalRelationsComposite = await Composite.create({
     ceramic,
@@ -144,7 +152,8 @@ export const writeComposite = async (spinner) => {
     referenceRelationComposite,
     researchFieldComposite,
     researchFieldRelationComposite,
-    annotationComposite
+    annotationComposite,
+    metadataFragmentComposite
    ]);
 
   await writeEncodedComposite(composite, "./src/__generated__/definition.json");
@@ -160,21 +169,7 @@ export const writeComposite = async (spinner) => {
     "./src/__generated__/definition.json"
   );
 
-  // This is rediculous but there is a combination of things forcing
-  // requirements on the filenames
-  copyFileSync(
-    './src/__generated__/definition.js',
-    './src/__generated__/definition.mjs'
-  );
-  const { definition } = await import('../src/__generated__/definition.mjs');
-  const aliases = Object.entries(definition.models)
-    .map(([name, model]) => [name, model.id]);
-  // console.log('ALIASES:', aliases)
-
-  const aliasedDeployComposite = deployComposite.setAliases(
-    Object.fromEntries(aliases)
-  );
-  await aliasedDeployComposite.startIndexingOn(ceramic);
+  await deployComposite.startIndexingOn(ceramic);
   spinner.succeed("composite deployed & ready for use");
 };
 

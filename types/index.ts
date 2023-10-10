@@ -43,10 +43,9 @@ export type Attestation = {
 export type Annotation = {
   id?: string
   comment: string
-  path: string
-  componentID: string
-  component?: ResearchComponent
-  claimID: string
+  path?: string
+  targetID: string
+  claimID?: string
   claim?: Claim
 };
 
@@ -69,6 +68,25 @@ export type ResearchFieldRelation = {
   fieldID: string
   researchObjectID: string
 };
+
+export type MetadataFragment = {
+  id?: string
+  fragment: string,
+  annotationID: string,
+  annotation?: Annotation,
+  targetID: string
+};
+
+export type MutationTarget = 
+  Profile |
+  ROProps |
+  ResearchComponent |
+  Claim |
+  Attestation |
+  Annotation |
+  ContributorRelation |
+  ReferenceRelation |
+  ResearchFieldRelation;
 
 export type SidebarProps = {
   displayName?: string

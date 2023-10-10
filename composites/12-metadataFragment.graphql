@@ -1,0 +1,18 @@
+type Annotation @loadModel(id: "$ANNOTATION_ID") {
+  id: ID!
+}
+
+type MetadataFragment
+  @createModel(accountRelation: LIST, description: "A fragment of metadata send with an annotation")
+  @createIndex(fields: [{ path: "fragment" }])
+{
+  owner: DID! @documentAccount
+  fragment: String! @string(maxLength: 128)
+
+  # Annotation contextualising the fragment. Optional? :thinking:
+  annotationID: StreamID! @documentReference(model: "Annotation")
+  annotation: Annotation! @relationDocument(property: "annotationID")
+
+  # The target of the actual fragment
+  targetID: StreamID! # Research object or component
+}

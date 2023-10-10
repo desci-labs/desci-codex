@@ -5,9 +5,11 @@ import { fromString } from "uint8arrays/from-string"
 import untypedTemplateData from "../template_data.json"
 import { ComposeClient } from "@composedb/client"
 import { 
+    mutationCreateAnnotation,
   mutationCreateAttestation,
   mutationCreateClaim,
   mutationCreateContributorRelation,
+  mutationCreateMetadataFragment,
   mutationCreateProfile,
   mutationCreateReferenceRelation,
   mutationCreateResearchComponent,
@@ -18,11 +20,13 @@ import {
 import { CeramicClient } from "@ceramicnetwork/http-client"
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from "@composedb/types"
-import { Attestation, ROProps, ResearchComponent } from "@/types"
+import { Annotation, Attestation, MetadataFragment, ROProps, ResearchComponent } from "@/types"
 import { 
+    AnnotationTemplate,
   AttestationTemplate,
   ContributorRelationTemplate,
   DataTemplate,
+  MetadataFragmentTemplate,
   ObjectPath,
   ReferenceRelationTemplate,
   ResearchFieldRelationTemplate,
@@ -41,8 +45,8 @@ const didFromSeed = async (seed: string) => {
     },
   });
   await did.authenticate();
-  return did
-}
+  return did;
+};
 
 type ProfileIndexResults = { data: { profileIndex: { edges: []}}}
 export const loadIfUninitialised = async (ceramic: CeramicClient) => {
@@ -51,7 +55,7 @@ export const loadIfUninitialised = async (ceramic: CeramicClient) => {
       ceramic,
       definition: definition as RuntimeCompositeDefinition
     }
-  )
+  );
   const firstProfile = await composeClient.executeQuery(`
     query {
       profileIndex(first: 1) {
@@ -62,15 +66,15 @@ export const loadIfUninitialised = async (ceramic: CeramicClient) => {
         }
       }
     }
-  `) as ProfileIndexResults
+  `) as ProfileIndexResults;
 
   if (firstProfile.data.profileIndex.edges.length === 0) {
     console.log("Profile index empty, loading template data...")
     await loadTemplateData(composeClient)
   } else {
     console.log("Found profiles in index, skipping template data initialisation.")
-  }
-}
+  };
+};
 
 // Same shape as the template data, but with streamIDs for each leaf node
 type ActorDataStreamIDs = {
@@ -84,8 +88,10 @@ type ActorDataStreamIDs = {
   attestations: string[],
   contributorRelations: string[],
   referenceRelations: string[],
-  researchFieldRelations: string[]
-}
+  researchFieldRelations: string[],
+  annotations: string[],
+  metadataFragments: string[]
+};
 
 const freshActorRecord = (profile: string): ActorDataStreamIDs => (
   {
@@ -96,11 +102,13 @@ const freshActorRecord = (profile: string): ActorDataStreamIDs => (
     researchFields: [],
     contributorRelations: [],
     referenceRelations: [],
-    researchFieldRelations: []
+    researchFieldRelations: [],
+    annotations: [],
+    metadataFragments: []
   }
-)
+);
 
-type StreamIndex = Record<string, ActorDataStreamIDs>
+type StreamIndex = Record<string, ActorDataStreamIDs>;
 
 /**
  * Iterates over template data file, and with a DID generated from each root entry
@@ -152,13 +160,23 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
 
     streamIndex[seed].attestations = await Promise.all(
       template.attestations.map(attTemplate => loadAttestation(
-        attTemplate, 
-        streamIndex,
-        composeClient
+        attTemplate, streamIndex, composeClient
       ))
     );
-  }
-  console.log("Loading template data done!")
+
+    streamIndex[seed].annotations = await Promise.all(
+      template.annotations.map(annTemplate => loadAnnotation(
+        annTemplate, streamIndex, composeClient
+      ))
+    );
+
+    streamIndex[seed].metadataFragments = await Promise.all(
+      template.metadataFragments.map(mdTemplate => loadMetadataFragment(
+        mdTemplate, streamIndex, composeClient
+      ))
+    );
+  };
+  console.log("Loading template data done!");
 }
 
 const loadResearchObject = async (
@@ -169,7 +187,7 @@ const loadResearchObject = async (
     title: roTemplate.title,
     manifest: roTemplate.manifest
   }
-  const researchObject = await mutationCreateResearchObject(composeClient, roProps)
+  const researchObject = await mutationCreateResearchObject(composeClient, roProps);
 
   // Possibly create manifest components if such exist
   const components = await Promise.all(
@@ -184,8 +202,8 @@ const loadResearchObject = async (
     )
   );
 
-  return { id: researchObject, components }
-}
+  return { id: researchObject, components };
+};
 
 const loadContributorRelation = async (
   contTemplate: ContributorRelationTemplate,
@@ -203,7 +221,7 @@ const loadContributorRelation = async (
         researchObjectID
     }
   );
-}
+};
 
 const loadReferenceRelation = async (
   refTemplate: ReferenceRelationTemplate,
@@ -220,7 +238,7 @@ const loadReferenceRelation = async (
       fromID
     }
   );
-}
+};
 
 const loadResearchFieldRelation = async (
   fieldRelTemplate: ResearchFieldRelationTemplate,
@@ -237,7 +255,7 @@ const loadResearchFieldRelation = async (
       fieldID
     }
   );
-}
+};
 
 const loadAttestation = async (
   attestationTemplate: AttestationTemplate,
@@ -249,8 +267,37 @@ const loadAttestation = async (
   const claimID = recursePathToID(streamIndex, claimPath);
   const attestation: Attestation = { targetID, claimID, revoked: false };
   return mutationCreateAttestation(composeClient, attestation);
-}
+};
+
+const loadAnnotation = async (
+  annotationTemplate: AnnotationTemplate,
+  streamIndex: StreamIndex,
+  composeClient: ComposeClient
+): Promise<ActorDataStreamIDs['annotations'][number]> => {
+  const { comment, path, targetPath, claimPath } = annotationTemplate;
+  const targetID = recursePathToID(streamIndex, targetPath);
+  const annotation: Annotation = { targetID, comment };
+  if (claimPath) {
+    annotation.claimID = recursePathToID(streamIndex, claimPath);
+  };
+  if (path) {
+    annotation.path = path;
+  };
+  return mutationCreateAnnotation(composeClient, annotation);
+};
+
+const loadMetadataFragment = async (
+  metadataTemplate: MetadataFragmentTemplate,
+  streamIndex: StreamIndex,
+  composeClient: ComposeClient
+): Promise<ActorDataStreamIDs['metadataFragments'][number]> => {
+  const { annotationPath, targetPath, fragment } = metadataTemplate;
+  const annotationID = recursePathToID(streamIndex, annotationPath);
+  const targetID = recursePathToID(streamIndex, targetPath);
+  const metadataFragment: MetadataFragment = { targetID, annotationID, fragment };
+  return mutationCreateMetadataFragment(composeClient, metadataFragment);
+};
 
 // Oblivious to human faults, enjoy the footgun
 const recursePathToID = (object: any, path: ObjectPath): string =>
-  path.length ? recursePathToID(object[path[0]], path.slice(1)) : object
+  path.length ? recursePathToID(object[path[0]], path.slice(1)) : object;

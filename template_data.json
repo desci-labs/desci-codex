@@ -22,7 +22,8 @@
     "referenceRelations": [],
     "researchFieldRelations": [],
     "attestations": [],
-    "annotations": []
+    "annotations": [],
+    "metadataFragments": []
   },
   "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0": {
     "profile": {
@@ -95,7 +96,8 @@
     ],
     "claims": [],
     "attestations": [],
-    "annotations": []
+    "annotations": [],
+    "metadataFragments": []
   },
   "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015": {
     "profile": {
@@ -163,7 +165,8 @@
         ]
       }
     ],
-    "annotations": []
+    "annotations": [],
+    "metadataFragments": []
   },
   "fdda86398d9559fdc448be872f8e69dc11d9a19ae4707c7903fad530aa165b2c": {
     "profile": {
@@ -201,7 +204,7 @@
       {
         "comment": "I viewed this dataset and it seems to check out!",
         "path": ".",
-        "componentPath": [
+        "targetPath": [
           "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
           "researchObjects",
           0,
@@ -212,6 +215,51 @@
           "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
           "claims",
           1
+        ]
+      },
+      {
+        "comment": "I recommend this RO gets stamped as quality content",
+        "targetPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchObjects",
+          0,
+          "id"
+        ],
+        "claimPath": [
+          "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
+          "claims",
+          0
+        ]
+      }
+    ],
+    "metadataFragments": [
+      {
+        "fragment": "csv",
+        "annotationPath": [
+          "fdda86398d9559fdc448be872f8e69dc11d9a19ae4707c7903fad530aa165b2c",
+          "annotations",
+          0
+        ],
+        "targetPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchObjects",
+          0,
+          "components",
+          0
+        ]
+      },
+      {
+        "fragment": "folklore",
+        "annotationPath": [
+          "fdda86398d9559fdc448be872f8e69dc11d9a19ae4707c7903fad530aa165b2c",
+          "annotations",
+          0
+        ],
+        "targetPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchObjects",
+          0,
+          "id"
         ]
       }
     ]

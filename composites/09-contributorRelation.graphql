@@ -9,7 +9,7 @@ type Profile @loadModel(id: "$PROFILE_ID") {
 type ContributorRelation
   @createModel(accountRelation: LIST, description: "List a contributor on a research object")
   @createIndex(fields: [{ path: "role" }])
-  @createIndex(fields: [{ path: "contributorID" }])
+  #this is not supported, pah
   #@createIndex(fields: [{ path: ["info", "orcid"] }])
   #@createIndex(fields: [{ path: ["info", "googleScholar"] }])
 {
