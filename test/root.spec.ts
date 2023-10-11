@@ -90,8 +90,10 @@ describe('ComposeDB nodes', () => {
       await mutationCreateAttestation(
         composeClient,
         {
-          targetID: myResearchObject,
-          claimID: myClaim,
+          targetID: myResearchObject.streamID,
+          targetVersion: myResearchObject.version,
+          claimID: myClaim.streamID,
+          claimVersion: myClaim.version,
           revoked: false
         }
       );
@@ -128,8 +130,10 @@ describe('ComposeDB nodes', () => {
       await mutationCreateAttestation(
         composeClient,
         {
-          targetID: ownProfile,
-          claimID: testClaim,
+          targetID: ownProfile.streamID,
+          targetVersion: ownProfile.version,
+          claimID: testClaim.streamID,
+          claimVersion: testClaim.version,
           revoked: false
         }
       );
@@ -151,8 +155,10 @@ describe('ComposeDB nodes', () => {
       await mutationCreateAttestation(
         composeClient,
         {
-          targetID: user1ResearchObject,
-          claimID: testClaim,
+          targetID: user1ResearchObject.streamID,
+          targetVersion: user1ResearchObject.version,
+          claimID: testClaim.streamID,
+          claimVersion: testClaim.version,
           revoked: false
         }
       );
@@ -172,8 +178,10 @@ describe('ComposeDB nodes', () => {
       const attestation = await mutationCreateAttestation(
         composeClient,
         {
-          targetID: researchObject,
-          claimID: testClaim,
+          targetID: researchObject.streamID,
+          targetVersion: researchObject.version,
+          claimID: testClaim.streamID,
+          claimVersion: testClaim.version,
           revoked: false
         }
       );
@@ -181,7 +189,7 @@ describe('ComposeDB nodes', () => {
       await mutationUpdateAttestation(
         composeClient,
         {
-          id: attestation,
+          id: attestation.streamID,
           revoked: true
         }
       );
@@ -204,7 +212,7 @@ describe('ComposeDB nodes', () => {
       await mutationUpdateResearchObject(
         composeClient,
         {
-          id: researchObject,
+          id: researchObject.streamID,
           title: 'A fancy new title',
           manifest: "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa"
         }

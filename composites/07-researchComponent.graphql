@@ -9,8 +9,10 @@ type ResearchComponent
   )
   @createIndex(fields: [{ path: "dagNode" }])
   @createIndex(fields: [{ path: "mimeType" }])
+  @createIndex(fields: [{ path: "researchObjectVersion" }])
 {
   owner: DID! @documentAccount
+  version: CommitID! @documentVersion
   name: String! @string(maxLength: 512)
   mimeType: String! @string(maxLength: 128)
   dagNode: CID!
@@ -18,4 +20,5 @@ type ResearchComponent
   # The associated research object in which this component lives
   researchObjectID: StreamID! @documentReference(model: "ResearchObject")
   researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+  researchObjectVersion: CommitID!
 }

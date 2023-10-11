@@ -10,10 +10,16 @@ type ResearchFieldRelation
   @createModel(accountRelation: LIST, description: "Association between a research object and a field")
 {
   owner: DID! @documentAccount
+  version: CommitID! @documentVersion
 
   researchObjectID: StreamID! @documentReference(model: "ResearchObject")
   researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+  researchObjectVersion: CommitID!
 
+  # Skipping stream versioning on field refs
   fieldID: StreamID! @documentReference(model: "ResearchField")
   field: ResearchField! @relationDocument(property: "fieldID")
+
+  # Revoke this relation
+  revoked: Boolean
 }

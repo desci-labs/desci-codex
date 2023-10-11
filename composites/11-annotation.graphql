@@ -4,11 +4,15 @@ type Claim @loadModel(id: "$CLAIM_ID") {
 
 type Annotation
   @createModel(accountRelation: LIST, description: "Textual commentary")
+  @createIndex(fields: [{ path: "targetVersion" }])
+  @createIndex(fields: [{ path: "claimVersion" }])
 {
   owner: DID! @documentAccount
+  version: CommitID! @documentVersion
   comment: String! @string(maxLength: 1024)
 
   targetID: StreamID! # Research object, researchComponent, or annotation as reply
+  targetVersion: CommitID!
   
   # If target is a component, identify the location of the annotation
   # payload. For example a JSON path, line number, or coordinates in a pdf.
@@ -17,6 +21,7 @@ type Annotation
   # Optionally tag a claim to contextualise the annotation
   claimID: StreamID @documentReference(model: "Claim")
   claim: Claim @relationDocument(property: "claimID")
+  claimVersion: CommitID!
 
   metadataPayload: String @string(maxLength: 1024)
 }
