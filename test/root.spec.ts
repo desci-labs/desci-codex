@@ -1,10 +1,10 @@
 import { ComposeClient } from '@composedb/client'
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from '@composedb/types'
-import { test, describe, beforeAll } from 'vitest'
+import { test, describe, beforeAll, expect } from 'vitest'
 import {
   mutationCreateAttestation, mutationCreateClaim, mutationCreateProfile,
-  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchObject
+  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchObject, queryResearchObjects
 } from '../utils/queries'
 import { randomDID } from './util'
 import { CeramicClient } from '@ceramicnetwork/http-client'
@@ -91,17 +91,13 @@ describe('ComposeDB nodes', () => {
         composeClient,
         {
           targetID: myResearchObject.streamID,
-          targetVersion: myResearchObject.version,
+          targetVersion: myResearchObject.commitID,
           claimID: myClaim.streamID,
-          claimVersion: myClaim.version,
+          claimVersion: myClaim.commitID,
           revoked: false
         }
       );
     });
-
-    test.skip('organization', async () => {
-      // pending membership modelling
-    })
   });
 
   describe('Attestations', async () => {
@@ -131,9 +127,9 @@ describe('ComposeDB nodes', () => {
         composeClient,
         {
           targetID: ownProfile.streamID,
-          targetVersion: ownProfile.version,
+          targetVersion: ownProfile.commitID,
           claimID: testClaim.streamID,
-          claimVersion: testClaim.version,
+          claimVersion: testClaim.commitID,
           revoked: false
         }
       );
@@ -156,9 +152,9 @@ describe('ComposeDB nodes', () => {
         composeClient,
         {
           targetID: user1ResearchObject.streamID,
-          targetVersion: user1ResearchObject.version,
+          targetVersion: user1ResearchObject.commitID,
           claimID: testClaim.streamID,
-          claimVersion: testClaim.version,
+          claimVersion: testClaim.commitID,
           revoked: false
         }
       );
@@ -179,9 +175,9 @@ describe('ComposeDB nodes', () => {
         composeClient,
         {
           targetID: researchObject.streamID,
-          targetVersion: researchObject.version,
+          targetVersion: researchObject.commitID,
           claimID: testClaim.streamID,
-          claimVersion: testClaim.version,
+          claimVersion: testClaim.commitID,
           revoked: false
         }
       );
@@ -195,6 +191,16 @@ describe('ComposeDB nodes', () => {
       );
     })
   })
+
+  describe.skip('Annotations', async () => {
+    test('can comment on research component', async () => { });
+
+    test('can comment on research object', async () => { });
+
+    test('can suggest metadata change on research component', async () => { });
+
+    test('can suggest metadata changes on research object', async () => { });
+  });
 
   describe('User', async () => {
     const composeClient = freshClient();
@@ -241,12 +247,44 @@ describe('ComposeDB nodes', () => {
       );
     }, TIMEOUT);
 
-  })
+  });
 
-  describe.skip('Querying relations', async () => {
-    test.todo('')
-  })
+  describe('System', async () => {
+    const composeClient = freshClient();
+    const user = await randomDID();
+    composeClient.setDID(user);
+
+    test('can get commits anchored before a certain time', async () => {
+      // This assumes anchors have been made, which is very fast running locally
+      // but are made in longer time periods with on-chain anchoring
+
+      const { streamID } = await mutationCreateResearchObject(
+        composeClient,
+        {
+          title: 'Old',
+          manifest: A_CID
+        }
+      );
+      const timeBetween = Date.now();
+      await setTimeout(1000)
+      await mutationUpdateResearchObject(
+        composeClient,
+        {
+          id: streamID,
+          title: 'New'
+        }
+      );
+
+      const stream = await ceramic.loadStream(streamID);
+      expect(stream.state.content.title).toEqual('New');
+
+      const streamBetween = await ceramic.loadStream(streamID, { atTime: timeBetween });
+      expect(streamBetween.state.content.title).toEqual('Old');
+    });
+  });
+
+
 })
 
 const freshClient = () =>
-  new ComposeClient({ceramic, definition: definition as RuntimeCompositeDefinition})
+  new ComposeClient({ ceramic, definition: definition as RuntimeCompositeDefinition })
