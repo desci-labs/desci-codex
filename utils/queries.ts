@@ -5,7 +5,7 @@ import { ExecutionResult } from "graphql";
 export const queryViewerId = async (
   composeClient: ComposeClient
 ): Promise<string> => {
-  const response = await composeClient.executeQuery<{viewer: { id: string}}>(`
+  const response = await composeClient.executeQuery<{ viewer: { id: string } }>(`
     query {
       viewer {
         id
@@ -22,7 +22,7 @@ export const queryViewerId = async (
 export const queryViewerProfile = async (
   composeClient: ComposeClient
 ): Promise<Profile | null> => {
-  const response = await composeClient.executeQuery<{ viewer: { profile: Profile | null} }>(`
+  const response = await composeClient.executeQuery<{ viewer: { profile: Profile | null } }>(`
     query {
       viewer {
         profile {
@@ -65,7 +65,7 @@ export const queryViewerClaims = async (
   composeClient: ComposeClient
 ): Promise<Claim[]> => {
   const response = await composeClient.executeQuery<
-    { viewer:{ claimList: { edges: { node: Claim}[] } } }
+    { viewer: { claimList: { edges: { node: Claim }[] } } }
   >(`
     query {
       viewer {
@@ -218,7 +218,7 @@ export const mutationCreateClaim = async (
 );
 
 export const mutationCreateAttestation = async (
-  composeClient: ComposeClient, 
+  composeClient: ComposeClient,
   inputs: Attestation
 ): Promise<NodeIDs> => genericCreate(
   composeClient,
@@ -234,7 +234,7 @@ export const mutationCreateAttestation = async (
 );
 
 export const mutationUpdateAttestation = async (
-  composeClient: ComposeClient, 
+  composeClient: ComposeClient,
   inputs: Partial<Attestation> & { id: string }
 ): Promise<NodeIDs> => genericUpdate(
   composeClient,
@@ -248,7 +248,7 @@ export const mutationUpdateAttestation = async (
 );
 
 export const mutationCreateAnnotation = async (
-  composeClient: ComposeClient, 
+  composeClient: ComposeClient,
   inputs: Annotation
 ): Promise<NodeIDs> => genericCreate(
   composeClient,
@@ -344,9 +344,9 @@ async function genericCreate<T extends MutationTarget>(
     }`, inputs
   ) as any;
   assertMutationErrors(response, mutationName);
-  const nodeIDs = {
+  const nodeIDs: NodeIDs = {
     streamID: response.data[mutationName].document.id,
-    version: response.data[mutationName].document.version
+    commitID: response.data[mutationName].document.version
   };
   return nodeIDs;
 };
@@ -376,9 +376,9 @@ async function genericUpdate<T extends MutationTarget>(
     }`, inputs
   ) as any;
   assertMutationErrors(response, mutationName);
-  const nodeIDs = {
+  const nodeIDs: NodeIDs = {
     streamID: response.data[mutationName].document.id,
-    version: response.data[mutationName].document.version
+    commitID: response.data[mutationName].document.version
   };
   return nodeIDs;
 }
@@ -401,8 +401,8 @@ const assertQueryErrors = (
   queryDescription: string
 ) => {
   if (result.errors || !result.data) {
-      console.error("Error:", result.errors?.toString());
-      throw new Error(`Query failed: ${queryDescription}!`);
+    console.error("Error:", result.errors?.toString());
+    throw new Error(`Query failed: ${queryDescription}!`);
   };
 }
 
@@ -423,11 +423,11 @@ const getQueryFields = (
   inputs: Record<string, unknown>
 ) =>
   Object.keys(inputs)
-  .filter(p => p !== 'id')
-  .reduce<[string[], string[]]>(
-    (acc, next) => [
-      [...acc[0], `$${next}: ${graphQLParamTypes[next]}`],
-      [...acc[1], `${next}: $${next}`]
-    ],
-    [[],[]]
-  ).map(stringArr => stringArr.join(', '));
+    .filter(p => p !== 'id')
+    .reduce<[string[], string[]]>(
+      (acc, next) => [
+        [...acc[0], `$${next}: ${graphQLParamTypes[next]}`],
+        [...acc[1], `${next}: $${next}`]
+      ],
+      [[], []]
+    ).map(stringArr => stringArr.join(', '));

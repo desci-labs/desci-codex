@@ -4,8 +4,8 @@ import { DID } from "dids"
 import { fromString } from "uint8arrays/from-string"
 import untypedTemplateData from "../template_data.json"
 import { ComposeClient } from "@composedb/client"
-import { 
-    mutationCreateAnnotation,
+import {
+  mutationCreateAnnotation,
   mutationCreateAttestation,
   mutationCreateClaim,
   mutationCreateContributorRelation,
@@ -20,8 +20,8 @@ import { CeramicClient } from "@ceramicnetwork/http-client"
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from "@composedb/types"
 import { Annotation, Attestation, NodeIDs, ROProps } from "@/types"
-import { 
-    AnnotationTemplate,
+import {
+  AnnotationTemplate,
   AttestationTemplate,
   ContributorRelationTemplate,
   DataTemplate,
@@ -46,7 +46,7 @@ const didFromSeed = async (seed: string) => {
   return did;
 };
 
-type ProfileIndexResults = { data: { profileIndex: { edges: []}}}
+type ProfileIndexResults = { data: { profileIndex: { edges: [] } } }
 export const loadIfUninitialised = async (ceramic: CeramicClient) => {
   const composeClient = new ComposeClient(
     {
@@ -133,7 +133,7 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
     );
 
     streamIndex[seed].contributorRelations = await Promise.all(
-      template.contributorRelations.map((contTemplate: any) => 
+      template.contributorRelations.map((contTemplate: any) =>
         loadContributorRelation(contTemplate, streamIndex, composeClient)
       )
     );
@@ -173,7 +173,7 @@ const loadResearchObject = async (
   roTemplate: ResearchObjectTemplate,
   composeClient: ComposeClient
 ): Promise<ActorDataNodeIDs['researchObjects'][number]> => {
-  const roProps: ROProps = { 
+  const roProps: ROProps = {
     title: roTemplate.title,
     manifest: roTemplate.manifest
   }
@@ -181,13 +181,13 @@ const loadResearchObject = async (
 
   // Possibly create manifest components if such exist
   const components = await Promise.all(
-    roTemplate.components.map((c: any) => 
+    roTemplate.components.map((c: any) =>
       mutationCreateResearchComponent(
-        composeClient, 
-        { 
+        composeClient,
+        {
           ...c,
           researchObjectID: researchObject.streamID,
-          researchObjectVersion: researchObject.version
+          researchObjectVersion: researchObject.commitID
         }
       )
     )
@@ -205,12 +205,12 @@ const loadContributorRelation = async (
   const researchObject = recursePathToID(streamIndex, researchObjectPath);
   const contributor = recursePathToID(streamIndex, contributorPath);
   return await mutationCreateContributorRelation(
-    composeClient, 
+    composeClient,
     {
-        role,
-        contributorID: contributor.streamID,
-        researchObjectID: researchObject.streamID,
-        researchObjectVersion: researchObject.version
+      role,
+      contributorID: contributor.streamID,
+      researchObjectID: researchObject.streamID,
+      researchObjectVersion: researchObject.commitID
     }
   );
 };
@@ -224,12 +224,12 @@ const loadReferenceRelation = async (
   const to = recursePathToID(streamIndex, toPath);
   const from = recursePathToID(streamIndex, fromPath);
   return await mutationCreateReferenceRelation(
-    composeClient, 
+    composeClient,
     {
       toID: to.streamID,
-      toVersion: to.version,
+      toVersion: to.commitID,
       fromID: from.streamID,
-      fromVersion: from.version
+      fromVersion: from.commitID
     }
   );
 };
@@ -243,10 +243,10 @@ const loadResearchFieldRelation = async (
   const researchObject = recursePathToID(streamIndex, researchObjectPath);
   const field = recursePathToID(streamIndex, fieldPath);
   return await mutationCreateResearchFieldRelation(
-    composeClient, 
+    composeClient,
     {
       researchObjectID: researchObject.streamID,
-      researchObjectVersion: researchObject.version,
+      researchObjectVersion: researchObject.commitID,
       fieldID: field.streamID
     }
   );
@@ -260,11 +260,11 @@ const loadAttestation = async (
   const { targetPath, claimPath } = attestationTemplate;
   const target = recursePathToID(streamIndex, targetPath);
   const claim = recursePathToID(streamIndex, claimPath);
-  const attestation: Attestation = { 
-    targetID: target.streamID, 
-    targetVersion: target.version,
+  const attestation: Attestation = {
+    targetID: target.streamID,
+    targetVersion: target.commitID,
     claimID: claim.streamID,
-    claimVersion: claim.version,
+    claimVersion: claim.commitID,
     revoked: false
   };
   return mutationCreateAttestation(composeClient, attestation);
@@ -277,15 +277,15 @@ const loadAnnotation = async (
 ): Promise<ActorDataNodeIDs['annotations'][number]> => {
   const { comment, path, targetPath, claimPath } = annotationTemplate;
   const target = recursePathToID(streamIndex, targetPath);
-  const annotation: Annotation = { 
+  const annotation: Annotation = {
     targetID: target.streamID,
-    targetVersion: target.version,
+    targetVersion: target.commitID,
     comment
   };
   if (claimPath) {
     const claim = recursePathToID(streamIndex, claimPath);
     annotation.claimID = claim.streamID;
-    annotation.claimVersion = claim.version;
+    annotation.claimVersion = claim.commitID;
   };
   if (path) {
     annotation.path = path;

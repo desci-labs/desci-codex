@@ -104,7 +104,7 @@ export type MutationTarget =
 
 export type NodeIDs = {
   streamID: string,
-  version: string
+  commitID: string
 };
 
 export type SidebarProps = {
