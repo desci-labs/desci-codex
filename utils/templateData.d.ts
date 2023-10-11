@@ -52,9 +52,9 @@ export type AttestationTemplate = {
 
 export type AnnotationTemplate = {
   comment: string,
-  path: string,
-  componentPath: ObjectPath,
-  claimPath: ObjectPath
+  path?: string,
+  targetPath: ObjectPath,
+  claimPath?: ObjectPath
 };
 
 export type ActorTemplate = {
@@ -65,7 +65,8 @@ export type ActorTemplate = {
   contributorRelations: ContributorRelationTemplate[],
   referenceRelations: ReferenceRelationTemplate[],
   researchFieldRelations: ResearchFieldRelationTemplate[],
-  attestations: AttestationTemplate[]
+  attestations: AttestationTemplate[],
+  annotations: AnnotationTemplate[]
 };
 
 export type DataTemplate = Record<Seed, ActorTemplate>

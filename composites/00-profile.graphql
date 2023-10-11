@@ -1,5 +1,5 @@
 type Profile 
-  @createModel(accountRelation: SINGLE, description: "An author profile") 
+  @createModel(accountRelation: SINGLE, description: "An author profile")
   @createIndex(fields: [{ path: "orcid" }])
   @createIndex(fields: [{ path: "googleScholar" }])
   @createIndex(fields: [{ path: "publicKey" }])

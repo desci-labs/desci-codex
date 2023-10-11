@@ -3,6 +3,7 @@ type Organization
   @createIndex(fields: [{ path: "name" }])
 {
   owner: DID! @documentAccount
+  version: CommitID! @documentVersion
   name: String! @string(maxLength: 250)
   members: [DID] @list(maxLength: 100000)
 }

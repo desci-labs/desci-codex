@@ -1,24 +1,27 @@
-type ResearchComponent @loadModel(id: "$RESEARCH_COMPONENT_ID") {
-  id: ID!
-}
-
 type Claim @loadModel(id: "$CLAIM_ID") {
   id: ID!
 }
 
 type Annotation
-  @createModel(accountRelation: LIST, description: "Research component commentary")
+  @createModel(accountRelation: LIST, description: "Textual commentary")
+  @createIndex(fields: [{ path: "targetVersion" }])
+  @createIndex(fields: [{ path: "claimVersion" }])
 {
   owner: DID! @documentAccount
+  version: CommitID! @documentVersion
   comment: String! @string(maxLength: 1024)
 
-  componentID: StreamID! @documentReference(model: "ResearchComponent")
-  component: ResearchComponent! @relationDocument(property: "componentID")
+  targetID: StreamID! # Research object, researchComponent, or annotation as reply
+  targetVersion: CommitID!
   
-  # A way to identify the location of the annotation in the target component
-  # payload, for example a JSON path, line number, or coordinates in a pdf
+  # If target is a component, identify the location of the annotation
+  # payload. For example a JSON path, line number, or coordinates in a pdf.
   path: String @string(maxLength: 512)
 
+  # Optionally tag a claim to contextualise the annotation
   claimID: StreamID @documentReference(model: "Claim")
   claim: Claim @relationDocument(property: "claimID")
+  claimVersion: CommitID!
+
+  metadataPayload: String @string(maxLength: 1024)
 }

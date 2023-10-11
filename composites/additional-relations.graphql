@@ -1,10 +1,4 @@
 # This composite holds additional relations that cause circular dependencies when deploying
-#type ResearchObjectAttestation @loadModel(id: "$RESEARCH_OBJECT_ATTESTATION_ID") {
-#    id: ID!
-#}
-#type ProfileAttestation @loadModel(id: "$PROFILE_ATTESTATION_ID") {
-#    id: ID!
-#}
 type Attestation @loadModel(id: "$ATTESTATION_ID") {
   id: ID!
 }
@@ -22,12 +16,13 @@ type ResearchFieldRelation @loadModel(id: "$RESEARCH_FIELD_RELATION_ID") {
 }
 
 type Annotation @loadModel(id: "$ANNOTATION_ID") {
-  id: ID!
+  replies: [Annotation] @relationFrom(model: "Annotation", property: "targetID")
+  replyCount: Int! @relationCountFrom(model: "Annotation", property: "targetID")
 }
 
 type ResearchComponent @loadModel(id: "$RESEARCH_COMPONENT_ID") {
-  annotations: [Annotation] @relationFrom(model: "Annotation", property: "componentID")
-  annotationCount: Int! @relationCountFrom(model: "Annotation", property: "componentID")
+  annotations: [Annotation] @relationFrom(model: "Annotation", property: "targetID")
+  annotationCount: Int! @relationCountFrom(model: "Annotation", property: "targetID")
 }
 
 type Claim @loadModel(id: "$CLAIM_ID") {
@@ -54,6 +49,9 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
   contributorCount: Int! @relationCountFrom(model: "ContributorRelation", property: "researchObjectID")
 
   researchFields: [ResearchFieldRelation] @relationFrom(model: "ResearchFieldRelation", property: "researchObjectID")
+
+  annotations: [Annotation] @relationFrom(model: "Annotation", property: "targetID")
+  annotationCount: Int! @relationCountFrom(model: "Annotation", property: "targetID")
 }
 
 # Support for incoming relations on CeramicAccounts is coming, but we'd need a separate 

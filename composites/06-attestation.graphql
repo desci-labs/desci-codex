@@ -4,19 +4,23 @@ type Claim @loadModel(id: "$CLAIM_ID") {
 
 type Attestation
   @createModel(accountRelation: LIST, description: "General attestation")
-  @createIndex(fields: [{ path: "targetID" }])
-  @createIndex(fields: [{ path: "claimID" }])
   @createIndex(fields: [{ path: "revoked" }])
+  @createIndex(fields: [{ path: "targetID" }])
+  @createIndex(fields: [{ path: "targetVersion" }])
+  @createIndex(fields: [{ path: "claimVersion" }])
 {
   source: DID! @documentAccount
   version: CommitID! @documentVersion
   # 1. Any type of document, shown with relation on reciever end but cannot
-  #    use @documentRelation without specifying single model
-  # 2. This can be CommitID if we need to lock it down, but
-  #     we'll need to query ceramic directly for the payload
-  # 3. This cannot be a DID, to attestations to people target the Profile
+  #    use @documentRelation without specifying the target type
+  # 2. This cannot be a DID, so attestations to people target the Profile
   targetID: StreamID!
+  targetVersion: CommitID!
+
   claimID: StreamID! @documentReference(model: "Claim")
   claim: Claim! @relationDocument(property: "claimID")
-  revoked: Boolean!
+  claimVersion: CommitID!
+
+  # Revoke this attestation
+  revoked: Boolean
 }

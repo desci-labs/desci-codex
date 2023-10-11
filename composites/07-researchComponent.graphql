@@ -5,12 +5,14 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
 type ResearchComponent
   @createModel(
     accountRelation: LIST,
-    description: "A contextualized DAG pointer for a research object, adding metadata to the contents"
+    description: "A contextualized DAG pointer for a research object"
   )
   @createIndex(fields: [{ path: "dagNode" }])
-  @createIndex(fields: [{ path: "researchObjectID" }])
+  @createIndex(fields: [{ path: "mimeType" }])
+  @createIndex(fields: [{ path: "researchObjectVersion" }])
 {
   owner: DID! @documentAccount
+  version: CommitID! @documentVersion
   name: String! @string(maxLength: 512)
   mimeType: String! @string(maxLength: 128)
   dagNode: CID!
@@ -18,4 +20,5 @@ type ResearchComponent
   # The associated research object in which this component lives
   researchObjectID: StreamID! @documentReference(model: "ResearchObject")
   researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+  researchObjectVersion: CommitID!
 }

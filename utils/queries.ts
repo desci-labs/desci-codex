@@ -1,11 +1,11 @@
 import { ComposeClient } from "@composedb/client";
-import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation, ReferenceRelation, ResearchFieldRelation } from "../types";
+import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation, ReferenceRelation, ResearchFieldRelation, MutationTarget, Annotation, NodeIDs, ResearchField } from "../types";
 import { ExecutionResult } from "graphql";
 
 export const queryViewerId = async (
   composeClient: ComposeClient
 ): Promise<string> => {
-  const response = await composeClient.executeQuery<{viewer: { id: string}}>(`
+  const response = await composeClient.executeQuery<{ viewer: { id: string } }>(`
     query {
       viewer {
         id
@@ -22,7 +22,7 @@ export const queryViewerId = async (
 export const queryViewerProfile = async (
   composeClient: ComposeClient
 ): Promise<Profile | null> => {
-  const response = await composeClient.executeQuery<{ viewer: { profile: Profile | null} }>(`
+  const response = await composeClient.executeQuery<{ viewer: { profile: Profile | null } }>(`
     query {
       viewer {
         profile {
@@ -65,7 +65,7 @@ export const queryViewerClaims = async (
   composeClient: ComposeClient
 ): Promise<Claim[]> => {
   const response = await composeClient.executeQuery<
-    { viewer:{ claimList: { edges: { node: Claim}[] } } }
+    { viewer: { claimList: { edges: { node: Claim }[] } } }
   >(`
     query {
       viewer {
@@ -149,302 +149,238 @@ export const queryResearchObjectAttestations = async (
 export const mutationCreateResearchObject = async (
   composeClient: ComposeClient,
   inputs: ROProps
-): Promise<string> => {
-  const response = await composeClient.executeQuery<
-      { createResearchObject: { document: { id: string } } }
-    >(`
-    mutation ($title: String!, $manifest: InterPlanetaryCID!){
-      createResearchObject(input: {
-        content: {
-          title: $title
-          manifest: $manifest
-        }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }`,
-    inputs
-  )
-  assertMutationErrors(response, 'create research object')
-  return response.data!.createResearchObject.document.id
-}
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
+    title: "String!",
+    manifest: "InterPlanetaryCID!",
+    metadata: "String"
+  },
+  'createResearchObject'
+);
 
 export const mutationCreateResearchComponent = async (
   composeClient: ComposeClient,
   inputs: ResearchComponent
-): Promise<string> => {
-  const gqlTypes: Partial<Record<keyof ResearchComponent, string>> = {
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
     name: "String!",
     mimeType: "String!",
     dagNode: "InterPlanetaryCID!",
-    researchObjectID: "CeramicStreamID!"
-  };
-  const [params, content] = getQueryFields(gqlTypes, inputs);
-  const response = await composeClient.executeQuery<
-      { createResearchComponent: { document: { id: string } } }
-    >(`
-    mutation ( ${params} ){
-      createResearchComponent(input: {
-        content: { ${content} }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }`,
-    inputs
-  )
-  assertMutationErrors(response, 'create research object');
-  return response.data!.createResearchComponent.document.id;
-}
+    researchObjectID: "CeramicStreamID!",
+    researchObjectVersion: "CeramicCommitID!"
+  },
+  'createResearchComponent'
+);
 
 export const mutationUpdateResearchObject = async (
   composeClient: ComposeClient,
   inputs: Partial<ROProps> & { id: string }
-): Promise<void> => {
-  const gqlParamTypes: Partial<Record<keyof typeof inputs, string>> = {
+): Promise<NodeIDs> => genericUpdate(
+  composeClient,
+  inputs,
+  {
     manifest: "InterPlanetaryCID",
-    title: "String"
-  };
-  
-  const [params, content] = getQueryFields(gqlParamTypes, inputs);
-  const response = await composeClient.executeQuery(`
-    mutation ($id: ID!, ${params}){
-      updateResearchObject(input: {
-        id: $id
-        content: { ${content} }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }`,
-    inputs
-  );
-  assertMutationErrors(response, 'update research object');
-}
+    title: "String",
+    metadata: "String"
+  },
+  'updateResearchObject'
+);
 
 export const mutationCreateProfile = async (
   composeClient: ComposeClient,
   inputs: Profile
-): Promise<string> => {
-  const response = await composeClient.executeQuery<
-      { createProfile: { document: { id: string } } }
-    >(`
-    mutation ($displayName: String!, $orcid: String){
-      createProfile(input: {
-        content: {
-          displayName: $displayName
-          orcid: $orcid
-        }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }`,
-    inputs
-  )
-  assertMutationErrors(response, 'create profile');
-  return response.data!.createProfile.document.id;
-}
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
+    displayName: "String!",
+    orcid: "String"
+  },
+  'createProfile'
+);
 
 export const mutationCreateClaim = async (
   composeClient: ComposeClient,
   inputs: Claim
-): Promise<string> => {
-  const response = await composeClient.executeQuery<
-      { createClaim: { document: { id: string } } }
-    >(`
-     mutation ($title: String!, $description: String!, $badge: InterPlanetaryCID){
-      createClaim(input: {
-        content: {
-          title: $title
-          description: $description
-          badge: $badge
-        }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }
-    `,
-    inputs
-  )
-  assertMutationErrors(response, 'create claim')
-  return response.data!.createClaim.document.id
-}
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
+    title: "String!",
+    description: "String!",
+    badge: "InterPlanetaryCID!",
+  },
+  'createClaim'
+);
 
 export const mutationCreateAttestation = async (
-  composeClient: ComposeClient, 
+  composeClient: ComposeClient,
   inputs: Attestation
-): Promise<string> => {
-  const response = await composeClient.executeQuery<
-      { createAttestation: { document: { id: string } } }
-    >(`
-     mutation ($targetID: CeramicStreamID!, $claimID: CeramicStreamID!, $revoked: Boolean!){
-      createAttestation(input: {
-        content: {
-          targetID: $targetID
-          claimID: $claimID
-          revoked: $revoked
-        }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }
-    `,
-    inputs
-  );
-  assertMutationErrors(response, 'create attestation')
-  return response.data!.createAttestation.document.id
-}
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
+    targetID: "CeramicStreamID!",
+    targetVersion: "CeramicCommitID!",
+    claimID: "CeramicStreamID!",
+    claimVersion: "CeramicCommitID!",
+    revoked: "Boolean"
+  },
+  'createAttestation'
+);
 
 export const mutationUpdateAttestation = async (
-  composeClient: ComposeClient, 
+  composeClient: ComposeClient,
   inputs: Partial<Attestation> & { id: string }
-): Promise<string> => {
-  const gqlParamTypes: Record<string, string> = {
+): Promise<NodeIDs> => genericUpdate(
+  composeClient,
+  inputs,
+  {
     targetID: "CeramicStreamID",
     claimID: "CeramicStreamID",
     revoked: "Boolean"
-  };
+  },
+  'updateAttestation'
+);
 
-  const [params, content] = getQueryFields(gqlParamTypes, inputs);
-  const response = await composeClient.executeQuery<
-      { updateAttestation: { document: { id: string } } }
-    >(`
-     mutation ($id: ID!, ${params}){
-      updateAttestation(input: {
-        id: $id
+export const mutationCreateAnnotation = async (
+  composeClient: ComposeClient,
+  inputs: Annotation
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
+    comment: "String!",
+    path: "String",
+    metadataPayload: "String",
+    targetID: "CeramicStreamID!",
+    targetVersion: "CeramicCommitID!",
+    claimID: "CeramicStreamID!",
+    claimVersion: "CeramicCommitID!"
+  },
+  'createAnnotation'
+);
+
+export const mutationCreateContributorRelation = async (
+  composeClient: ComposeClient,
+  inputs: ContributorRelation
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
+    role: "String!",
+    contributorID: "CeramicStreamID!",
+    researchObjectID: "CeramicStreamID!",
+    researchObjectVersion: "CeramicCommitID!"
+  },
+  'createContributorRelation'
+);
+
+export const mutationCreateReferenceRelation = async (
+  composeClient: ComposeClient,
+  inputs: ReferenceRelation
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
+    toID: "CeramicStreamID!",
+    toVersion: "CeramicCommitID!",
+    fromID: "CeramicStreamID!",
+    fromVersion: "CeramicCommitID!"
+  },
+  'createReferenceRelation'
+);
+
+export const mutationCreateResearchFieldRelation = async (
+  composeClient: ComposeClient,
+  inputs: ResearchFieldRelation
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
+    fieldID: "CeramicStreamID!",
+    researchObjectID: "CeramicStreamID!",
+    researchObjectVersion: "CeramicCommitID!"
+  },
+  'createResearchFieldRelation'
+);
+
+export const mutationCreateResearchField = async (
+  composeClient: ComposeClient,
+  inputs: ResearchField
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  {
+    title: "String!",
+  },
+  'createResearchField'
+);
+
+async function genericCreate<T extends MutationTarget>(
+  composeClient: ComposeClient,
+  inputs: T,
+  // At least verify all keys exist in T, can still forget one though.
+  // Can't require it fully because some props are not allowed in the mutation.
+  gqlTypes: Partial<Record<keyof T, string>>,
+  mutationName: string
+): Promise<NodeIDs> {
+  const [params, content] = getQueryFields(gqlTypes as Record<string, string>, inputs);
+  const response = await composeClient.executeQuery(`
+    mutation( ${params} ) {
+      ${mutationName}(input: {
         content: { ${content} }
       })
       {
         document {
           id
+          version
         }
       }
-    }
-    `,
-    inputs
-  );
-  assertMutationErrors(response, 'update attestation');
-  return response.data!.updateAttestation.document.id;
-}
+    }`, inputs
+  ) as any;
+  assertMutationErrors(response, mutationName);
+  const nodeIDs: NodeIDs = {
+    streamID: response.data[mutationName].document.id,
+    commitID: response.data[mutationName].document.version
+  };
+  return nodeIDs;
+};
 
-export const mutationCreateContributorRelation = async (
+async function genericUpdate<T extends MutationTarget>(
   composeClient: ComposeClient,
-  inputs: ContributorRelation
-): Promise<string> => {
-  const response = await composeClient.executeQuery<
-    { createContributorRelation: { document: { id: string }}}
-  >(`
-    mutation ($role: String!, $contributorID: CeramicStreamID!, $researchObjectID: CeramicStreamID!) {
-      createContributorRelation(input: {
-        content: {
-          role: $role
-          contributorID: $contributorID
-          researchObjectID: $researchObjectID
+  inputs: Partial<T> & { id: string },
+  // See note in genericCreate
+  gqlTypes: Partial<Record<keyof T, string>>,
+  mutationName: string
+): Promise<NodeIDs> {
+  const [params, content] = getQueryFields(gqlTypes as Record<string, string>, inputs);
+  const response = await composeClient.executeQuery(`
+    mutation($id: ID!, ${params} ) {
+      ${mutationName}(
+        input: {
+          id: $id
+          content: { ${content} }
         }
-      })
+      )
       {
         document {
           id
+          version
         }
       }
-    }
-  `, inputs
-  );
-  assertMutationErrors(response, 'create contributor relation');
-  return response.data!.createContributorRelation.document.id;
-}
-
-export const mutationCreateReferenceRelation = async (
-  composeClient: ComposeClient,
-  inputs: ReferenceRelation
-): Promise<string> => {
-  const response = await composeClient.executeQuery<
-    { createReferenceRelation: { document: { id: string }}}
-  >(`
-    mutation ($fromID: CeramicStreamID!, $toID: CeramicStreamID!) {
-      createReferenceRelation(input: {
-        content: {
-          fromID: $fromID
-          toID: $toID
-        }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }
-  `, inputs
-  );
-  assertMutationErrors(response, 'create reference relation');
-  return response.data!.createReferenceRelation.document.id;
-}
-
-export const mutationCreateResearchFieldRelation = async (
-  composeClient: ComposeClient,
-  inputs: ResearchFieldRelation
-): Promise<string> => {
-  const response = await composeClient.executeQuery<
-    { createResearchFieldRelation: { document: { id: string }}}
-  >(`
-    mutation ($fieldID: CeramicStreamID!, $researchObjectID: CeramicStreamID!) {
-      createResearchFieldRelation(input: {
-        content: {
-          researchObjectID: $researchObjectID
-          fieldID: $fieldID
-        }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }
-  `, inputs
-  );
-  assertMutationErrors(response, 'create research field relation');
-  return response.data!.createResearchFieldRelation.document.id;
-}
-
-export const mutationCreateResearchField = async (
-  composeClient: ComposeClient,
-  inputs: { title: string }
-): Promise<string> => {
-  const response = await composeClient.executeQuery<
-    { createResearchField: { document: { id: string }}}
-  >(`
-    mutation ($title: String!) {
-      createResearchField(input: {
-        content: {
-          title: $title
-        }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }
-  `, inputs
-  );
-  assertMutationErrors(response, 'create research field');
-  return response.data!.createResearchField.document.id;
+    }`, inputs
+  ) as any;
+  assertMutationErrors(response, mutationName);
+  const nodeIDs: NodeIDs = {
+    streamID: response.data[mutationName].document.id,
+    commitID: response.data[mutationName].document.version
+  };
+  return nodeIDs;
 }
 
 type SimpleMutationResult = Pick<ExecutionResult, 'errors'>
@@ -465,8 +401,8 @@ const assertQueryErrors = (
   queryDescription: string
 ) => {
   if (result.errors || !result.data) {
-      console.error("Error:", result.errors?.toString());
-      throw new Error(`Query failed: ${queryDescription}!`);
+    console.error("Error:", result.errors?.toString());
+    throw new Error(`Query failed: ${queryDescription}!`);
   };
 }
 
@@ -487,11 +423,11 @@ const getQueryFields = (
   inputs: Record<string, unknown>
 ) =>
   Object.keys(inputs)
-  .filter(p => p !== 'id')
-  .reduce<[string[], string[]]>(
-    (acc, next) => [
-      [...acc[0], `$${next}: ${graphQLParamTypes[next]}`],
-      [...acc[1], `${next}: $${next}`]
-    ],
-    [[],[]]
-  ).map(stringArr => stringArr.join(', '));
+    .filter(p => p !== 'id')
+    .reduce<[string[], string[]]>(
+      (acc, next) => [
+        [...acc[0], `$${next}: ${graphQLParamTypes[next]}`],
+        [...acc[1], `${next}: $${next}`]
+      ],
+      [[], []]
+    ).map(stringArr => stringArr.join(', '));

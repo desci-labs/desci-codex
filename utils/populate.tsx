@@ -4,7 +4,8 @@ import { DID } from "dids"
 import { fromString } from "uint8arrays/from-string"
 import untypedTemplateData from "../template_data.json"
 import { ComposeClient } from "@composedb/client"
-import { 
+import {
+  mutationCreateAnnotation,
   mutationCreateAttestation,
   mutationCreateClaim,
   mutationCreateContributorRelation,
@@ -18,8 +19,9 @@ import {
 import { CeramicClient } from "@ceramicnetwork/http-client"
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from "@composedb/types"
-import { Attestation, ROProps, ResearchComponent } from "@/types"
-import { 
+import { Annotation, Attestation, NodeIDs, ROProps } from "@/types"
+import {
+  AnnotationTemplate,
   AttestationTemplate,
   ContributorRelationTemplate,
   DataTemplate,
@@ -41,17 +43,17 @@ const didFromSeed = async (seed: string) => {
     },
   });
   await did.authenticate();
-  return did
-}
+  return did;
+};
 
-type ProfileIndexResults = { data: { profileIndex: { edges: []}}}
+type ProfileIndexResults = { data: { profileIndex: { edges: [] } } }
 export const loadIfUninitialised = async (ceramic: CeramicClient) => {
   const composeClient = new ComposeClient(
     {
       ceramic,
       definition: definition as RuntimeCompositeDefinition
     }
-  )
+  );
   const firstProfile = await composeClient.executeQuery(`
     query {
       profileIndex(first: 1) {
@@ -62,32 +64,33 @@ export const loadIfUninitialised = async (ceramic: CeramicClient) => {
         }
       }
     }
-  `) as ProfileIndexResults
+  `) as ProfileIndexResults;
 
   if (firstProfile.data.profileIndex.edges.length === 0) {
     console.log("Profile index empty, loading template data...")
     await loadTemplateData(composeClient)
   } else {
     console.log("Found profiles in index, skipping template data initialisation.")
-  }
-}
+  };
+};
 
-// Same shape as the template data, but with streamIDs for each leaf node
-type ActorDataStreamIDs = {
-  profile?: string
+// Same shape as the template data, but with NodeIDs for each leaf
+type ActorDataNodeIDs = {
+  profile?: NodeIDs
   researchObjects: {
-    id: string,
-    components: string[]
+    IDs: NodeIDs
+    components: NodeIDs[]
   }[],
-  claims: string[],
-  researchFields: string[],
-  attestations: string[],
-  contributorRelations: string[],
-  referenceRelations: string[],
-  researchFieldRelations: string[]
-}
+  claims: NodeIDs[],
+  researchFields: NodeIDs[],
+  attestations: NodeIDs[],
+  contributorRelations: NodeIDs[],
+  referenceRelations: NodeIDs[],
+  researchFieldRelations: NodeIDs[],
+  annotations: NodeIDs[]
+};
 
-const freshActorRecord = (profile: string): ActorDataStreamIDs => (
+const freshActorRecord = (profile: NodeIDs): ActorDataNodeIDs => (
   {
     profile,
     researchObjects: [],
@@ -96,11 +99,12 @@ const freshActorRecord = (profile: string): ActorDataStreamIDs => (
     researchFields: [],
     contributorRelations: [],
     referenceRelations: [],
-    researchFieldRelations: []
+    researchFieldRelations: [],
+    annotations: []
   }
-)
+);
 
-type StreamIndex = Record<string, ActorDataStreamIDs>
+type StreamIndex = Record<string, ActorDataNodeIDs>;
 
 /**
  * Iterates over template data file, and with a DID generated from each root entry
@@ -113,8 +117,8 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
   for (const [seed, template] of Object.entries(templateData)) {
     composeClient.setDID(await didFromSeed(seed))
 
-    const profileID = await mutationCreateProfile(composeClient, template.profile);
-    streamIndex[seed] = freshActorRecord(profileID);
+    const profileIDs = await mutationCreateProfile(composeClient, template.profile);
+    streamIndex[seed] = freshActorRecord(profileIDs);
 
     streamIndex[seed].researchFields = await Promise.all(
       template.researchFields.map(
@@ -129,7 +133,7 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
     );
 
     streamIndex[seed].contributorRelations = await Promise.all(
-      template.contributorRelations.map((contTemplate: any) => 
+      template.contributorRelations.map((contTemplate: any) =>
         loadContributorRelation(contTemplate, streamIndex, composeClient)
       )
     );
@@ -152,105 +156,143 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
 
     streamIndex[seed].attestations = await Promise.all(
       template.attestations.map(attTemplate => loadAttestation(
-        attTemplate, 
-        streamIndex,
-        composeClient
+        attTemplate, streamIndex, composeClient
       ))
     );
-  }
-  console.log("Loading template data done!")
+
+    streamIndex[seed].annotations = await Promise.all(
+      template.annotations.map(annTemplate => loadAnnotation(
+        annTemplate, streamIndex, composeClient
+      ))
+    );
+  };
+  console.log("Loading template data done!");
 }
 
 const loadResearchObject = async (
   roTemplate: ResearchObjectTemplate,
   composeClient: ComposeClient
-): Promise<ActorDataStreamIDs['researchObjects'][number]> => {
-  const roProps: ROProps = { 
+): Promise<ActorDataNodeIDs['researchObjects'][number]> => {
+  const roProps: ROProps = {
     title: roTemplate.title,
     manifest: roTemplate.manifest
   }
-  const researchObject = await mutationCreateResearchObject(composeClient, roProps)
+  const researchObject = await mutationCreateResearchObject(composeClient, roProps);
 
   // Possibly create manifest components if such exist
   const components = await Promise.all(
-    roTemplate.components.map((c: any) => 
+    roTemplate.components.map((c: any) =>
       mutationCreateResearchComponent(
-        composeClient, 
-        { 
+        composeClient,
+        {
           ...c,
-          researchObjectID: researchObject
-        } as ResearchComponent
+          researchObjectID: researchObject.streamID,
+          researchObjectVersion: researchObject.commitID
+        }
       )
     )
   );
 
-  return { id: researchObject, components }
-}
+  return { IDs: researchObject, components };
+};
 
 const loadContributorRelation = async (
   contTemplate: ContributorRelationTemplate,
   streamIndex: StreamIndex,
   composeClient: ComposeClient
-): Promise<string> => {
+): Promise<ActorDataNodeIDs['contributorRelations'][number]> => {
   const { role, researchObjectPath, contributorPath } = contTemplate;
-  const researchObjectID = recursePathToID(streamIndex, researchObjectPath);
-  const contributorID = recursePathToID(streamIndex, contributorPath);
+  const researchObject = recursePathToID(streamIndex, researchObjectPath);
+  const contributor = recursePathToID(streamIndex, contributorPath);
   return await mutationCreateContributorRelation(
-    composeClient, 
+    composeClient,
     {
-        role,
-        contributorID,
-        researchObjectID
+      role,
+      contributorID: contributor.streamID,
+      researchObjectID: researchObject.streamID,
+      researchObjectVersion: researchObject.commitID
     }
   );
-}
+};
 
 const loadReferenceRelation = async (
   refTemplate: ReferenceRelationTemplate,
   streamIndex: StreamIndex,
   composeClient: ComposeClient
-): Promise<string> => {
+): Promise<ActorDataNodeIDs['referenceRelations'][number]> => {
   const { toPath, fromPath } = refTemplate;
-  const toID = recursePathToID(streamIndex, toPath);
-  const fromID = recursePathToID(streamIndex, fromPath);
+  const to = recursePathToID(streamIndex, toPath);
+  const from = recursePathToID(streamIndex, fromPath);
   return await mutationCreateReferenceRelation(
-    composeClient, 
+    composeClient,
     {
-      toID,
-      fromID
+      toID: to.streamID,
+      toVersion: to.commitID,
+      fromID: from.streamID,
+      fromVersion: from.commitID
     }
   );
-}
+};
 
 const loadResearchFieldRelation = async (
   fieldRelTemplate: ResearchFieldRelationTemplate,
   streamIndex: StreamIndex,
   composeClient: ComposeClient
-): Promise<string> => {
+): Promise<ActorDataNodeIDs['researchFieldRelations'][number]> => {
   const { researchObjectPath, fieldPath } = fieldRelTemplate;
-  const researchObjectID = recursePathToID(streamIndex, researchObjectPath);
-  const fieldID = recursePathToID(streamIndex, fieldPath);
+  const researchObject = recursePathToID(streamIndex, researchObjectPath);
+  const field = recursePathToID(streamIndex, fieldPath);
   return await mutationCreateResearchFieldRelation(
-    composeClient, 
+    composeClient,
     {
-      researchObjectID,
-      fieldID
+      researchObjectID: researchObject.streamID,
+      researchObjectVersion: researchObject.commitID,
+      fieldID: field.streamID
     }
   );
-}
+};
 
 const loadAttestation = async (
   attestationTemplate: AttestationTemplate,
   streamIndex: StreamIndex,
   composeClient: ComposeClient
-): Promise<ActorDataStreamIDs['attestations'][number]> => {
+): Promise<ActorDataNodeIDs['attestations'][number]> => {
   const { targetPath, claimPath } = attestationTemplate;
-  const targetID = recursePathToID(streamIndex, targetPath);
-  const claimID = recursePathToID(streamIndex, claimPath);
-  const attestation: Attestation = { targetID, claimID, revoked: false };
+  const target = recursePathToID(streamIndex, targetPath);
+  const claim = recursePathToID(streamIndex, claimPath);
+  const attestation: Attestation = {
+    targetID: target.streamID,
+    targetVersion: target.commitID,
+    claimID: claim.streamID,
+    claimVersion: claim.commitID,
+    revoked: false
+  };
   return mutationCreateAttestation(composeClient, attestation);
-}
+};
+
+const loadAnnotation = async (
+  annotationTemplate: AnnotationTemplate,
+  streamIndex: StreamIndex,
+  composeClient: ComposeClient
+): Promise<ActorDataNodeIDs['annotations'][number]> => {
+  const { comment, path, targetPath, claimPath } = annotationTemplate;
+  const target = recursePathToID(streamIndex, targetPath);
+  const annotation: Annotation = {
+    targetID: target.streamID,
+    targetVersion: target.commitID,
+    comment
+  };
+  if (claimPath) {
+    const claim = recursePathToID(streamIndex, claimPath);
+    annotation.claimID = claim.streamID;
+    annotation.claimVersion = claim.commitID;
+  };
+  if (path) {
+    annotation.path = path;
+  };
+  return mutationCreateAnnotation(composeClient, annotation);
+};
 
 // Oblivious to human faults, enjoy the footgun
-const recursePathToID = (object: any, path: ObjectPath): string =>
-  path.length ? recursePathToID(object[path[0]], path.slice(1)) : object
+const recursePathToID = (object: any, path: ObjectPath): NodeIDs =>
+  path.length ? recursePathToID(object[path[0]], path.slice(1)) : object;
