@@ -15,14 +15,7 @@ type ResearchFieldRelation @loadModel(id: "$RESEARCH_FIELD_RELATION_ID") {
   id: ID!
 }
 
-type MetadataFragment @loadModel(id: "$METADATA_FRAGMENT_ID") {
-  id: ID!
-}
-
 type Annotation @loadModel(id: "$ANNOTATION_ID") {
-  metadataFragments: [MetadataFragment] @relationFrom(model: "MetadataFragment", property: "annotationID")
-  metadataFragmentCount: Int! @relationCountFrom(model: "MetadataFragment", property: "annotationID")
-
   replies: [Annotation] @relationFrom(model: "Annotation", property: "targetID")
   replyCount: Int! @relationCountFrom(model: "Annotation", property: "targetID")
 }
@@ -30,9 +23,6 @@ type Annotation @loadModel(id: "$ANNOTATION_ID") {
 type ResearchComponent @loadModel(id: "$RESEARCH_COMPONENT_ID") {
   annotations: [Annotation] @relationFrom(model: "Annotation", property: "targetID")
   annotationCount: Int! @relationCountFrom(model: "Annotation", property: "targetID")
-
-  metadataFragments: [MetadataFragment] @relationFrom(model: "MetadataFragment", property: "targetID")
-  metadataFragmentCount: Int! @relationCountFrom(model: "MetadataFragment", property: "targetID")
 }
 
 type Claim @loadModel(id: "$CLAIM_ID") {
@@ -62,9 +52,6 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
 
   annotations: [Annotation] @relationFrom(model: "Annotation", property: "targetID")
   annotationCount: Int! @relationCountFrom(model: "Annotation", property: "targetID")
-
-  metadataFragments: [MetadataFragment] @relationFrom(model: "MetadataFragment", property: "targetID")
-  metadataFragmentCount: Int! @relationCountFrom(model: "MetadataFragment", property: "targetID")
 }
 
 # Support for incoming relations on CeramicAccounts is coming, but we'd need a separate 

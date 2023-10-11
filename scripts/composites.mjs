@@ -109,16 +109,6 @@ export const writeComposite = async (spinner) => {
     schema: annotationSchema
   });
 
-  const metadataFragmentSchema = readFileSync(
-    "./composites/12-metadataFragment.graphql",
-    { encoding: 'utf8' }
-  ).replace("$ANNOTATION_ID", annotationComposite.modelIDs[1]);
-
-  const metadataFragmentComposite = await Composite.create({
-    ceramic,
-    schema: metadataFragmentSchema
-  });
-
   const additionalRelationsSchema = readFileSync(
     "./composites/additional-relations.graphql",
     { encoding: "utf-8" }
@@ -132,8 +122,7 @@ export const writeComposite = async (spinner) => {
   .replace("$REFERENCE_RELATION_ID", referenceRelationComposite.modelIDs[1])
   .replace("$RESEARCH_FIELD_ID", researchFieldComposite.modelIDs[0])
   .replace("$RESEARCH_FIELD_RELATION_ID", researchFieldRelationComposite.modelIDs[2])
-  .replace("$ANNOTATION_ID", annotationComposite.modelIDs[1])
-  .replace("$METADATA_FRAGMENT_ID", metadataFragmentComposite.modelIDs[1]);
+  .replace("$ANNOTATION_ID", annotationComposite.modelIDs[1]);
 
   const additionalRelationsComposite = await Composite.create({
     ceramic,
@@ -152,8 +141,7 @@ export const writeComposite = async (spinner) => {
     referenceRelationComposite,
     researchFieldComposite,
     researchFieldRelationComposite,
-    annotationComposite,
-    metadataFragmentComposite
+    annotationComposite
    ]);
 
   await writeEncodedComposite(composite, "./src/__generated__/definition.json");

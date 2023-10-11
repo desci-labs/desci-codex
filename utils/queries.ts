@@ -1,5 +1,5 @@
 import { ComposeClient } from "@composedb/client";
-import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation, ReferenceRelation, ResearchFieldRelation, MetadataFragment, MutationTarget, Annotation } from "../types";
+import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation, ReferenceRelation, ResearchFieldRelation, MutationTarget, Annotation } from "../types";
 import { ExecutionResult } from "graphql";
 
 export const queryViewerId = async (
@@ -373,37 +373,6 @@ export const mutationCreateAnnotation = async (
   assertMutationErrors(response, 'create annotation')
   return response.data!.createAnnotation.document.id
 }
-
-export const mutationCreateMetadataFragment = async (
-  composeClient: ComposeClient, 
-  inputs: MetadataFragment
-): Promise<string> => {
-  const gqlParamTypes: Record<string, string> = {
-    targetID: "CeramicStreamID!",
-    annotationID: "CeramicStreamID!",
-    fragment: "String!"
-  };
-
-  const [params, content] = getQueryFields(gqlParamTypes, inputs);
-  const response = await composeClient.executeQuery<
-      { createMetadataFragment: { document: { id: string } } }
-    >(`
-     mutation (${params}){
-      createMetadataFragment(input: {
-        content: { ${content} }
-      })
-      {
-        document {
-          id
-        }
-      }
-    }
-    `,
-    inputs
-  );
-  assertMutationErrors(response, 'create metadata fragment');
-  return response.data!.createMetadataFragment.document.id;
-};
 
 export const mutationCreateContributorRelation = async (
   composeClient: ComposeClient,

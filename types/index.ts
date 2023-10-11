@@ -69,14 +69,6 @@ export type ResearchFieldRelation = {
   researchObjectID: string
 };
 
-export type MetadataFragment = {
-  id?: string
-  fragment: string,
-  annotationID: string,
-  annotation?: Annotation,
-  targetID: string
-};
-
 export type MutationTarget = 
   Profile |
   ROProps |

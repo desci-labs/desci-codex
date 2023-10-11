@@ -8,12 +8,7 @@ type Annotation
   owner: DID! @documentAccount
   comment: String! @string(maxLength: 1024)
 
-  # if component specific, else remove
-  # componentID: StreamID! @documentReference(model: "ResearchComponent")
-  # component: ResearchComponent! @relationDocument(property: "componentID")
-
   targetID: StreamID! # Research object, researchComponent, or annotation as reply
-  # target: Union @relationFrom(model: "targetID")
   
   # If target is a component, identify the location of the annotation
   # payload. For example a JSON path, line number, or coordinates in a pdf.
@@ -22,4 +17,6 @@ type Annotation
   # Optionally tag a claim to contextualise the annotation
   claimID: StreamID @documentReference(model: "Claim")
   claim: Claim @relationDocument(property: "claimID")
+
+  metadataPayload: String @string(maxLength: 1024)
 }

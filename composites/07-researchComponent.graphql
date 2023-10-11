@@ -5,7 +5,7 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
 type ResearchComponent
   @createModel(
     accountRelation: LIST,
-    description: "A contextualized DAG pointer for a research object, adding metadata to the contents"
+    description: "A contextualized DAG pointer for a research object"
   )
   @createIndex(fields: [{ path: "dagNode" }])
   @createIndex(fields: [{ path: "mimeType" }])

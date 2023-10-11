@@ -9,7 +9,6 @@ import {
   mutationCreateAttestation,
   mutationCreateClaim,
   mutationCreateContributorRelation,
-  mutationCreateMetadataFragment,
   mutationCreateProfile,
   mutationCreateReferenceRelation,
   mutationCreateResearchComponent,
@@ -20,13 +19,12 @@ import {
 import { CeramicClient } from "@ceramicnetwork/http-client"
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from "@composedb/types"
-import { Annotation, Attestation, MetadataFragment, ROProps, ResearchComponent } from "@/types"
+import { Annotation, Attestation, ROProps, ResearchComponent } from "@/types"
 import { 
     AnnotationTemplate,
   AttestationTemplate,
   ContributorRelationTemplate,
   DataTemplate,
-  MetadataFragmentTemplate,
   ObjectPath,
   ReferenceRelationTemplate,
   ResearchFieldRelationTemplate,
@@ -89,8 +87,7 @@ type ActorDataStreamIDs = {
   contributorRelations: string[],
   referenceRelations: string[],
   researchFieldRelations: string[],
-  annotations: string[],
-  metadataFragments: string[]
+  annotations: string[]
 };
 
 const freshActorRecord = (profile: string): ActorDataStreamIDs => (
@@ -103,8 +100,7 @@ const freshActorRecord = (profile: string): ActorDataStreamIDs => (
     contributorRelations: [],
     referenceRelations: [],
     researchFieldRelations: [],
-    annotations: [],
-    metadataFragments: []
+    annotations: []
   }
 );
 
@@ -167,12 +163,6 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
     streamIndex[seed].annotations = await Promise.all(
       template.annotations.map(annTemplate => loadAnnotation(
         annTemplate, streamIndex, composeClient
-      ))
-    );
-
-    streamIndex[seed].metadataFragments = await Promise.all(
-      template.metadataFragments.map(mdTemplate => loadMetadataFragment(
-        mdTemplate, streamIndex, composeClient
       ))
     );
   };
@@ -284,18 +274,6 @@ const loadAnnotation = async (
     annotation.path = path;
   };
   return mutationCreateAnnotation(composeClient, annotation);
-};
-
-const loadMetadataFragment = async (
-  metadataTemplate: MetadataFragmentTemplate,
-  streamIndex: StreamIndex,
-  composeClient: ComposeClient
-): Promise<ActorDataStreamIDs['metadataFragments'][number]> => {
-  const { annotationPath, targetPath, fragment } = metadataTemplate;
-  const annotationID = recursePathToID(streamIndex, annotationPath);
-  const targetID = recursePathToID(streamIndex, targetPath);
-  const metadataFragment: MetadataFragment = { targetID, annotationID, fragment };
-  return mutationCreateMetadataFragment(composeClient, metadataFragment);
 };
 
 // Oblivious to human faults, enjoy the footgun
