@@ -3,10 +3,19 @@ import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from '@composedb/types'
 import { test, describe, beforeAll, expect } from 'vitest'
 import {
-  genericEntityQuery,
-  mutationCreateAttestation, mutationCreateClaim, mutationCreateProfile,
+  mutationCreateAttestation,
+  mutationCreateClaim,
+  mutationCreateProfile,
   mutationCreateResearchComponent,
-  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchComponent, mutationUpdateResearchObject, queryAttestation, queryClaim, queryProfile, queryResearchComponent, queryResearchObject, queryResearchObjects
+  mutationCreateResearchObject,
+  mutationUpdateAttestation,
+  mutationUpdateResearchComponent,
+  mutationUpdateResearchObject,
+  queryAttestation,
+  queryClaim,
+  queryProfile,
+  queryResearchComponent,
+  queryResearchObject
 } from '../utils/queries'
 import { randomDID } from './util'
 import { CeramicClient } from '@ceramicnetwork/http-client'
@@ -15,7 +24,6 @@ import { setTimeout } from "timers/promises";
 import { Attestation, Claim, Profile, ResearchObject } from '@/types'
 
 const CERAMIC_API = 'http:/localhost:7007'
-const TIMEOUT = 7000
 const A_CID = 'bafybeibeaampol2yz5xuoxex7dxri6ztqveqrybzfh5obz6jrul5gb4cf4'
 
 const ceramic = new CeramicClient(CERAMIC_API)
@@ -211,13 +219,13 @@ describe('ComposeDB nodes', () => {
   })
 
   describe.skip('Annotations', async () => {
-    test('can comment on research component', async () => {});
+    test('can comment on research component', async () => { });
 
-    test('can comment on research object', async () => {});
+    test('can comment on research object', async () => { });
 
-    test('can suggest metadata change on research component', async () => {});
+    test('can suggest metadata change on research component', async () => { });
 
-    test('can suggest metadata changes on research object', async () => {});
+    test('can suggest metadata changes on research object', async () => { });
   });
 
   describe('User', async () => {
