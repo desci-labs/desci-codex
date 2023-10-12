@@ -5,7 +5,7 @@ import styles from "@/styles/Home.module.scss";
 import { ResearchObject } from "@/types";
 import { PropsWithChildren } from "react";
 
-const ResearchObject = ({
+const ResearchObjectComponent = ({
   owner,
   title,
   manifest,
@@ -22,4 +22,4 @@ const ResearchObject = ({
   );
 };
 
-export default ResearchObject;
+export default ResearchObjectComponent;
