@@ -1,5 +1,5 @@
 import { ComposeClient } from "@composedb/client";
-import { Attestation, Claim, ResearchComponent, Profile, ROProps, ContributorRelation, ReferenceRelation, ResearchFieldRelation, MutationTarget, Annotation, NodeIDs, ResearchField } from "../types";
+import { Attestation, Claim, ResearchComponent, Profile, ResearchObject, ContributorRelation, ReferenceRelation, ResearchFieldRelation, ProtocolEntity, Annotation, NodeIDs, ResearchField } from "../types";
 import { ExecutionResult } from "graphql";
 
 export const queryViewerId = async (
@@ -39,9 +39,9 @@ export const queryViewerProfile = async (
 
 export const queryViewerResearchObjects = async (
   composeClient: ComposeClient
-): Promise<ROProps[]> => {
+): Promise<ResearchObject[]> => {
   const response = await composeClient.executeQuery<
-    { viewer: { researchObjectList: { edges: { node: ROProps }[] } } }
+    { viewer: { researchObjectList: { edges: { node: ResearchObject }[] } } }
   >(`
     query {
       viewer {
@@ -88,9 +88,9 @@ export const queryViewerClaims = async (
 
 export const queryResearchObjects = async (
   composeClient: ComposeClient
-): Promise<ROProps[]> => {
+): Promise<ResearchObject[]> => {
   const response = await composeClient.executeQuery<
-    { researchObjectIndex: { edges: { node: ROProps }[] } }
+    { researchObjectIndex: { edges: { node: ResearchObject }[] } }
   >(`
     query {
       researchObjectIndex(first: 100) {
@@ -148,7 +148,7 @@ export const queryResearchObjectAttestations = async (
 
 export const mutationCreateResearchObject = async (
   composeClient: ComposeClient,
-  inputs: ROProps
+  inputs: ResearchObject
 ): Promise<NodeIDs> => genericCreate(
   composeClient,
   inputs,
@@ -176,9 +176,25 @@ export const mutationCreateResearchComponent = async (
   'createResearchComponent'
 );
 
+export const mutationUpdateResearchComponent = async (
+  composeClient: ComposeClient,
+  inputs: Partial<ResearchComponent> & { id: string }
+): Promise<NodeIDs> => genericUpdate(
+  composeClient,
+  inputs,
+  {
+    name: "String!",
+    mimeType: "String!",
+    dagNode: "InterPlanetaryCID!",
+    researchObjectID: "CeramicStreamID!",
+    researchObjectVersion: "CeramicCommitID!"
+  },
+  'updateResearchComponent'
+);
+
 export const mutationUpdateResearchObject = async (
   composeClient: ComposeClient,
-  inputs: Partial<ROProps> & { id: string }
+  inputs: Partial<ResearchObject> & { id: string }
 ): Promise<NodeIDs> => genericUpdate(
   composeClient,
   inputs,
@@ -200,7 +216,8 @@ export const mutationCreateProfile = async (
     displayName: "String!",
     orcid: "String"
   },
-  'createProfile'
+  'createProfile',
+  true
 );
 
 export const mutationCreateClaim = async (
@@ -321,19 +338,129 @@ export const mutationCreateResearchField = async (
   'createResearchField'
 );
 
-async function genericCreate<T extends MutationTarget>(
+export const queryResearchObject = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<ResearchObject | undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'ResearchObject',
+  selection ?? 
+    `
+      title
+      manifest
+      metadata
+    `
+);
+
+export const queryProfile = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<Profile | undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'Profile',
+  selection ??
+    `
+      displayName
+      orcid
+    `
+);
+
+export const queryClaim = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<Claim| undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'Claim',
+  selection ??
+    `
+      title
+      description
+      badge
+    `
+);
+
+export const queryAttestation = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<Attestation | undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'Attestation',
+  selection ??
+    `
+      targetID
+      targetVersion
+      claimID
+      claimVersion
+      revoked
+    `
+);
+
+export const queryResearchComponent = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<ResearchComponent | undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'ResearchComponent',
+  selection ??
+    `
+      name
+      mimeType
+      dagNode
+      researchObjectID
+      researchObjectVersion
+    `
+);
+
+export async function genericEntityQuery<T extends ProtocolEntity>(
+  composeClient: ComposeClient,
+  id: string,
+  entityName: string,
+  // Specify the field structure to query for
+  selection: string
+): Promise<T | undefined> {
+  const query = `
+  query($id: ID!) {
+    node(id: $id) {
+      ...on ${entityName} {
+        ${selection}
+      }
+    }
+  }
+  `;
+  const result = await composeClient.executeQuery(query, { id })
+  assertQueryErrors(result, `${entityName} node`)
+  return result.data
+    ? result.data.node as T
+    : undefined // query can return null too, downscope type
+};
+
+async function genericCreate<T extends ProtocolEntity>(
   composeClient: ComposeClient,
   inputs: T,
-  // At least verify all keys exist in T, can still forget one though.
-  // Can't require it fully because some props are not allowed in the mutation.
+  /** At least verify all keys exist in T, can still forget one though.
+  * Can't require it fully because some props are not allowed in the mutation.
+  */
   gqlTypes: Partial<Record<keyof T, string>>,
-  mutationName: string
+  mutationName: string,
+  /** Skip timeout for single accountRelation entities */
+  noTimeout?: boolean
 ): Promise<NodeIDs> {
   const [params, content] = getQueryFields(gqlTypes as Record<string, string>, inputs);
   const response = await composeClient.executeQuery(`
     mutation( ${params} ) {
       ${mutationName}(input: {
         content: { ${content} }
+        ${noTimeout ? "options: { syncTimeout: 0 }" : ""}
       })
       {
         document {
@@ -351,12 +478,12 @@ async function genericCreate<T extends MutationTarget>(
   return nodeIDs;
 };
 
-async function genericUpdate<T extends MutationTarget>(
+async function genericUpdate<T extends ProtocolEntity>(
   composeClient: ComposeClient,
   inputs: Partial<T> & { id: string },
   // See note in genericCreate
   gqlTypes: Partial<Record<keyof T, string>>,
-  mutationName: string
+  mutationName: string,
 ): Promise<NodeIDs> {
   const [params, content] = getQueryFields(gqlTypes as Record<string, string>, inputs);
   const response = await composeClient.executeQuery(`

@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { useCeramicContext } from "@/context";
-import { ROProps } from "@/types";
+import { ResearchObject } from "@/types";
 import Head from "next/head";
 import styles from "@/styles/Home.module.scss";
 import React from "react";
@@ -12,7 +12,7 @@ import { queryViewerId, queryViewerResearchObjects } from "@/utils/queries";
 const Home: NextPage = () => {
   const clients = useCeramicContext();
   const { ceramic, composeClient } = clients;
-  const [objects, setObjects] = useState<ROProps[] | []>([]);
+  const [objects, setObjects] = useState<ResearchObject[] | []>([]);
 
   const getResearchObjects = useCallback(async () => {
     if (ceramic.did !== undefined) {

@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { useCeramicContext } from "@/context";
-import { ROProps } from "@/types";
+import { ResearchObject } from "@/types";
 import Head from "next/head";
 import styles from "@/styles/Home.module.scss";
 import React from "react";
@@ -13,7 +13,7 @@ import { AttestList } from "@/components/AttestList";
 const ExplorePage: NextPage = () => {
   const clients = useCeramicContext();
   const { composeClient } = clients;
-  const [objects, setObjects] = useState<ROProps[] | []>([]);
+  const [objects, setObjects] = useState<ResearchObject[] | []>([]);
 
   const getResearchObjects = useCallback(async () => {
     const researchObjects = await queryResearchObjects(composeClient);

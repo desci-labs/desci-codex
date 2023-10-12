@@ -2,7 +2,7 @@
 import Link from "next/link";
 import styles from "@/styles/Home.module.scss";
 
-import { ROProps } from "@/types";
+import { ResearchObject } from "@/types";
 import { PropsWithChildren } from "react";
 
 const ResearchObject = ({
@@ -10,7 +10,7 @@ const ResearchObject = ({
   title,
   manifest,
   children,
-}: PropsWithChildren<ROProps>) => {
+}: PropsWithChildren<ResearchObject>) => {
   return (
     <div className={styles.post}>
       <div><big>{title}</big></div>

@@ -9,7 +9,7 @@ export type DID = {
   profile?: Profile
 };
 
-export type ROProps = {
+export type ResearchObject = {
   id?: string
   version?: string
   title: string
@@ -90,9 +90,9 @@ export type ResearchFieldRelation = {
   researchObjectVersion: string
 };
 
-export type MutationTarget = 
+export type ProtocolEntity = 
   Profile |
-  ROProps |
+  ResearchObject |
   ResearchComponent |
   Claim |
   Attestation |

@@ -3,13 +3,16 @@ import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from '@composedb/types'
 import { test, describe, beforeAll, expect } from 'vitest'
 import {
+  genericEntityQuery,
   mutationCreateAttestation, mutationCreateClaim, mutationCreateProfile,
-  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchObject, queryResearchObjects
+  mutationCreateResearchComponent,
+  mutationCreateResearchObject, mutationUpdateAttestation, mutationUpdateResearchComponent, mutationUpdateResearchObject, queryAttestation, queryClaim, queryProfile, queryResearchComponent, queryResearchObject, queryResearchObjects
 } from '../utils/queries'
 import { randomDID } from './util'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 import { writeComposite } from 'scripts/composites.mjs'
 import { setTimeout } from "timers/promises";
+import { Attestation, Claim, Profile, ResearchObject } from '@/types'
 
 const CERAMIC_API = 'http:/localhost:7007'
 const TIMEOUT = 7000
@@ -37,39 +40,44 @@ describe('ComposeDB nodes', () => {
 
     // Create mutations error on failure and are otherwise successful
     test('can create research object', async () => {
-      mutationCreateResearchObject(
-        composeClient,
-        {
-          title: 'Test',
-          manifest: A_CID
-        }
+      const data: ResearchObject = {
+        title: 'Test',
+        manifest: A_CID,
+        metadata: '{ "key": "value" }'
+      }
+      const researchObject = await mutationCreateResearchObject(
+        composeClient, data
       );
+      const result = await queryResearchObject(
+        composeClient, researchObject.streamID,
+      );
+      expect(result).toEqual(data);
     });
 
-    test('can create profile', async () =>
-      await mutationCreateProfile(
-        composeClient,
-        {
-          displayName: 'First Lastname',
-          orcid: 'orcidHandle'
-        }
-      ),
-      // SINGLE accountRelation instances will ask the network for previous
-      // creations, which slowly times out. PR allowing setting this timeout
-      // in progress: https://github.com/ceramicstudio/js-composedb/pull/182
-      TIMEOUT
-    );
+    test('can create profile', async () => {
+      const data: Profile = {
+        displayName: 'First Lastname',
+        orcid: 'orcidHandle'
+      };
+      const profile = await mutationCreateProfile(composeClient, data);
 
-    test('can create claim', async () =>
-      await mutationCreateClaim(
-        composeClient,
-        {
-          title: 'My Claim',
-          description: 'The point of the claim',
-          badge: A_CID
-        }
-      )
-    );
+      const result = await queryProfile(
+        composeClient, profile.streamID,
+      );
+      expect(result).toEqual(data);
+    });
+
+    test('can create claim', async () => {
+      const data: Claim = {
+        title: 'My Claim',
+        description: 'The point of the claim',
+        badge: A_CID
+      };
+      const claim = await mutationCreateClaim(composeClient, data);
+
+      const result = await queryClaim(composeClient, claim.streamID);
+      expect(result).toEqual(data);
+    });
 
     test('can attest to own research object', async () => {
       const myResearchObject = await mutationCreateResearchObject(
@@ -87,16 +95,16 @@ describe('ComposeDB nodes', () => {
           badge: A_CID
         }
       );
-      await mutationCreateAttestation(
-        composeClient,
-        {
-          targetID: myResearchObject.streamID,
-          targetVersion: myResearchObject.commitID,
-          claimID: myClaim.streamID,
-          claimVersion: myClaim.commitID,
-          revoked: false
-        }
-      );
+      const data: Attestation = {
+        targetID: myResearchObject.streamID,
+        targetVersion: myResearchObject.commitID,
+        claimID: myClaim.streamID,
+        claimVersion: myClaim.commitID,
+        revoked: false
+      };
+      const attestation = await mutationCreateAttestation(composeClient, data);
+      const result = await queryAttestation(composeClient, attestation.streamID);
+      expect(result).toEqual(data);
     });
   });
 
@@ -123,7 +131,7 @@ describe('ComposeDB nodes', () => {
         }
       );
 
-      await mutationCreateAttestation(
+      const attestation = await mutationCreateAttestation(
         composeClient,
         {
           targetID: ownProfile.streamID,
@@ -133,6 +141,9 @@ describe('ComposeDB nodes', () => {
           revoked: false
         }
       );
+      const result = await queryAttestation(composeClient, attestation.streamID);
+      expect(result?.targetID).toEqual(ownProfile.streamID);
+      expect(result?.targetVersion).toEqual(ownProfile.commitID);
     })
 
     test('can be made to other users research object', async () => {
@@ -148,7 +159,7 @@ describe('ComposeDB nodes', () => {
 
       const user2 = await randomDID();
       composeClient.setDID(user2);
-      await mutationCreateAttestation(
+      const attestation = await mutationCreateAttestation(
         composeClient,
         {
           targetID: user1ResearchObject.streamID,
@@ -158,6 +169,9 @@ describe('ComposeDB nodes', () => {
           revoked: false
         }
       );
+      const result = await queryAttestation(composeClient, attestation.streamID);
+      expect(result?.targetID).toEqual(user1ResearchObject.streamID);
+      expect(result?.targetVersion).toEqual(user1ResearchObject.commitID);
     })
 
     test('can be updated with revokation', async () => {
@@ -189,17 +203,21 @@ describe('ComposeDB nodes', () => {
           revoked: true
         }
       );
+
+      await setTimeout(1000);
+      const result = await queryAttestation(composeClient, attestation.streamID);
+      expect(result?.revoked).toEqual(true)
     })
   })
 
   describe.skip('Annotations', async () => {
-    test('can comment on research component', async () => { });
+    test('can comment on research component', async () => {});
 
-    test('can comment on research object', async () => { });
+    test('can comment on research object', async () => {});
 
-    test('can suggest metadata change on research component', async () => { });
+    test('can suggest metadata change on research component', async () => {});
 
-    test('can suggest metadata changes on research object', async () => { });
+    test('can suggest metadata changes on research object', async () => {});
   });
 
   describe('User', async () => {
@@ -208,25 +226,29 @@ describe('ComposeDB nodes', () => {
     composeClient.setDID(user);
 
     test('can update research object', async () => {
-      const researchObject = await mutationCreateResearchObject(
-        composeClient,
-        {
-          title: 'Test',
-          manifest: A_CID
-        }
-      );
+      const data: ResearchObject = {
+        title: 'Test',
+        manifest: A_CID,
+        metadata: '{ "key": "value" }'
+      };
+      const researchObject = await mutationCreateResearchObject(composeClient, data);
+
+      const newMetadata = '{ "key": "value", "newKey": "value" }';
       await mutationUpdateResearchObject(
         composeClient,
         {
           id: researchObject.streamID,
-          title: 'A fancy new title',
-          manifest: "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa"
+          metadata: newMetadata
         }
       );
+
+      await setTimeout(500);
+      const result = await queryResearchObject(composeClient, researchObject.streamID);
+      expect(result).toEqual({ ...data, metadata: newMetadata });
     });
 
     test('can update profile', async () => {
-      await mutationCreateProfile(
+      const profile = await mutationCreateProfile(
         composeClient,
         {
           displayName: "My Name",
@@ -236,16 +258,17 @@ describe('ComposeDB nodes', () => {
 
       // Ceramic node takes a little while syncing this with the "network"
       // since it has the SINGLE accountRelation
-      await setTimeout(500);
+      await setTimeout(250);
+      const newProfile: Profile = {
+        displayName: "New Name",
+        orcid: "@handle"
+      };
       // Apparently create acts as an upsert on SINGLE accountRelation models
-      await mutationCreateProfile(
-        composeClient,
-        {
-          displayName: "New Name",
-          orcid: "@handle"
-        }
-      );
-    }, TIMEOUT);
+      await mutationCreateProfile(composeClient, newProfile);
+
+      const result = await queryProfile(composeClient, profile.streamID);
+      expect(result).toEqual(newProfile);
+    });
 
   });
 
@@ -280,6 +303,54 @@ describe('ComposeDB nodes', () => {
 
       const streamBetween = await ceramic.loadStream(streamID, { atTime: timeBetween });
       expect(streamBetween.state.content.title).toEqual('Old');
+    });
+
+    test('can resolve stream refs in old versions', async () => {
+      const researchObjectV0 = await mutationCreateResearchObject(
+        composeClient,
+        {
+          title: 'Title',
+          manifest: A_CID
+        }
+      );
+      const componentV0 = await mutationCreateResearchComponent(
+        composeClient,
+        {
+          name: 'Filename',
+          mimeType: 'text/plain',
+          dagNode: A_CID,
+          researchObjectID: researchObjectV0.streamID,
+          researchObjectVersion: researchObjectV0.commitID
+        }
+      );
+      const newManifest = 'bafybeibeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      const researchObjectV1 = await mutationUpdateResearchObject(
+        composeClient,
+        {
+          id: researchObjectV0.streamID,
+          manifest: newManifest
+        }
+      );
+      await mutationUpdateResearchComponent(
+        composeClient,
+        {
+          id: componentV0.streamID,
+          dagNode: newManifest,
+          // Set a new version indicator
+          researchObjectVersion: researchObjectV1.commitID
+        }
+      );
+
+      const roResult = await queryResearchObject(composeClient, researchObjectV0.streamID);
+      const rcResult = await queryResearchComponent(composeClient, componentV0.streamID);
+      expect(roResult?.manifest).toEqual(newManifest);
+      expect(rcResult?.researchObjectID).toEqual(researchObjectV0.streamID);
+
+      // Check that we can get the old state with the research object version at
+      // that point in time
+      const oldComponentState = await ceramic.loadStream(componentV0.commitID);
+      expect(oldComponentState.content.researchObjectVersion)
+        .toEqual(researchObjectV0.commitID);
     });
   });
 
