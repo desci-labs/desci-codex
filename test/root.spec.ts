@@ -1,5 +1,5 @@
 import { ComposeClient } from '@composedb/client'
-import { definition } from '@/src/__generated__/definition'
+import { definition } from '../src/__generated__/definition'
 import { RuntimeCompositeDefinition } from '@composedb/types'
 import { test, describe, beforeAll, expect } from 'vitest'
 import {
