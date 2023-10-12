@@ -60,8 +60,8 @@ const start = async () => {
       if (isRunning) {
         await bootstrap()
         if (process.env.CI) {
-          ceramic.kill()
-          await setTimeout(1000);
+          ceramic.kill();
+          await setTimeout(5000);
           process.exit();
         }
         await graphiql()
