@@ -3,7 +3,6 @@ import ora from 'ora'
 import { spawn } from "child_process"
 import { EventEmitter } from 'events'
 import { writeComposite } from './composites.mjs';
-import { setTimeout } from 'timers/promises';
 
 const events = new EventEmitter()
 const spinner = ora();
@@ -59,11 +58,6 @@ const start = async () => {
     events.on('ceramic', async (isRunning) => {
       if (isRunning) {
         await bootstrap()
-        if (process.env.CI) {
-          ceramic.kill();
-          await setTimeout(5000);
-          process.exit();
-        }
         await graphiql()
         await next()
       }

@@ -15,6 +15,4 @@ jobs:
           check-latest: false
       - run: npm ci
       - run: npm run generate
-      - run: CI=true npm run dev
-      - run: echo "PROCESSES"; ps aux | grep -e ceramic -e ipfs
       - run: make test
