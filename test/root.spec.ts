@@ -298,8 +298,8 @@ describe('ComposeDB nodes', () => {
       expect(response?.metadataPayload).toEqual("JSONPatch");
     });
 
-    test.skip('can omit claim', async () => {
-      // API fails on @relationDocument when the key is optional and omitted
+    test('can omit claim', async () => {
+      // API error on @relationDocument when the key is optional and omitted
       const data: Annotation = {
         comment: 'This is a cool object!',
         targetID: researchComponent.streamID,
