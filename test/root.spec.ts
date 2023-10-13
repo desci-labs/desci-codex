@@ -204,6 +204,7 @@ describe('ComposeDB nodes', () => {
         }
       );
 
+      await waitAndSync(attestation.streamID);
       await mutationUpdateAttestation(
         composeClient,
         {
@@ -212,7 +213,6 @@ describe('ComposeDB nodes', () => {
         }
       );
 
-      await setTimeout(1000);
       const result = await queryAttestation(composeClient, attestation.streamID);
       expect(result?.revoked).toEqual(true)
     })
@@ -241,6 +241,7 @@ describe('ComposeDB nodes', () => {
       };
       const researchObject = await mutationCreateResearchObject(composeClient, data);
 
+      await waitAndSync(researchObject.streamID);
       const newMetadata = '{ "key": "value", "newKey": "value" }';
       await mutationUpdateResearchObject(
         composeClient,
@@ -250,7 +251,6 @@ describe('ComposeDB nodes', () => {
         }
       );
 
-      await setTimeout(500);
       const result = await queryResearchObject(composeClient, researchObject.streamID);
       expect(result).toEqual({ ...data, metadata: newMetadata });
     });
@@ -264,13 +264,11 @@ describe('ComposeDB nodes', () => {
         }
       );
 
-      // Ceramic node takes a little while syncing this with the "network"
-      // since it has the SINGLE accountRelation
-      await setTimeout(250);
       const newProfile: Profile = {
         displayName: "New Name",
         orcid: "@handle"
       };
+      await waitAndSync(profile.streamID);
       // Apparently create acts as an upsert on SINGLE accountRelation models
       await mutationCreateProfile(composeClient, newProfile);
 
@@ -297,7 +295,7 @@ describe('ComposeDB nodes', () => {
         }
       );
       const timeBetween = Date.now();
-      await setTimeout(1000)
+      await waitAndSync(streamID);
       await mutationUpdateResearchObject(
         composeClient,
         {
@@ -367,3 +365,12 @@ describe('ComposeDB nodes', () => {
 
 const freshClient = () =>
   new ComposeClient({ ceramic, definition: definition as RuntimeCompositeDefinition })
+
+/** Sync between fast updates to same streams to make tests less flaky,
+* also allowing for an anchor commit to pop in between
+*/
+const waitAndSync = async (streamID: string) => {
+  await setTimeout(100);
+  const stream = await ceramic.loadStream(streamID);
+  await stream.sync(); 
+}
