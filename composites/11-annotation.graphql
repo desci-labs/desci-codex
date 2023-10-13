@@ -21,7 +21,7 @@ type Annotation
   # Optionally tag a claim to contextualise the annotation
   claimID: StreamID @documentReference(model: "Claim")
   claim: Claim @relationDocument(property: "claimID")
-  claimVersion: CommitID!
+  claimVersion: CommitID
 
   metadataPayload: String @string(maxLength: 1024)
 }

@@ -8,4 +8,6 @@ test: clean-test
 	npx ceramic daemon --config test.config.json &>/dev/null &
 	sleep 5
 	node scripts/composites.mjs
-	npm test; pkill --full "ceramic daemon|ipfs daemon"
+	# Kill lingering daemons without unsetting exit code of test
+	(npm test && pkill -f "ceramic daemon | ipfs daemon") \
+		|| (pkill -f "ceramic daemon | ipfs daemon"; exit 1)

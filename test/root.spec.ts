@@ -3,6 +3,7 @@ import { definition } from '../src/__generated__/definition'
 import { RuntimeCompositeDefinition } from '@composedb/types'
 import { test, describe, beforeAll, expect } from 'vitest'
 import {
+  mutationCreateAnnotation,
   mutationCreateAttestation,
   mutationCreateClaim,
   mutationCreateProfile,
@@ -11,6 +12,7 @@ import {
   mutationUpdateAttestation,
   mutationUpdateResearchComponent,
   mutationUpdateResearchObject,
+  queryAnnotation,
   queryAttestation,
   queryClaim,
   queryProfile,
@@ -21,7 +23,7 @@ import { randomDID } from './util'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 import { writeComposite } from 'scripts/composites.mjs'
 import { setTimeout } from "timers/promises";
-import { Attestation, Claim, Profile, ResearchObject } from '@/types'
+import { Annotation, Attestation, Claim, Profile, ResearchObject } from '@/types'
 
 const CERAMIC_API = 'http:/localhost:7007'
 const A_CID = 'bafybeibeaampol2yz5xuoxex7dxri6ztqveqrybzfh5obz6jrul5gb4cf4'
@@ -218,14 +220,98 @@ describe('ComposeDB nodes', () => {
     })
   })
 
-  describe.skip('Annotations', async () => {
-    test('can comment on research component', async () => { });
+  describe('Annotations', async () => {
+    const composeClient = freshClient();
+    const user = await randomDID();
+    composeClient.setDID(user);
 
-    test('can comment on research object', async () => { });
+    const researchObject = await mutationCreateResearchObject(
+      composeClient,
+      {
+        title: 'Title',
+        manifest: A_CID
+      }
+    );
 
-    test('can suggest metadata change on research component', async () => { });
+    const claim = await mutationCreateClaim(
+      composeClient,
+      {
+        title: 'Title',
+        description: 'Description'
+      }
+    );
 
-    test('can suggest metadata changes on research object', async () => { });
+    const researchComponent = await mutationCreateResearchComponent(
+      composeClient,
+      {
+        name: 'Name',
+        mimeType: 'text/csv',
+        dagNode: A_CID,
+        researchObjectID: researchObject.streamID,
+        researchObjectVersion: researchObject.commitID
+      }
+    );
+
+    test('can be made on research object', async () => {
+      const data: Annotation = {
+        comment: 'This is a cool object!',
+        targetID: researchObject.streamID,
+        targetVersion: researchObject.commitID,
+        claimID: claim.streamID,
+        claimVersion: claim.commitID
+      };
+
+      const annotation = await mutationCreateAnnotation(composeClient, data);
+
+      const response = await queryAnnotation(composeClient, annotation.streamID);
+      expect(response).toEqual({ ...data, metadataPayload: null, path: null });
+    });
+
+    test('can be made on research component', async () => {
+      const data: Annotation = {
+        comment: 'This is a cool object!',
+        targetID: researchComponent.streamID,
+        targetVersion: researchComponent.commitID,
+        claimID: claim.streamID,
+        claimVersion: claim.commitID
+      };
+
+      const annotation = await mutationCreateAnnotation(composeClient, data);
+
+      const response = await queryAnnotation(composeClient, annotation.streamID);
+      expect(response).toEqual({ ...data, metadataPayload: null, path: null });
+    });
+
+    test('can attach metadata', async () => {
+      const data: Annotation = {
+        comment: 'This is a cool object!',
+        targetID: researchComponent.streamID,
+        targetVersion: researchComponent.commitID,
+        claimID: claim.streamID,
+        claimVersion: claim.commitID,
+        metadataPayload: "JSONPatch"
+      };
+
+      const annotation = await mutationCreateAnnotation(composeClient, data);
+
+      const response = await queryAnnotation(composeClient, annotation.streamID);
+      expect(response?.metadataPayload).toEqual("JSONPatch");
+    });
+
+    test.skip('can omit claim', async () => {
+      // API fails on @relationDocument when the key is optional and omitted
+      const data: Annotation = {
+        comment: 'This is a cool object!',
+        targetID: researchComponent.streamID,
+        targetVersion: researchComponent.commitID
+      };
+
+      const annotation = await mutationCreateAnnotation(composeClient, data);
+
+      const response = await queryAnnotation(composeClient, annotation.streamID);
+      expect(response).toEqual(data);
+    });
+
   });
 
   describe('User', async () => {

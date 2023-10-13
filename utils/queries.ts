@@ -257,8 +257,8 @@ export const mutationUpdateAttestation = async (
   composeClient,
   inputs,
   {
-    targetID: "CeramicStreamID",
-    claimID: "CeramicStreamID",
+    targetID: "CeramicStreamID!",
+    claimID: "CeramicStreamID!",
     revoked: "Boolean"
   },
   'updateAttestation'
@@ -267,7 +267,8 @@ export const mutationUpdateAttestation = async (
 export const mutationCreateAnnotation = async (
   composeClient: ComposeClient,
   inputs: Annotation
-): Promise<NodeIDs> => genericCreate(
+): Promise<NodeIDs> => {
+  return genericCreate(
   composeClient,
   inputs,
   {
@@ -276,11 +277,12 @@ export const mutationCreateAnnotation = async (
     metadataPayload: "String",
     targetID: "CeramicStreamID!",
     targetVersion: "CeramicCommitID!",
-    claimID: "CeramicStreamID!",
-    claimVersion: "CeramicCommitID!"
+    claimID: "CeramicStreamID",
+    claimVersion: "CeramicCommitID"
   },
   'createAnnotation'
 );
+}
 
 export const mutationCreateContributorRelation = async (
   composeClient: ComposeClient,
@@ -418,6 +420,26 @@ export const queryResearchComponent = async (
       dagNode
       researchObjectID
       researchObjectVersion
+    `
+);
+
+export const queryAnnotation = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<Annotation | undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'Annotation',
+  selection ??
+    `
+      comment
+      path
+      targetID
+      targetVersion
+      claimID
+      claimVersion
+      metadataPayload
     `
 );
 
