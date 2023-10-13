@@ -299,7 +299,8 @@ describe('ComposeDB nodes', () => {
     });
 
     test.skip('can omit claim', async () => {
-      // API error on @relationDocument when the key is optional and omitted
+      // API error on @relationDocument when claimID omitted even if optional,
+      // under review by ceramic devs
       const data: Annotation = {
         comment: 'This is a cool object!',
         targetID: researchComponent.streamID,
@@ -312,6 +313,117 @@ describe('ComposeDB nodes', () => {
       expect(response).toEqual(data);
     });
 
+    test('can be accessed from research object', async () => {
+      const data: Annotation = {
+        comment: 'This is a cool object!',
+        targetID: researchObject.streamID,
+        targetVersion: researchObject.commitID,
+        claimID: claim.streamID,
+        claimVersion: claim.commitID
+      };
+
+      const annotation = await mutationCreateAnnotation(composeClient, data);
+
+      const response = await queryResearchObject(
+        composeClient,
+        researchObject.streamID,
+        `
+          annotations(first: 10) {
+            edges {
+              node {
+                targetID
+                targetVersion
+                id
+              }
+            }
+          }
+        `
+      );
+      const expected = {
+        node: {
+          targetID: researchObject.streamID,
+          targetVersion: researchObject.commitID,
+          id: annotation.streamID
+        }
+      };
+      expect((response as any).annotations.edges).toContainEqual(expected);
+    });
+    
+    test('can be accessed from research component', async () => {
+      const data: Annotation = {
+        comment: 'This is a cool component!',
+        targetID: researchComponent.streamID,
+        targetVersion: researchComponent.commitID,
+        claimID: claim.streamID,
+        claimVersion: claim.commitID
+      };
+
+      const annotation = await mutationCreateAnnotation(composeClient, data);
+
+      const response = await queryResearchComponent(
+        composeClient,
+        researchComponent.streamID,
+        `
+          annotations(first: 10) {
+            edges {
+              node {
+                targetID
+                targetVersion
+                id
+              }
+            }
+          }
+        `
+      );
+      const expected = {
+        node: {
+          targetID: researchComponent.streamID,
+          targetVersion: researchComponent.commitID,
+          id: annotation.streamID
+        }
+      };
+      expect((response as any).annotations.edges).toContainEqual(expected);
+    });
+
+    test('can reply to another annotation', async () => {
+      const questionData: Annotation = {
+        comment: 'What do you tink about this?',
+        targetID: researchComponent.streamID,
+        targetVersion: researchComponent.commitID,
+        claimID: claim.streamID,
+        claimVersion: claim.commitID
+      };
+
+      const question = await mutationCreateAnnotation(composeClient, questionData);
+
+      const replyData: Annotation = {
+        comment: 'Looks good!',
+        targetID: question.streamID,
+        targetVersion: question.commitID,
+        claimID: claim.streamID,
+        claimVersion: claim.commitID
+      };
+
+      const reply = await mutationCreateAnnotation(composeClient, replyData);
+      
+      const replyFromQuestion = await queryAnnotation(
+        composeClient,
+        question.streamID,
+        `
+          replies(first: 10) {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        `
+      );
+
+      // Verify that we can get the replies from the question
+      const expectedReply = { node: { id: reply.streamID }};
+      expect((replyFromQuestion as any).replies.edges).toContainEqual(expectedReply);
+    });
   });
 
   describe('User', async () => {
@@ -433,24 +545,66 @@ describe('ComposeDB nodes', () => {
         }
       );
 
+      // Verify that queries return the fresh data
       const roResult = await queryResearchObject(composeClient, researchObjectV0.streamID);
       const rcResult = await queryResearchComponent(composeClient, componentV0.streamID);
       expect(roResult?.manifest).toEqual(newManifest);
       expect(rcResult?.researchObjectID).toEqual(researchObjectV0.streamID);
 
-      // Check that we can get the old state with the research object version at
-      // that point in time
+      // Verify that we can still get the data of a specific version
       const oldComponentState = await ceramic.loadStream(componentV0.commitID);
       expect(oldComponentState.content.researchObjectVersion)
         .toEqual(researchObjectV0.commitID);
     });
+
+    test('can resolve a specific version index', async () => {
+      const data: ResearchObject = {
+        title: 'Title 0',
+        manifest: A_CID
+      };
+      const { streamID } = await mutationCreateResearchObject(composeClient, data);
+
+      await waitAndSync(streamID);
+      const V1 = await mutationUpdateResearchObject(
+        composeClient, 
+        { 
+          id: streamID,
+          title: 'Title 1'
+        }
+      );
+
+      await waitAndSync(streamID);
+      const V2 = await mutationUpdateResearchObject(
+        composeClient, 
+        { 
+          id: streamID,
+          title: 'Title 2'
+        }
+      );
+
+      await waitAndSync(streamID);
+      const versionToResolve = 1;
+      const stream = await ceramic.loadStream(streamID);
+
+      // Find CIDs identifying anchor commits
+      const anchorCIDs = stream.state.log
+        .filter(c => c.type !== 2)
+        .map(c => c.cid);
+
+      // Find commits with commit CIDs not in the anchor CID list
+      const dataCommits = stream.allCommitIds
+        .filter(c => !anchorCIDs.includes(c.commit))
+
+      // Load state as of the n:th data commit in the stream
+      const streamAtV0 = await ceramic.loadStream(dataCommits[versionToResolve])
+      expect(streamAtV0.content.title).toEqual('Title 1') // yay
+  
+    });
   });
-
-
-})
+});
 
 const freshClient = () =>
-  new ComposeClient({ ceramic, definition: definition as RuntimeCompositeDefinition })
+  new ComposeClient({ ceramic, definition: definition as RuntimeCompositeDefinition });
 
 /** Sync between fast updates to same streams to make tests less flaky,
 * also allowing for an anchor commit to pop in between
@@ -458,5 +612,5 @@ const freshClient = () =>
 const waitAndSync = async (streamID: string) => {
   await setTimeout(100);
   const stream = await ceramic.loadStream(streamID);
-  await stream.sync(); 
-}
+  await stream.sync();
+};
