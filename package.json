@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "next lint",
     "ceramic": "ceramic daemon --config composedb.config.json",
+    "kill": "pkill --full \"ceramic daemon|ipfs daemon\"",
     "test": "vitest --run --config vitest.config.ts"
   },
   "author": "Edvard Hubinette",

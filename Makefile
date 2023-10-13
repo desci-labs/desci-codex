@@ -8,4 +8,9 @@ test: clean-test
 	npx ceramic daemon --config test.config.json &>/dev/null &
 	sleep 5
 	node scripts/composites.mjs
-	npm test
+	# Kill daemons without losing test exit code for CI
+	if npm test; then \
+		npm run kill; true; \
+	else \
+		npm run kill; false; \
+	fi
