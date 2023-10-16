@@ -24,6 +24,7 @@ import { CeramicClient } from '@ceramicnetwork/http-client'
 import { writeComposite } from 'scripts/composites.mjs'
 import { setTimeout } from "timers/promises";
 import { Annotation, Attestation, Claim, Profile, ResearchObject } from '@/types'
+import { CommitID } from '@ceramicnetwork/streamid'
 
 const CERAMIC_API = 'http:/localhost:7007'
 const A_CID = 'bafybeibeaampol2yz5xuoxex7dxri6ztqveqrybzfh5obz6jrul5gb4cf4'
@@ -586,19 +587,18 @@ describe('ComposeDB nodes', () => {
       const versionToResolve = 1;
       const stream = await ceramic.loadStream(streamID);
 
-      // Find CIDs identifying anchor commits
-      const anchorCIDs = stream.state.log
+      // Find n:th commit, excluding anchor commits
+      const commitCID = stream.state.log
         .filter(c => c.type !== 2)
-        .map(c => c.cid);
+        .map(c => c.cid)
+        .at(versionToResolve);
 
-      // Find commits with commit CIDs not in the anchor CID list
-      const dataCommits = stream.allCommitIds
-        .filter(c => !anchorCIDs.includes(c.commit))
+      expect(commitCID).not.toBeUndefined();
+      const commit = CommitID.make(stream.id, commitCID!);
 
       // Load state as of the n:th data commit in the stream
-      const streamAtV0 = await ceramic.loadStream(dataCommits[versionToResolve])
-      expect(streamAtV0.content.title).toEqual('Title 1') // yay
-  
+      const streamAtV0 = await ceramic.loadStream(commit);
+      expect(streamAtV0.content.title).toEqual('Title 1'); // yay
     });
   });
 });
