@@ -2,15 +2,15 @@
 import Link from "next/link";
 import styles from "@/styles/Home.module.scss";
 
-import { ROProps } from "@/types";
+import { ResearchObject } from "@/types";
 import { PropsWithChildren } from "react";
 
-const ResearchObject = ({
+const ResearchObjectComponent = ({
   owner,
   title,
   manifest,
   children,
-}: PropsWithChildren<ROProps>) => {
+}: PropsWithChildren<ResearchObject>) => {
   return (
     <div className={styles.post}>
       <div><big>{title}</big></div>
@@ -22,4 +22,4 @@ const ResearchObject = ({
   );
 };
 
-export default ResearchObject;
+export default ResearchObjectComponent;

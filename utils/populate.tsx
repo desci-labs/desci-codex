@@ -19,7 +19,7 @@ import {
 import { CeramicClient } from "@ceramicnetwork/http-client"
 import { definition } from '@/src/__generated__/definition'
 import { RuntimeCompositeDefinition } from "@composedb/types"
-import { Annotation, Attestation, NodeIDs, ROProps } from "@/types"
+import { Annotation, Attestation, NodeIDs, ResearchObject } from "@/types"
 import {
   AnnotationTemplate,
   AttestationTemplate,
@@ -173,7 +173,7 @@ const loadResearchObject = async (
   roTemplate: ResearchObjectTemplate,
   composeClient: ComposeClient
 ): Promise<ActorDataNodeIDs['researchObjects'][number]> => {
-  const roProps: ROProps = {
+  const roProps: ResearchObject = {
     title: roTemplate.title,
     manifest: roTemplate.manifest
   }

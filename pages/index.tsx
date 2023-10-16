@@ -1,18 +1,18 @@
 import type { NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { useCeramicContext } from "@/context";
-import { ROProps } from "@/types";
+import { ResearchObject } from "@/types";
 import Head from "next/head";
 import styles from "@/styles/Home.module.scss";
 import React from "react";
-import ResearchObject from "@/components/ResearchObject";
+import ResearchObjectComponent from "@/components/ResearchObject";
 import { ResearchObjectForm } from "@/components/ResearchObjectForm";
 import { queryViewerId, queryViewerResearchObjects } from "@/utils/queries";
 
 const Home: NextPage = () => {
   const clients = useCeramicContext();
   const { ceramic, composeClient } = clients;
-  const [objects, setObjects] = useState<ROProps[] | []>([]);
+  const [objects, setObjects] = useState<ResearchObject[] | []>([]);
 
   const getResearchObjects = useCallback(async () => {
     if (ceramic.did !== undefined) {
@@ -43,7 +43,7 @@ const Home: NextPage = () => {
             <big>My research objects</big>
           </label>
           {objects.map((ro) => (
-            <ResearchObject
+            <ResearchObjectComponent
               key={ro.id}
               id={ro.id}
               title={ro.title}

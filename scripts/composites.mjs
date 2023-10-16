@@ -19,7 +19,7 @@ const ceramic = new CeramicClient("http://localhost:7007");
  * @return {Promise<void>} - return void when composite finishes deploying.
  */
 export const writeComposite = async (spinner) => {
-  await authenticate();
+  await authenticateAdmin();
   spinner.info("writing composite to Ceramic");
 
   const profileComposite = await createComposite(
@@ -165,7 +165,7 @@ export const writeComposite = async (spinner) => {
  * Authenticating DID for publishing composite
  * @return {Promise<void>} - return void when DID is authenticated.
  */
-const authenticate = async () => {
+const authenticateAdmin = async () => {
   const seed = readFileSync("./admin_seed.txt");
   const key = fromString(seed, "base16");
   const did = new DID({
@@ -173,6 +173,14 @@ const authenticate = async () => {
     provider: new Ed25519Provider(key),
   });
   await did.authenticate();
-  ceramic.did = did;
+  await ceramic.setDID(did);
 };
 
+const runAsScript =
+  process.argv[0].includes('/bin/node') &&
+  process.argv[1].includes('scripts/composites.mjs');
+
+if (runAsScript) {
+  const logSpinner = { info: console.log, succeed: console.log };
+  await writeComposite(logSpinner);
+};

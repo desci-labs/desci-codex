@@ -1,13 +1,13 @@
 "use client";
 import { useCeramicContext } from "@/context";
-import { ROProps } from "@/types";
+import { ResearchObject } from "@/types";
 import styles from "@/styles/profile.module.scss";
 import { useState } from "react";
 import { mutationCreateResearchObject } from "@/utils/queries";
 
 export const ResearchObjectForm = (updateParent: () => void) => {
   const { ceramic, composeClient } = useCeramicContext();
-  const [object, setObject] = useState<ROProps>({
+  const [object, setObject] = useState<ResearchObject>({
     title: "",
     manifest: ""
   });

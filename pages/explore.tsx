@@ -1,11 +1,11 @@
 import type { NextPage } from "next";
 import { useCallback, useEffect, useState } from "react";
 import { useCeramicContext } from "@/context";
-import { ROProps } from "@/types";
+import { ResearchObject } from "@/types";
 import Head from "next/head";
 import styles from "@/styles/Home.module.scss";
 import React from "react";
-import ResearchObject from "@/components/ResearchObject";
+import ResearchObjectComponent from "@/components/ResearchObject";
 import { queryResearchObjects } from "@/utils/queries";
 import { AttestButton } from "@/components/AttestButton";
 import { AttestList } from "@/components/AttestList";
@@ -13,7 +13,7 @@ import { AttestList } from "@/components/AttestList";
 const ExplorePage: NextPage = () => {
   const clients = useCeramicContext();
   const { composeClient } = clients;
-  const [objects, setObjects] = useState<ROProps[] | []>([]);
+  const [objects, setObjects] = useState<ResearchObject[] | []>([]);
 
   const getResearchObjects = useCallback(async () => {
     const researchObjects = await queryResearchObjects(composeClient);
@@ -36,7 +36,7 @@ const ExplorePage: NextPage = () => {
             <big>The world of DeSci</big>
           </label>
           {objects.map((ro) => (
-            <ResearchObject
+            <ResearchObjectComponent
               key={ro.id}
               id={ro.id}
               title={ro.title}
@@ -45,7 +45,7 @@ const ExplorePage: NextPage = () => {
             >
               <AttestButton targetID={ro.id!} />
               <AttestList targetID={ro.id!} />
-            </ResearchObject>
+            </ResearchObjectComponent>
           ))}
         </div>
       </div>
