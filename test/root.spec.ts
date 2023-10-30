@@ -952,7 +952,7 @@ const freshClient = () =>
 * also allowing for an anchor commit to pop in between
 */
 const waitAndSync = async (streamID: string, timeout?: number) => {
-  await setTimeout(timeout || 100);
+  await setTimeout(timeout || 150);
   const stream = await ceramic.loadStream(streamID);
   await stream.sync();
 };
