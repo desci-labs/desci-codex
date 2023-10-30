@@ -12,26 +12,36 @@ export type DID = {
 export type ResearchObject = {
   id?: string
   version?: string
+  owner?: DID
+
   title: string
   manifest: string
+
   components?: ResearchComponent[]
-  metadata?: string
-  owner?: DID
+
+  metadata?: string // CID
 };
 
 export type ResearchComponent = {
   owner?: DID
   version?: string
+
   name: string
   mimeType: string
+
   dagNode: string
+  pathToNode: string
+
   researchObjectID: string
   researchObjectVersion: string
+
+  metadata?: string // CID
 };
 
 export type Claim = {
   id?: string
   version?: string
+
   title: string
   description: string
   badge?: string
@@ -41,11 +51,14 @@ export type Attestation = {
   id?: string
   version?: string
   source?: DID
+
   targetID: string
   targetVersion: string
+
   claimID: string
   claimVersion: string
   claim?: Claim 
+
   revoked: boolean
 };
 
@@ -53,30 +66,48 @@ export type Annotation = {
   id?: string
   version?: string
   comment: string
-  path?: string
-  targetID: string
-  targetVersion: string
+
+  researchObjectID: string
+  researchObject?: ResearchObject
+  researchObjectVersion: string
+
+  targetID?: string
+  targetVersion?: string
+
+  dagNode?: string // CID
+  pathToNode?: string
+
+  locationOnFile?: string
+
   claimID?: string
   claim?: Claim
   claimVersion?: string
+
   metadataPayload?: string
 };
 
 export type ContributorRelation = {
   id?: string
   role: string
-  // info
+
   contributorID: string
+
   researchObjectID: string
   researchObjectVersion: string
+
+  revoked: Boolean
 };
 
 export type ReferenceRelation = {
   id?: string
+
   toID: string
   toVersion: string
+
   fromID: string
   fromVersion: string
+
+  revoked: Boolean
 };
 
 export type ResearchField = {
@@ -86,6 +117,7 @@ export type ResearchField = {
 export type ResearchFieldRelation = {
   id?: string
   fieldID: string
+
   researchObjectID: string
   researchObjectVersion: string
 };

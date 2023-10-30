@@ -6,5 +6,5 @@ type ResearchObject
   version: CommitID! @documentVersion
   title: String! @string(maxLength: 250)
   manifest: CID!
-  metadata: String @string(maxLength: 1024)
+  metadata: CID
 }

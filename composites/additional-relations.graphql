@@ -50,8 +50,8 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
 
   researchFields: [ResearchFieldRelation] @relationFrom(model: "ResearchFieldRelation", property: "researchObjectID")
 
-  annotations: [Annotation] @relationFrom(model: "Annotation", property: "targetID")
-  annotationCount: Int! @relationCountFrom(model: "Annotation", property: "targetID")
+  annotations: [Annotation] @relationFrom(model: "Annotation", property: "researchObjectID")
+  annotationCount: Int! @relationCountFrom(model: "Annotation", property: "researchObjectID")
 }
 
 # Support for incoming relations on CeramicAccounts is coming, but we'd need a separate 

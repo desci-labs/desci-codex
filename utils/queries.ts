@@ -146,19 +146,41 @@ export const queryResearchObjectAttestations = async (
   return response.data!.node.attestations.edges.map(e => e.node)
 }
 
+const RO_TYPE_MAP = {
+  title: "String!",
+  manifest: "InterPlanetaryCID!",
+  metadata: "InterPlanetaryCID"
+};
+
 export const mutationCreateResearchObject = async (
   composeClient: ComposeClient,
   inputs: ResearchObject
 ): Promise<NodeIDs> => genericCreate(
   composeClient,
   inputs,
-  {
-    title: "String!",
-    manifest: "InterPlanetaryCID!",
-    metadata: "String"
-  },
+  RO_TYPE_MAP,
   'createResearchObject'
 );
+
+export const mutationUpdateResearchObject = async (
+  composeClient: ComposeClient,
+  inputs: Partial<ResearchObject> & { id: string }
+): Promise<NodeIDs> => genericUpdate(
+  composeClient,
+  inputs,
+  makeAllOptional(RO_TYPE_MAP),
+  'updateResearchObject'
+);
+
+const COMPONENT_TYPE_MAP = {
+  name: "String!",
+  mimeType: "String!",
+  metadata: "InterPlanetaryCID",
+  dagNode: "InterPlanetaryCID!",
+  pathToNode: "String!",
+  researchObjectID: "CeramicStreamID!",
+  researchObjectVersion: "CeramicCommitID!"
+};
 
 export const mutationCreateResearchComponent = async (
   composeClient: ComposeClient,
@@ -166,13 +188,7 @@ export const mutationCreateResearchComponent = async (
 ): Promise<NodeIDs> => genericCreate(
   composeClient,
   inputs,
-  {
-    name: "String!",
-    mimeType: "String!",
-    dagNode: "InterPlanetaryCID!",
-    researchObjectID: "CeramicStreamID!",
-    researchObjectVersion: "CeramicCommitID!"
-  },
+  COMPONENT_TYPE_MAP,
   'createResearchComponent'
 );
 
@@ -182,28 +198,8 @@ export const mutationUpdateResearchComponent = async (
 ): Promise<NodeIDs> => genericUpdate(
   composeClient,
   inputs,
-  {
-    name: "String!",
-    mimeType: "String!",
-    dagNode: "InterPlanetaryCID!",
-    researchObjectID: "CeramicStreamID!",
-    researchObjectVersion: "CeramicCommitID!"
-  },
+  makeAllOptional(COMPONENT_TYPE_MAP),
   'updateResearchComponent'
-);
-
-export const mutationUpdateResearchObject = async (
-  composeClient: ComposeClient,
-  inputs: Partial<ResearchObject> & { id: string }
-): Promise<NodeIDs> => genericUpdate(
-  composeClient,
-  inputs,
-  {
-    manifest: "InterPlanetaryCID",
-    title: "String",
-    metadata: "String"
-  },
-  'updateResearchObject'
 );
 
 export const mutationCreateProfile = async (
@@ -234,19 +230,21 @@ export const mutationCreateClaim = async (
   'createClaim'
 );
 
+const ATTESTATION_TYPE_MAP = {
+  targetID: "CeramicStreamID!",
+  targetVersion: "CeramicCommitID!",
+  claimID: "CeramicStreamID!",
+  claimVersion: "CeramicCommitID!",
+  revoked: "Boolean"
+};
+
 export const mutationCreateAttestation = async (
   composeClient: ComposeClient,
   inputs: Attestation
 ): Promise<NodeIDs> => genericCreate(
   composeClient,
   inputs,
-  {
-    targetID: "CeramicStreamID!",
-    targetVersion: "CeramicCommitID!",
-    claimID: "CeramicStreamID!",
-    claimVersion: "CeramicCommitID!",
-    revoked: "Boolean"
-  },
+  ATTESTATION_TYPE_MAP,
   'createAttestation'
 );
 
@@ -256,48 +254,78 @@ export const mutationUpdateAttestation = async (
 ): Promise<NodeIDs> => genericUpdate(
   composeClient,
   inputs,
-  {
-    targetID: "CeramicStreamID!",
-    claimID: "CeramicStreamID!",
-    revoked: "Boolean"
-  },
+  makeAllOptional(ATTESTATION_TYPE_MAP),
   'updateAttestation'
 );
+
+const ANNOTATION_TYPE_MAP = {
+  comment: "String!",
+  researchObjectID: "CeramicStreamID!",
+  researchObjectVersion: "CeramicCommitID!",
+  targetID: "CeramicStreamID!",
+  targetVersion: "CeramicCommitID!",
+  dagNode: "InterPlanetaryCID",
+  pathToNode: "String",
+  locationOnFile: "String",
+  claimID: "CeramicStreamID",
+  claimVersion: "CeramicCommitID",
+  metadataPayload: "InterPlanetaryCID"
+};
 
 export const mutationCreateAnnotation = async (
   composeClient: ComposeClient,
   inputs: Annotation
-): Promise<NodeIDs> => {
-  return genericCreate(
+): Promise<NodeIDs> => genericCreate(
   composeClient,
   inputs,
-  {
-    comment: "String!",
-    path: "String",
-    metadataPayload: "String",
-    targetID: "CeramicStreamID!",
-    targetVersion: "CeramicCommitID!",
-    claimID: "CeramicStreamID",
-    claimVersion: "CeramicCommitID"
-  },
+  ANNOTATION_TYPE_MAP,
   'createAnnotation'
 );
-}
 
+export const mutationUpdateAnnotation = async (
+  composeClient: ComposeClient,
+  inputs: Partial<Annotation> & { id: string }
+): Promise<NodeIDs> => genericCreate(
+  composeClient,
+  inputs,
+  makeAllOptional(ANNOTATION_TYPE_MAP),
+  'createAnnotation'
+);
+
+const CONTRIBUTOR_TYPE_MAP = {
+  role: "String!",
+  contributorID: "CeramicStreamID!",
+  researchObjectID: "CeramicStreamID!",
+  researchObjectVersion: "CeramicCommitID!",
+  revoked: "Boolean!"
+};
 export const mutationCreateContributorRelation = async (
   composeClient: ComposeClient,
   inputs: ContributorRelation
 ): Promise<NodeIDs> => genericCreate(
   composeClient,
   inputs,
-  {
-    role: "String!",
-    contributorID: "CeramicStreamID!",
-    researchObjectID: "CeramicStreamID!",
-    researchObjectVersion: "CeramicCommitID!"
-  },
+  CONTRIBUTOR_TYPE_MAP,
   'createContributorRelation'
 );
+
+export const mutationUpdateContributorRelation = async (
+  composeClient: ComposeClient,
+  inputs: Partial<ContributorRelation> & { id: string }
+): Promise<NodeIDs> => genericUpdate(
+  composeClient,
+  inputs,
+  makeAllOptional(CONTRIBUTOR_TYPE_MAP),
+  'updateContributorRelation'
+);
+
+const REFERENCE_TYPE_MAP = {
+  toID: "CeramicStreamID!",
+  toVersion: "CeramicCommitID!",
+  fromID: "CeramicStreamID!",
+  fromVersion: "CeramicCommitID!",
+  revoked: "Boolean!"
+};
 
 export const mutationCreateReferenceRelation = async (
   composeClient: ComposeClient,
@@ -305,13 +333,18 @@ export const mutationCreateReferenceRelation = async (
 ): Promise<NodeIDs> => genericCreate(
   composeClient,
   inputs,
-  {
-    toID: "CeramicStreamID!",
-    toVersion: "CeramicCommitID!",
-    fromID: "CeramicStreamID!",
-    fromVersion: "CeramicCommitID!"
-  },
+  REFERENCE_TYPE_MAP,
   'createReferenceRelation'
+);
+
+export const mutationUpdateReferenceRelation = async (
+  composeClient: ComposeClient,
+  inputs: Partial<ReferenceRelation> & { id: string }
+): Promise<NodeIDs> => genericUpdate(
+  composeClient,
+  inputs,
+  makeAllOptional(REFERENCE_TYPE_MAP),
+  'updateReferenceRelation'
 );
 
 export const mutationCreateResearchFieldRelation = async (
@@ -348,12 +381,12 @@ export const queryResearchObject = async (
   composeClient,
   id,
   'ResearchObject',
-  selection ?? 
-    `
-      title
-      manifest
-      metadata
-    `
+  selection ??
+  `
+  title
+  manifest
+  metadata
+  `
 );
 
 export const queryProfile = async (
@@ -365,26 +398,26 @@ export const queryProfile = async (
   id,
   'Profile',
   selection ??
-    `
-      displayName
-      orcid
-    `
+  `
+  displayName
+  orcid
+  `
 );
 
 export const queryClaim = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string
-): Promise<Claim| undefined> => genericEntityQuery(
+): Promise<Claim | undefined> => genericEntityQuery(
   composeClient,
   id,
   'Claim',
   selection ??
-    `
-      title
-      description
-      badge
-    `
+  `
+  title
+  description
+  badge
+  `
 );
 
 export const queryAttestation = async (
@@ -396,13 +429,13 @@ export const queryAttestation = async (
   id,
   'Attestation',
   selection ??
-    `
-      targetID
-      targetVersion
-      claimID
-      claimVersion
-      revoked
-    `
+  `
+  targetID
+  targetVersion
+  claimID
+  claimVersion
+  revoked
+  `
 );
 
 export const queryResearchComponent = async (
@@ -414,13 +447,15 @@ export const queryResearchComponent = async (
   id,
   'ResearchComponent',
   selection ??
-    `
-      name
-      mimeType
-      dagNode
-      researchObjectID
-      researchObjectVersion
-    `
+  `
+  name
+  mimeType
+  metadata
+  dagNode
+  pathToNode
+  researchObjectID
+  researchObjectVersion
+  `
 );
 
 export const queryAnnotation = async (
@@ -432,15 +467,82 @@ export const queryAnnotation = async (
   id,
   'Annotation',
   selection ??
-    `
-      comment
-      path
-      targetID
-      targetVersion
-      claimID
-      claimVersion
-      metadataPayload
-    `
+  `
+  comment
+  researchObjectID
+  researchObjectVersion
+  targetID
+  targetVersion
+  dagNode
+  pathToNode
+  locationOnFile
+  claimID
+  claimVersion
+  metadataPayload
+  `
+);
+
+export const queryContributorRelation = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<ContributorRelation | undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'ContributorRelation',
+  selection ??
+  `
+  role
+  contributorID
+  researchObjectID
+  researchObjectVersion
+  revoked
+  `
+);
+
+export const queryReferenceRelation = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<ReferenceRelation | undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'ReferenceRelation',
+  selection ??
+  `
+  fromID
+  fromVersion
+  toID
+  toVersion
+  revoked
+  `
+);
+
+export const queryResearchFields = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<ResearchField | undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'ResearchField',
+  selection ?? 'title'
+);
+
+export const queryResearchFieldRelation = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string
+): Promise<ResearchFieldRelation | undefined> => genericEntityQuery(
+  composeClient,
+  id,
+  'ResearchFieldRelation',
+  selection ??
+  `
+  fieldID
+  researchObjectID
+  researchObjectVersion
+  `
 );
 
 export async function genericEntityQuery<T extends ProtocolEntity>(
@@ -580,3 +682,8 @@ const getQueryFields = (
       ],
       [[], []]
     ).map(stringArr => stringArr.join(', '));
+
+const makeAllOptional = (typeMap: Record<string, string>) =>
+  Object.fromEntries(
+    Object.entries(typeMap).map(([k, v]) => ([k, v.replace('!', '')]))
+  );
