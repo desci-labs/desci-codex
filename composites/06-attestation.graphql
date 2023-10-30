@@ -11,8 +11,8 @@ type Attestation
 {
   source: DID! @documentAccount
   version: CommitID! @documentVersion
-  # 1. Any type of document, shown with relation on reciever end but cannot
-  #    use @documentRelation without specifying the target type
+  # 1. Any type of document, shown with relation on reciever end but cannot use
+  #    @documentRelation without specifying the target type before interfaces land
   # 2. This cannot be a DID, so attestations to people target the Profile
   targetID: StreamID!
   targetVersion: CommitID!

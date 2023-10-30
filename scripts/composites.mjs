@@ -102,7 +102,8 @@ export const writeComposite = async (spinner) => {
   const annotationSchema = readFileSync(
     "./composites/11-annotation.graphql",
     { encoding: "utf-8"}
-  ).replace("$CLAIM_ID", claimComposite.modelIDs[0]);
+  ).replace("$CLAIM_ID", claimComposite.modelIDs[0])
+  .replace("$RESEARCH_OBJECT_ID", researchObjComposite.modelIDs[0]);
 
   const annotationComposite = await Composite.create({
     ceramic,
@@ -122,7 +123,7 @@ export const writeComposite = async (spinner) => {
   .replace("$REFERENCE_RELATION_ID", referenceRelationComposite.modelIDs[1])
   .replace("$RESEARCH_FIELD_ID", researchFieldComposite.modelIDs[0])
   .replace("$RESEARCH_FIELD_RELATION_ID", researchFieldRelationComposite.modelIDs[2])
-  .replace("$ANNOTATION_ID", annotationComposite.modelIDs[1]);
+  .replace("$ANNOTATION_ID", annotationComposite.modelIDs[2]);
 
   const additionalRelationsComposite = await Composite.create({
     ceramic,

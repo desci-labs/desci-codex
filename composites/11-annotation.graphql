@@ -2,26 +2,46 @@ type Claim @loadModel(id: "$CLAIM_ID") {
   id: ID!
 }
 
+type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
+  id: ID!
+}
+
 type Annotation
   @createModel(accountRelation: LIST, description: "Textual commentary")
   @createIndex(fields: [{ path: "targetVersion" }])
   @createIndex(fields: [{ path: "claimVersion" }])
+  @createIndex(fields: [{ path: "dagNode" }, { path: "pathToNode" }])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
+
+  # Textual commentary on target
   comment: String! @string(maxLength: 1024)
 
-  targetID: StreamID! # Research object, researchComponent, or annotation as reply
-  targetVersion: CommitID!
+  # Research object context
+  researchObjectID: StreamID! @documentReference(model: "ResearchObject")
+  researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+  researchObjectVersion: CommitID!
   
-  # If target is a component, identify the location of the annotation
-  # payload. For example a JSON path, line number, or coordinates in a pdf.
-  path: String @string(maxLength: 512)
+  # Research component or annotation as reply
+  # TODO: interface
+  targetID: StreamID
+  targetVersion: CommitID
+
+  # Alternatively, directly annotate a raw DAG node without a component.
+  # Path is necessary because CID is not necessarily unique.
+  dagNode: CID
+  pathToNode: String @string(maxLength: 512)
+
+  # Localization of the annotation payload, depending on file type. 
+  # For example a JSON path, line number, or coordinates.
+  locationOnFile: String @string(maxLength: 512)
 
   # Optionally tag a claim to contextualise the annotation
   claimID: StreamID @documentReference(model: "Claim")
   claim: Claim @relationDocument(property: "claimID")
   claimVersion: CommitID
 
-  metadataPayload: String @string(maxLength: 1024)
+  # Optionally suggest changes to metadata with a diff
+  metadataPayload: CID
 }

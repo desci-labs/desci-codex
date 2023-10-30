@@ -187,7 +187,8 @@ const loadResearchObject = async (
         {
           ...c,
           researchObjectID: researchObject.streamID,
-          researchObjectVersion: researchObject.commitID
+          researchObjectVersion: researchObject.commitID,
+          pathToNode: "."
         }
       )
     )
@@ -210,7 +211,8 @@ const loadContributorRelation = async (
       role,
       contributorID: contributor.streamID,
       researchObjectID: researchObject.streamID,
-      researchObjectVersion: researchObject.commitID
+      researchObjectVersion: researchObject.commitID,
+      revoked: false
     }
   );
 };
@@ -229,7 +231,8 @@ const loadReferenceRelation = async (
       toID: to.streamID,
       toVersion: to.commitID,
       fromID: from.streamID,
-      fromVersion: from.commitID
+      fromVersion: from.commitID,
+      revoked: false
     }
   );
 };
