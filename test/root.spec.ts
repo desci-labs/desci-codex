@@ -877,6 +877,7 @@ describe('ComposeDB nodes', () => {
           manifest: newManifest
         }
       );
+      await waitAndSync(componentV0.streamID);
       await mutationUpdateResearchComponent(
         composeClient,
         {
