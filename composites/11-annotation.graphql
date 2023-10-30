@@ -8,9 +8,10 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
 
 type Annotation
   @createModel(accountRelation: LIST, description: "Textual commentary")
-  @createIndex(fields: [{ path: "targetVersion" }])
-  @createIndex(fields: [{ path: "claimVersion" }])
-  @createIndex(fields: [{ path: "dagNode" }, { path: "pathToNode" }])
+  @createIndex(fields: [{ path: "targetID" }])
+  @createIndex(fields: [{ path: "claimID" }])
+  @createIndex(fields: [{ path: "researchObjectID" }])
+  @createIndex(fields: [{ path: "dagNode" }])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
