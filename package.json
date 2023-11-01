@@ -2,19 +2,15 @@
   "name": "desci-composites",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "generate": "node scripts/commands.mjs",
     "dev": "node scripts/run.mjs",
-    "nextDev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
     "ceramic": "ceramic daemon --config composedb.config.json",
     "kill": "pkill --full \"ceramic daemon|ipfs daemon\"",
     "test": "vitest --run --config vitest.config.ts"
   },
-  "author": "Edvard Hubinette",
+  "license": "MIT",
+  "author": "Edvard Hübinette",
   "devDependencies": {
     "@ceramicnetwork/cli": "^2.35.0",
     "@ceramicnetwork/streamid": "^2.17.0",
@@ -23,9 +19,7 @@
     "@composedb/devtools-node": "^0.5.0",
     "@composedb/graphql-scalars": "^0.5.0",
     "@composedb/types": "^0.5.0",
-    "@types/react": "18.2.21",
     "eslint": "8.48.0",
-    "eslint-config-next": "13.4.19",
     "key-did-resolver": "^3.0.0",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "^0.34.5"
@@ -37,9 +31,6 @@
     "@didtools/pkh-ethereum": "^0.4.1",
     "did-session": "^2.0.1",
     "dids": "^4.0.4",
-    "graphql": "^16.8.0",
-    "next": "^13.4.19",
-    "react-icons": "^4.10.1",
-    "sass": "^1.66.1"
+    "graphql": "^16.8.0"
   }
 }
