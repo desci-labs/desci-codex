@@ -2,12 +2,14 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
   id: ID!
 }
 
-type ReferenceRelation 
-  @createModel(accountRelation: LIST, description: "Indicate a reference between research objects")
+type ReferenceRelation
+  @createModel(
+    accountRelation: LIST
+    description: "Indicate a reference between research objects"
+  )
   @createIndex(fields: [{ path: "fromVersion" }])
   @createIndex(fields: [{ path: "toVersion" }])
-  @createIndex(fields: [{ path: "revoked" }])
-{
+  @createIndex(fields: [{ path: "revoked" }]) {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
 

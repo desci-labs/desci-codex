@@ -13,12 +13,12 @@ const SEED_PATH = `${PWD}/admin_seed.txt`;
 export const RunCommands = async () => {
   const newSeed = () => {
     const raw = new Uint8Array(randomBytes(32));
-    return toString(raw, 'base16')
-  }
+    return toString(raw, "base16");
+  };
 
   const generateAdminKeyDid = async () => {
     const seed = readFileSync(SEED_PATH);
-    const key = fromString(seed, 'base16');
+    const key = fromString(seed, "base16");
     const did = new DID({
       provider: new Ed25519Provider(key),
       resolver: getResolver(),
@@ -40,7 +40,7 @@ export const RunCommands = async () => {
       logger: {
         "log-level": 2,
         "log-to-files": true,
-        "log-directory": "local-data/ceramic/logs"
+        "log-directory": "local-data/ceramic/logs",
       },
       metrics: {
         "metrics-exporter-enabled": false,
@@ -65,21 +65,21 @@ export const RunCommands = async () => {
     writeFileSync(CONFIG_PATH, JSON.stringify(configData, undefined, 2));
   };
 
-  if (!existsSync(SEED_PATH)){
-    console.log('Creating new admin seed...');
+  if (!existsSync(SEED_PATH)) {
+    console.log("Creating new admin seed...");
     writeFileSync(SEED_PATH, newSeed());
 
-    console.log('Generating new config...');
+    console.log("Generating new config...");
     const did = await generateAdminKeyDid();
-    console.log('Saving new DID:', JSON.stringify(did, undefined, 2))
-    await generateLocalConfig(did);    
+    console.log("Saving new DID:", JSON.stringify(did, undefined, 2));
+    await generateLocalConfig(did);
   } else if (!existsSync(CONFIG_PATH)) {
-    console.log('Found seed but no config, generating...');
+    console.log("Found seed but no config, generating...");
     const did = await generateAdminKeyDid();
     await generateLocalConfig(did);
   } else {
-    console.log('Seed and config present, skipping generation.')
-  };
+    console.log("Seed and config present, skipping generation.");
+  }
 };
 
 RunCommands();

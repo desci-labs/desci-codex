@@ -11,8 +11,7 @@ type Annotation
   @createIndex(fields: [{ path: "targetID" }])
   @createIndex(fields: [{ path: "claimID" }])
   @createIndex(fields: [{ path: "researchObjectID" }])
-  @createIndex(fields: [{ path: "dagNode" }])
-{
+  @createIndex(fields: [{ path: "dagNode" }]) {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
 
@@ -21,9 +20,10 @@ type Annotation
 
   # Research object context
   researchObjectID: StreamID! @documentReference(model: "ResearchObject")
-  researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+  researchObject: ResearchObject!
+    @relationDocument(property: "researchObjectID")
   researchObjectVersion: CommitID!
-  
+
   # Research component or annotation as reply
   # TODO: interface
   targetID: StreamID
@@ -34,7 +34,7 @@ type Annotation
   dagNode: CID
   pathToNode: String @string(maxLength: 512)
 
-  # Localization of the annotation payload, depending on file type. 
+  # Localization of the annotation payload, depending on file type.
   # For example a JSON path, line number, or coordinates.
   locationOnFile: String @string(maxLength: 512)
 

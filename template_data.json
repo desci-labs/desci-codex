@@ -14,10 +14,7 @@
         "description": "This research object has a dataset attached"
       }
     ],
-    "researchFields": [
-      { "title": "Cosmology" },
-      { "title": "Psychology"}
-    ],
+    "researchFields": [{ "title": "Cosmology" }, { "title": "Psychology" }],
     "contributorRelations": [],
     "referenceRelations": [],
     "researchFieldRelations": [],

@@ -7,13 +7,16 @@ type ResearchField @loadModel(id: "$RESEARCH_FIELD_ID") {
 }
 
 type ResearchFieldRelation
-  @createModel(accountRelation: LIST, description: "Association between a research object and a field")
-{
+  @createModel(
+    accountRelation: LIST
+    description: "Association between a research object and a field"
+  ) {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
 
   researchObjectID: StreamID! @documentReference(model: "ResearchObject")
-  researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+  researchObject: ResearchObject!
+    @relationDocument(property: "researchObjectID")
   researchObjectVersion: CommitID!
 
   # Skipping stream versioning on field refs

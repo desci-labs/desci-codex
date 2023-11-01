@@ -1,7 +1,6 @@
-type Organization 
+type Organization
   @createModel(accountRelation: LIST, description: "An organization")
-  @createIndex(fields: [{ path: "name" }])
-{
+  @createIndex(fields: [{ path: "name" }]) {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
   name: String! @string(maxLength: 250)

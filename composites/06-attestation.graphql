@@ -7,8 +7,7 @@ type Attestation
   @createIndex(fields: [{ path: "revoked" }])
   @createIndex(fields: [{ path: "targetID" }])
   @createIndex(fields: [{ path: "targetVersion" }])
-  @createIndex(fields: [{ path: "claimVersion" }])
-{
+  @createIndex(fields: [{ path: "claimVersion" }]) {
   source: DID! @documentAccount
   version: CommitID! @documentVersion
   # 1. Any type of document, shown with relation on reciever end but cannot use

@@ -7,11 +7,13 @@ type Profile @loadModel(id: "$PROFILE_ID") {
 }
 
 type ContributorRelation
-  @createModel(accountRelation: LIST, description: "List a contributor on a research object")
+  @createModel(
+    accountRelation: LIST
+    description: "List a contributor on a research object"
+  )
   @createIndex(fields: [{ path: "role" }])
   @createIndex(fields: [{ path: "revoked" }])
-  @createIndex(fields: [{ path: "researchObjectVersion" }])
-{
+  @createIndex(fields: [{ path: "researchObjectVersion" }]) {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
 
@@ -19,7 +21,8 @@ type ContributorRelation
   role: String! @string(maxLength: 256)
 
   researchObjectID: StreamID! @documentReference(model: "ResearchObject")
-  researchObject: ResearchObject! @relationDocument(property: "researchObjectID")
+  researchObject: ResearchObject!
+    @relationDocument(property: "researchObjectID")
   researchObjectVersion: CommitID!
 
   # Skipping stream versioning on profile reference

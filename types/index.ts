@@ -1,149 +1,149 @@
 export type Profile = {
-  id?: string
-  version?: string
-  displayName?: string
-  orcid?: string
+  id?: string;
+  version?: string;
+  displayName?: string;
+  orcid?: string;
 };
 
 export type DID = {
-  profile?: Profile
+  profile?: Profile;
 };
 
 export type ResearchObject = {
-  id?: string
-  version?: string
-  owner?: DID
+  id?: string;
+  version?: string;
+  owner?: DID;
 
-  title: string
-  manifest: string
+  title: string;
+  manifest: string;
 
-  components?: ResearchComponent[]
+  components?: ResearchComponent[];
 
-  metadata?: string // CID
+  metadata?: string; // CID
 };
 
 export type ResearchComponent = {
-  owner?: DID
-  version?: string
+  owner?: DID;
+  version?: string;
 
-  name: string
-  mimeType: string
+  name: string;
+  mimeType: string;
 
-  dagNode: string
-  pathToNode: string
+  dagNode: string;
+  pathToNode: string;
 
-  researchObjectID: string
-  researchObjectVersion: string
+  researchObjectID: string;
+  researchObjectVersion: string;
 
-  metadata?: string // CID
+  metadata?: string; // CID
 };
 
 export type Claim = {
-  id?: string
-  version?: string
+  id?: string;
+  version?: string;
 
-  title: string
-  description: string
-  badge?: string
+  title: string;
+  description: string;
+  badge?: string;
 };
 
 export type Attestation = {
-  id?: string
-  version?: string
-  source?: DID
+  id?: string;
+  version?: string;
+  source?: DID;
 
-  targetID: string
-  targetVersion: string
+  targetID: string;
+  targetVersion: string;
 
-  claimID: string
-  claimVersion: string
-  claim?: Claim 
+  claimID: string;
+  claimVersion: string;
+  claim?: Claim;
 
-  revoked: boolean
+  revoked: boolean;
 };
 
 export type Annotation = {
-  id?: string
-  version?: string
-  comment: string
+  id?: string;
+  version?: string;
+  comment: string;
 
-  researchObjectID: string
-  researchObject?: ResearchObject
-  researchObjectVersion: string
+  researchObjectID: string;
+  researchObject?: ResearchObject;
+  researchObjectVersion: string;
 
-  targetID?: string
-  targetVersion?: string
+  targetID?: string;
+  targetVersion?: string;
 
-  dagNode?: string // CID
-  pathToNode?: string
+  dagNode?: string; // CID
+  pathToNode?: string;
 
-  locationOnFile?: string
+  locationOnFile?: string;
 
-  claimID?: string
-  claim?: Claim
-  claimVersion?: string
+  claimID?: string;
+  claim?: Claim;
+  claimVersion?: string;
 
-  metadataPayload?: string
+  metadataPayload?: string;
 };
 
 export type ContributorRelation = {
-  id?: string
-  role: string
+  id?: string;
+  role: string;
 
-  contributorID: string
+  contributorID: string;
 
-  researchObjectID: string
-  researchObjectVersion: string
+  researchObjectID: string;
+  researchObjectVersion: string;
 
-  revoked: Boolean
+  revoked: Boolean;
 };
 
 export type ReferenceRelation = {
-  id?: string
+  id?: string;
 
-  toID: string
-  toVersion: string
+  toID: string;
+  toVersion: string;
 
-  fromID: string
-  fromVersion: string
+  fromID: string;
+  fromVersion: string;
 
-  revoked: Boolean
+  revoked: Boolean;
 };
 
 export type ResearchField = {
-  title: string
+  title: string;
 };
 
 export type ResearchFieldRelation = {
-  id?: string
-  fieldID: string
+  id?: string;
+  fieldID: string;
 
-  researchObjectID: string
-  researchObjectVersion: string
+  researchObjectID: string;
+  researchObjectVersion: string;
 };
 
-export type ProtocolEntity = 
-  Profile |
-  ResearchObject |
-  ResearchComponent |
-  Claim |
-  Attestation |
-  Annotation |
-  ContributorRelation |
-  ReferenceRelation |
-  ResearchField |
-  ResearchFieldRelation;
+export type ProtocolEntity =
+  | Profile
+  | ResearchObject
+  | ResearchComponent
+  | Claim
+  | Attestation
+  | Annotation
+  | ContributorRelation
+  | ReferenceRelation
+  | ResearchField
+  | ResearchFieldRelation;
 
 export type NodeIDs = {
-  streamID: string,
-  commitID: string
+  streamID: string;
+  commitID: string;
 };
 
 export type SidebarProps = {
-  displayName?: string
-  id?: string
+  displayName?: string;
+  id?: string;
 };
 
 export type RequiredKeys<T> = {
-  [K in keyof T as (undefined extends T[K] ? never : K)]: T[K]
+  [K in keyof T as undefined extends T[K] ? never : K]: T[K];
 };

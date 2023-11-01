@@ -1,9 +1,9 @@
-import KeyDIDResolver from 'key-did-resolver'
-import { webcrypto } from 'crypto'
-import { DID } from 'dids';
-import { Ed25519Provider } from "key-did-provider-ed25519"
+import KeyDIDResolver from "key-did-resolver";
+import { webcrypto } from "crypto";
+import { DID } from "dids";
+import { Ed25519Provider } from "key-did-provider-ed25519";
 
-const keyResolver = KeyDIDResolver.getResolver()
+const keyResolver = KeyDIDResolver.getResolver();
 
 export const randomDID = async () => {
   const privateKey = new Uint8Array(32);
@@ -11,9 +11,9 @@ export const randomDID = async () => {
   const did = new DID({
     provider: new Ed25519Provider(privateKey),
     resolver: {
-      ...keyResolver
-    }
-  })
-  await did.authenticate()
-  return did
-}
+      ...keyResolver,
+    },
+  });
+  await did.authenticate();
+  return did;
+};
