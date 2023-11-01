@@ -602,11 +602,11 @@ async function genericCreate<T extends ProtocolEntity>(
   composeClient: ComposeClient,
   inputs: T,
   /** At least verify all keys exist in T, can still forget one though.
-   * Can't require it fully because some props are not allowed in the mutation.
+   * Can't spec it fully because some props are not allowed in the mutation.
    */
   gqlTypes: Partial<Record<keyof T, string>>,
   mutationName: string,
-  /** Skip timeout for single accountRelation entities */
+  /** Skip timeout for accountRelation SINGLE entities */
   noTimeout?: boolean,
 ): Promise<NodeIDs> {
   const [params, content] = getQueryFields(
@@ -628,6 +628,7 @@ async function genericCreate<T extends ProtocolEntity>(
       }
     }`,
     inputs,
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   )) as any;
   assertMutationErrors(response, mutationName);
   const nodeIDs: NodeIDs = {
@@ -665,6 +666,7 @@ async function genericUpdate<T extends ProtocolEntity>(
       }
     }`,
     inputs,
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   )) as any;
   assertMutationErrors(response, mutationName);
   const nodeIDs: NodeIDs = {
@@ -674,11 +676,10 @@ async function genericUpdate<T extends ProtocolEntity>(
   return nodeIDs;
 }
 
-type SimpleMutationResult = Pick<ExecutionResult, "errors">;
-type SimpleQueryResult = Pick<ExecutionResult, "errors" | "data">;
+type SimpleExecutionResult = Pick<ExecutionResult, "errors" | "data">;
 
 const assertMutationErrors = (
-  result: SimpleMutationResult,
+  result: SimpleExecutionResult,
   queryDescription: string,
 ) => {
   if (result.errors) {
@@ -688,7 +689,7 @@ const assertMutationErrors = (
 };
 
 const assertQueryErrors = (
-  result: SimpleQueryResult,
+  result: SimpleExecutionResult,
   queryDescription: string,
 ) => {
   if (result.errors || !result.data) {

@@ -10,7 +10,7 @@ const PWD = process.cwd();
 const CONFIG_PATH = `${PWD}/composedb.config.json`;
 const SEED_PATH = `${PWD}/admin_seed.txt`;
 
-export const RunCommands = async () => {
+export const Generate = async () => {
   const newSeed = () => {
     const raw = new Uint8Array(randomBytes(32));
     return toString(raw, "base16");
@@ -82,4 +82,4 @@ export const RunCommands = async () => {
   }
 };
 
-RunCommands();
+Generate();

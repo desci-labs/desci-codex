@@ -12,13 +12,10 @@ const server = await serveEncodedDefinition({
 
 console.log(`Server started on port ${server.port}`);
 
-process.on("SIGTERM", () => {
-  server.close(() => {
-    console.log("Server stopped");
+for (const signal in ["SIGTERM", "SIGINT"]) {
+  process.on(signal, () => {
+    server.close(() => {
+      console.log("Server stopped");
+    });
   });
-});
-process.on("SIGINT", () => {
-  server.close(() => {
-    console.log("Server stopped");
-  });
-});
+};

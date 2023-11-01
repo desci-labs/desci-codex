@@ -95,7 +95,7 @@ export type ContributorRelation = {
   researchObjectID: string;
   researchObjectVersion: string;
 
-  revoked: Boolean;
+  revoked: boolean;
 };
 
 export type ReferenceRelation = {
@@ -107,7 +107,7 @@ export type ReferenceRelation = {
   fromID: string;
   fromVersion: string;
 
-  revoked: Boolean;
+  revoked: boolean;
 };
 
 export type ResearchField = {

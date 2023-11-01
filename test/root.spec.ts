@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComposeClient } from "@composedb/client";
 import { definition } from "../src/__generated__/definition";
 import { RuntimeCompositeDefinition } from "@composedb/types";
@@ -977,24 +978,28 @@ describe("ComposeDB nodes", () => {
         title: "Title 0",
         manifest: A_CID,
       };
+
+      // Create version 0
       const { streamID } = await mutationCreateResearchObject(
         composeClient,
         data,
       );
-
       await waitAndSync(streamID);
-      const V1 = await mutationUpdateResearchObject(composeClient, {
+
+      // Create version 1
+      await mutationUpdateResearchObject(composeClient, {
         id: streamID,
         title: "Title 1",
       });
-
       await waitAndSync(streamID);
-      const V2 = await mutationUpdateResearchObject(composeClient, {
+
+      // Create version 2
+      await mutationUpdateResearchObject(composeClient, {
         id: streamID,
         title: "Title 2",
       });
-
       await waitAndSync(streamID);
+
       const versionToResolve = 1;
       const stream = await ceramic.loadStream(streamID);
 
@@ -1029,7 +1034,7 @@ const waitAndSync = async (streamID: string, timeout?: number) => {
   await stream.sync();
 };
 
-const debugStream = async (streamID: string, message: string) => {
+const _debugStream = async (streamID: string, message: string) => {
   const stream = await ceramic.loadStream(streamID);
   console.log(`*********** [START] ${message} ***********`);
   console.log(`LOG:`, JSON.stringify(stream.state.log, undefined, 2));

@@ -134,19 +134,19 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
     );
 
     streamIndex[seed].contributorRelations = await Promise.all(
-      template.contributorRelations.map((contTemplate: any) =>
+      template.contributorRelations.map((contTemplate) =>
         loadContributorRelation(contTemplate, streamIndex, composeClient),
       ),
     );
 
     streamIndex[seed].referenceRelations = await Promise.all(
-      template.referenceRelations.map((refTemplate: any) =>
+      template.referenceRelations.map((refTemplate) =>
         loadReferenceRelation(refTemplate, streamIndex, composeClient),
       ),
     );
 
     streamIndex[seed].researchFieldRelations = await Promise.all(
-      template.researchFieldRelations.map((fieldRelTemplate: any) =>
+      template.researchFieldRelations.map((fieldRelTemplate) =>
         loadResearchFieldRelation(fieldRelTemplate, streamIndex, composeClient),
       ),
     );
@@ -185,7 +185,7 @@ const loadResearchObject = async (
 
   // Possibly create manifest components if such exist
   const components = await Promise.all(
-    roTemplate.components.map((c: any) =>
+    roTemplate.components.map((c) =>
       mutationCreateResearchComponent(composeClient, {
         ...c,
         researchObjectID: researchObject.streamID,
@@ -289,5 +289,6 @@ const loadAnnotation = async (
 };
 
 // Oblivious to human faults, enjoy the footgun
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 const recursePathToID = (object: any, path: ObjectPath): NodeIDs =>
   path.length ? recursePathToID(object[path[0]], path.slice(1)) : object;

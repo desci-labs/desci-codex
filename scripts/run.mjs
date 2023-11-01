@@ -36,9 +36,9 @@ const bootstrap = async () => {
 };
 
 const graphiql = async () => {
-  spinner.info("[GraphiQL] starting graphiql");
+  spinner.info("[GraphiQL] Starting server");
   const graphiql = spawn("node", ["./scripts/graphiql.mjs"]);
-  spinner.succeed("[GraphiQL] graphiql started");
+  spinner.succeed("[GraphiQL] Server started");
   graphiql.stdout.on("data", (buffer) => {
     console.log("[GraphiqQL]", buffer.toString());
   });
@@ -65,12 +65,6 @@ const start = async () => {
 
 start();
 
-process.on("SIGTERM", () => {
-  ceramic.kill();
-});
-process.on("SIGINT", () => {
-  ceramic.kill();
-});
-process.on("beforeExit", () => {
-  ceramic.kill();
-});
+for (const signal in ["SIGTERM", "SIGINT", "beforeExit"]) {
+  process.on(signal, () => ceramic.kill());
+};
