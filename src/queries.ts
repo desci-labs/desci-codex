@@ -715,7 +715,7 @@ const getQueryFields = (
   inputs: Record<string, unknown>,
 ) =>
   Object.keys(inputs)
-    .filter(p => p !== "id")
+    .filter((p) => p !== "id")
     .reduce<[string[], string[]]>(
       (acc, next) => [
         [...acc[0], `$${next}: ${graphQLParamTypes[next]}`],

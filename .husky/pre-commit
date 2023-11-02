@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run lint
+if ! npm run lint:check; then
+  echo "⚠️  Linting failed, trying to fix. Solve any remaining issues and try again."
+  npm run lint:fix
+  exit 1
+fi

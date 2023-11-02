@@ -18,7 +18,13 @@ import {
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import { definition } from "./__generated__/definition.js";
 import { RuntimeCompositeDefinition } from "@composedb/types";
-import { Annotation, Attestation, NodeIDs, ResearchComponent, ResearchObject } from "./types.js";
+import {
+  Annotation,
+  Attestation,
+  NodeIDs,
+  ResearchComponent,
+  ResearchObject,
+} from "./types.js";
 import {
   AnnotationTemplate,
   AttestationTemplate,
@@ -67,10 +73,13 @@ export const loadIfUninitialised = async (ceramic: CeramicClient) => {
   `);
 
   if (firstProfile.errors) {
-    console.error("Failed to query Ceramic:", JSON.stringify(firstProfile.errors, undefined, 2));
-    console.error("Is the Ceramic node running?")
+    console.error(
+      "Failed to query Ceramic:",
+      JSON.stringify(firstProfile.errors, undefined, 2),
+    );
+    console.error("Is the Ceramic node running?");
     process.exit(1);
-  };
+  }
 
   if (firstProfile.data!.profileIndex.edges.length === 0) {
     console.log("Profile index empty, loading template data...");
@@ -213,7 +222,7 @@ const loadResearchComponent = async (
     dagNode,
     pathToNode,
     researchObjectID: researchObject.streamID,
-    researchObjectVersion: researchObject.commitID
+    researchObjectVersion: researchObject.commitID,
   };
 
   // Handle optionals

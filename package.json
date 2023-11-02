@@ -13,7 +13,8 @@
     "ceramic": "ceramic daemon --config composedb.config.json",
     "kill": "pkill --full \"ceramic daemon|ipfs daemon\"",
     "test": "vitest --run --config vitest.config.ts",
-    "lint": "eslint . --fix",
+    "lint:fix": "eslint . --fix",
+    "lint:check": "eslint .",
     "prepare": "husky install"
   },
   "devDependencies": {
