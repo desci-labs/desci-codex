@@ -63,8 +63,8 @@ const start = async () => {
   }
 };
 
-start();
-
 for (const signal in ["SIGTERM", "SIGINT", "beforeExit"]) {
   process.on(signal, () => ceramic.kill());
 };
+
+start();

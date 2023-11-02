@@ -1,23 +1,21 @@
+import { Profile, ResearchComponent } from "../src/types.js";
+
 export type Seed = string;
 // Address properties and array indices for indicating the future StreamID,
 // will be resolved to the actual stream when the template is instantiated
 export type ObjectPath = (string | number)[];
 
-export type ProfileTemplate = {
-  displayName: string;
-  orcid?: string;
-};
+export type ProfileTemplate = Profile;
 
-export type ComponentTemplate = {
-  name: string;
-  dagNode: string;
-  mimeType: string;
-};
+export type ResearchComponentTemplate = Omit<
+  ResearchComponent,
+  "owner" | "version" | "researchObjectID" | "researchObjectVersion"
+> & { researchObjectPath: ObjectPath };
 
 export type ResearchObjectTemplate = {
   title: string;
   manifest: string;
-  components: ComponentTemplate[];
+  metadata?: string;
 };
 
 export type ClaimTemplate = {
@@ -52,14 +50,19 @@ export type AttestationTemplate = {
 
 export type AnnotationTemplate = {
   comment: string;
-  path?: string;
-  targetPath: ObjectPath;
+  researchObjectPath: ObjectPath;
+  targetPath?: ObjectPath;
+  dagNode?: string;
+  pathToNode?: string;
+  locationOnFile?: string;
   claimPath?: ObjectPath;
+  metadataPayload?: string;
 };
 
 export type ActorTemplate = {
   profile: ProfileTemplate;
   researchObjects: ResearchObjectTemplate[];
+  researchComponents: ResearchComponentTemplate[];
   claims: ClaimTemplate[];
   researchFields: ResearchFieldTemplate[];
   contributorRelations: ContributorRelationTemplate[];

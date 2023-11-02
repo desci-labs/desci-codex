@@ -2,7 +2,6 @@ import KeyDIDResolver from "key-did-resolver";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { DID } from "dids";
 import { fromString } from "uint8arrays/from-string";
-import untypedTemplateData from "../template_data.json";
 import { ComposeClient } from "@composedb/client";
 import {
   mutationCreateAnnotation,
@@ -15,11 +14,11 @@ import {
   mutationCreateResearchField,
   mutationCreateResearchFieldRelation,
   mutationCreateResearchObject,
-} from "./queries";
+} from "./queries.js";
 import { CeramicClient } from "@ceramicnetwork/http-client";
-import { definition } from "@/src/__generated__/definition";
+import { definition } from "./__generated__/definition.js";
 import { RuntimeCompositeDefinition } from "@composedb/types";
-import { Annotation, Attestation, NodeIDs, ResearchObject } from "@/types";
+import { Annotation, Attestation, NodeIDs, ResearchComponent, ResearchObject } from "./types.js";
 import {
   AnnotationTemplate,
   AttestationTemplate,
@@ -27,9 +26,12 @@ import {
   DataTemplate,
   ObjectPath,
   ReferenceRelationTemplate,
+  ResearchComponentTemplate,
   ResearchFieldRelationTemplate,
   ResearchObjectTemplate,
-} from "./templateData";
+} from "../template-data/templateData.js";
+
+import untypedTemplateData from "../template-data/template_data.json" assert { type: "json" };
 
 const templateData: DataTemplate = untypedTemplateData;
 
@@ -46,13 +48,13 @@ const didFromSeed = async (seed: string) => {
   return did;
 };
 
-type ProfileIndexResults = { data: { profileIndex: { edges: [] } } };
+type ProfileIndexResult = { profileIndex: { edges: [] } };
 export const loadIfUninitialised = async (ceramic: CeramicClient) => {
   const composeClient = new ComposeClient({
     ceramic,
     definition: definition as RuntimeCompositeDefinition,
   });
-  const firstProfile = (await composeClient.executeQuery(`
+  const firstProfile = await composeClient.executeQuery<ProfileIndexResult>(`
     query {
       profileIndex(first: 1) {
         edges {
@@ -62,9 +64,15 @@ export const loadIfUninitialised = async (ceramic: CeramicClient) => {
         }
       }
     }
-  `)) as ProfileIndexResults;
+  `);
 
-  if (firstProfile.data.profileIndex.edges.length === 0) {
+  if (firstProfile.errors) {
+    console.error("Failed to query Ceramic:", JSON.stringify(firstProfile.errors, undefined, 2));
+    console.error("Is the Ceramic node running?")
+    process.exit(1);
+  };
+
+  if (firstProfile.data!.profileIndex.edges.length === 0) {
     console.log("Profile index empty, loading template data...");
     await loadTemplateData(composeClient);
   } else {
@@ -77,10 +85,8 @@ export const loadIfUninitialised = async (ceramic: CeramicClient) => {
 // Same shape as the template data, but with NodeIDs for each leaf
 type ActorDataNodeIDs = {
   profile?: NodeIDs;
-  researchObjects: {
-    IDs: NodeIDs;
-    components: NodeIDs[];
-  }[];
+  researchObjects: NodeIDs[];
+  researchComponents: NodeIDs[];
   claims: NodeIDs[];
   researchFields: NodeIDs[];
   attestations: NodeIDs[];
@@ -93,6 +99,7 @@ type ActorDataNodeIDs = {
 const freshActorRecord = (profile: NodeIDs): ActorDataNodeIDs => ({
   profile,
   researchObjects: [],
+  researchComponents: [],
   claims: [],
   attestations: [],
   researchFields: [],
@@ -130,6 +137,12 @@ const loadTemplateData = async (composeClient: ComposeClient) => {
     streamIndex[seed].researchObjects = await Promise.all(
       template.researchObjects.map((roTemplate) =>
         loadResearchObject(roTemplate, composeClient),
+      ),
+    );
+
+    streamIndex[seed].researchComponents = await Promise.all(
+      template.researchComponents.map((component) =>
+        loadResearchComponent(component, streamIndex, composeClient),
       ),
     );
 
@@ -183,19 +196,29 @@ const loadResearchObject = async (
     roProps,
   );
 
-  // Possibly create manifest components if such exist
-  const components = await Promise.all(
-    roTemplate.components.map((c) =>
-      mutationCreateResearchComponent(composeClient, {
-        ...c,
-        researchObjectID: researchObject.streamID,
-        researchObjectVersion: researchObject.commitID,
-        pathToNode: ".",
-      }),
-    ),
-  );
+  return researchObject;
+};
 
-  return { IDs: researchObject, components };
+const loadResearchComponent = async (
+  rcTemplate: ResearchComponentTemplate,
+  streamIndex: StreamIndex,
+  composeClient: ComposeClient,
+): Promise<ActorDataNodeIDs["researchComponents"][number]> => {
+  const { name, mimeType, dagNode, pathToNode, researchObjectPath, metadata } =
+    rcTemplate;
+  const researchObject = recursePathToID(streamIndex, researchObjectPath);
+  const component: ResearchComponent = {
+    name,
+    mimeType,
+    dagNode,
+    pathToNode,
+    researchObjectID: researchObject.streamID,
+    researchObjectVersion: researchObject.commitID
+  };
+
+  // Handle optionals
+  if (metadata) component.metadata = metadata;
+  return await mutationCreateResearchComponent(composeClient, component);
 };
 
 const loadContributorRelation = async (
@@ -270,21 +293,40 @@ const loadAnnotation = async (
   streamIndex: StreamIndex,
   composeClient: ComposeClient,
 ): Promise<ActorDataNodeIDs["annotations"][number]> => {
-  const { comment, path, targetPath, claimPath } = annotationTemplate;
-  const target = recursePathToID(streamIndex, targetPath);
-  const annotation: Annotation = {
-    targetID: target.streamID,
-    targetVersion: target.commitID,
+  const {
     comment,
+    researchObjectPath,
+    targetPath,
+    dagNode,
+    pathToNode,
+    locationOnFile,
+    claimPath,
+    metadataPayload,
+  } = annotationTemplate;
+
+  const researchObject = recursePathToID(streamIndex, researchObjectPath);
+  const annotation: Annotation = {
+    comment,
+    researchObjectID: researchObject.streamID,
+    researchObjectVersion: researchObject.commitID,
   };
+  if (targetPath) {
+    const target = recursePathToID(streamIndex, targetPath);
+    annotation.targetID = target.streamID;
+    annotation.targetVersion = target.commitID;
+  }
   if (claimPath) {
     const claim = recursePathToID(streamIndex, claimPath);
     annotation.claimID = claim.streamID;
     annotation.claimVersion = claim.commitID;
   }
-  if (path) {
-    annotation.path = path;
-  }
+
+  // GraphQL queries dislike undefined
+  if (dagNode) annotation.dagNode = dagNode;
+  if (pathToNode) annotation.pathToNode = dagNode;
+  if (locationOnFile) annotation.locationOnFile = dagNode;
+  if (metadataPayload) annotation.metadataPayload = dagNode;
+
   return mutationCreateAnnotation(composeClient, annotation);
 };
 
@@ -292,3 +334,5 @@ const loadAnnotation = async (
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 const recursePathToID = (object: any, path: ObjectPath): NodeIDs =>
   path.length ? recursePathToID(object[path[0]], path.slice(1)) : object;
+
+loadIfUninitialised(new CeramicClient("http://localhost:7007"));

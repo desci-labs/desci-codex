@@ -4,6 +4,7 @@
       "displayName": "DeSci Labs"
     },
     "researchObjects": [],
+    "researchComponents": [],
     "claims": [
       {
         "title": "Quality Stuff",
@@ -30,19 +31,24 @@
     "researchObjects": [
       {
         "title": "Sunrises in Teletubbyland",
-        "manifest": "bafkreiepot62powegf7tt73gyiz24facsdloywggattt2asz5y4eaqhkyi",
-        "components": [
-          {
-            "name": "A fancy dataset",
-            "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
-            "mimeType": "text/csv"
-          }
-        ]
+        "manifest": "bafkreiepot62powegf7tt73gyiz24facsdloywggattt2asz5y4eaqhkyi"
       },
       {
         "title": "TeletubbyPlanet Orbital Behaviour",
-        "manifest": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xalp7i",
-        "components": []
+        "manifest": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xalp7i"
+      }
+    ],
+    "researchComponents": [
+      {
+        "name": "A fancy dataset",
+        "mimeType": "text/csv",
+        "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
+        "pathToNode": ".",
+        "researchObjectPath": [
+          "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
+          "researchObjects",
+          0
+        ]
       }
     ],
     "contributorRelations": [],
@@ -51,14 +57,12 @@
         "fromPath": [
           "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
           "researchObjects",
-          1,
-          "IDs"
+          1
         ],
         "toPath": [
           "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
           "researchObjects",
-          0,
-          "IDs"
+          0
         ]
       }
     ],
@@ -67,8 +71,7 @@
         "researchObjectPath": [
           "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
           "researchObjects",
-          0,
-          "IDs"
+          0
         ],
         "fieldPath": [
           "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
@@ -80,8 +83,7 @@
         "researchObjectPath": [
           "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
           "researchObjects",
-          1,
-          "IDs"
+          1
         ],
         "fieldPath": [
           "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
@@ -103,13 +105,19 @@
     "researchObjects": [
       {
         "title": "Teletubby Folklore",
-        "manifest": "bafkreieodz3e4kzbnlg4nka5pwrgafwuuemfuejxqa5dpdaqlgt6bjs7fm",
-        "components": [
-          {
-            "name": "Some cool data I found",
-            "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
-            "mimeType": "text/csv"
-          }
+        "manifest": "bafkreieodz3e4kzbnlg4nka5pwrgafwuuemfuejxqa5dpdaqlgt6bjs7fm"
+      }
+    ],
+    "researchComponents": [
+      {
+        "name": "Some cool data I found",
+        "mimeType": "text/csv",
+        "dagNode": "bafkreibtsll3aq2bynvlxnqh6nxafzdm4cpiovr3bcncbkzjcy32xaaaaa",
+        "pathToNode": ".",
+        "researchObjectPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchObjects",
+          0
         ]
       }
     ],
@@ -119,8 +127,7 @@
         "researchObjectPath": [
           "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
           "researchObjects",
-          0,
-          "IDs"
+          0
         ],
         "contributorPath": [
           "dc0b1125d15f276c5e6fdaf2465ae9f25d5e9984a7cb062640345c941d3ed1e0",
@@ -134,8 +141,7 @@
         "researchObjectPath": [
           "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
           "researchObjects",
-          0,
-          "IDs"
+          0
         ],
         "fieldPath": [
           "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
@@ -150,8 +156,7 @@
         "targetPath": [
           "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
           "researchObjects",
-          0,
-          "IDs"
+          0
         ],
         "claimPath": [
           "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
@@ -171,10 +176,10 @@
     "researchObjects": [
       {
         "title": "Solar Mind Control",
-        "manifest": "bafkreifixmk6tierh6qompfouk63r6clg5jbeuvwherrxacq4uoedk4o5q",
-        "components": []
+        "manifest": "bafkreifixmk6tierh6qompfouk63r6clg5jbeuvwherrxacq4uoedk4o5q"
       }
     ],
+    "researchComponents": [],
     "contributorRelations": [],
     "referenceRelations": [],
     "researchFieldRelations": [],
@@ -184,8 +189,7 @@
         "targetPath": [
           "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
           "researchObjects",
-          0,
-          "IDs"
+          0
         ],
         "claimPath": [
           "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",
@@ -198,11 +202,15 @@
       {
         "comment": "I viewed this dataset and it seems to check out!",
         "path": ".",
-        "targetPath": [
+        "researchObjectPath": [
           "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
           "researchObjects",
-          0,
-          "components",
+          0
+        ],
+        
+        "targetPath": [
+          "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
+          "researchComponents",
           0
         ],
         "claimPath": [
@@ -213,11 +221,10 @@
       },
       {
         "comment": "I recommend this RO gets stamped as quality content",
-        "targetPath": [
+        "researchObjectPath": [
           "17cd4168d7f322ef17a01dde0ae0900cf9beebdf2c2edd39029041819cdb1015",
           "researchObjects",
-          0,
-          "IDs"
+          0
         ],
         "claimPath": [
           "1a40e10dc4830864781716eab4f88c60d74d8718cc5ed9af268d338a2096833f",

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComposeClient } from "@composedb/client";
-import { definition } from "../src/__generated__/definition";
+import { definition } from "../src/__generated__/definition.js";
 import { RuntimeCompositeDefinition } from "@composedb/types";
 import { test, describe, beforeAll, expect } from "vitest";
 import {
@@ -29,10 +29,10 @@ import {
   queryResearchFieldRelation,
   queryResearchFields,
   queryResearchObject,
-} from "../utils/queries";
-import { randomDID } from "./util";
+} from "../src/queries.js";
+import { randomDID } from "./util.js";
 import { CeramicClient } from "@ceramicnetwork/http-client";
-import { writeComposite } from "scripts/composites.mjs";
+import { writeComposite } from "../scripts/composites.mjs";
 import { setTimeout } from "timers/promises";
 import {
   Annotation,
@@ -42,7 +42,7 @@ import {
   Profile,
   ReferenceRelation,
   ResearchObject,
-} from "@/types";
+} from "../src/types.js";
 import { CommitID } from "@ceramicnetwork/streamid";
 
 const CERAMIC_API = "http:/localhost:7007";
