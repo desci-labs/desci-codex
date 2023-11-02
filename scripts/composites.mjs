@@ -22,140 +22,150 @@ export const writeComposite = async (spinner) => {
   await authenticateAdmin();
   spinner.info("writing composite to Ceramic");
 
+  /** Collect streamID of each composite as it is created */
+  const modelIDs = {};
+
   const profileComposite = await createComposite(
     ceramic,
-    "./composites/00-profile.graphql"
+    "./composites/1-profile.graphql",
   );
+  modelIDs.profile = profileComposite.modelIDs[0];
+
+  const researchObjectComposite = await createComposite(
+    ceramic,
+    "./composites/1-researchObject.graphql",
+  );
+  modelIDs.researchObject = researchObjectComposite.modelIDs[0];
 
   const researchFieldComposite = await createComposite(
     ceramic,
-    "./composites/001-researchField.graphql"
+    "./composites/1-researchField.graphql",
   );
-
-  const researchObjComposite = await createComposite(
-    ceramic,
-    "./composites/01-researchObject.graphql"
-  );
-
-  const orgComposite = await createComposite(
-    ceramic,
-    "./composites/02-organization.graphql"
-  );
+  modelIDs.researchField = researchFieldComposite.modelIDs[0];
 
   const claimComposite = await createComposite(
     ceramic,
-    "./composites/05-claim.graphql"
+    "./composites/1-claim.graphql",
   );
+  modelIDs.claim = claimComposite.modelIDs[0];
 
   const attestationSchema = readFileSync(
-    "./composites/06-attestation.graphql",
-    { encoding: "utf-8"}
-  ).replace("$CLAIM_ID", claimComposite.modelIDs[0]);
+    "./composites/2-attestation.graphql",
+    { encoding: "utf-8" },
+  ).replace("$CLAIM_ID", modelIDs.claim);
 
   const attestationComposite = await Composite.create({
     ceramic,
-    schema: attestationSchema
+    schema: attestationSchema,
   });
+  modelIDs.attestation = attestationComposite.modelIDs[1];
 
-  const componentSchema = readFileSync(
-    "./composites/07-researchComponent.graphql",
-    { encoding: "utf-8"}
-  ).replace("$RESEARCH_OBJECT_ID", researchObjComposite.modelIDs[0]);
+  const researchComponentSchema = readFileSync(
+    "./composites/2-researchComponent.graphql",
+    { encoding: "utf-8" },
+  ).replace("$RESEARCH_OBJECT_ID", modelIDs.researchObject);
 
-  const componentComposite = await Composite.create({
+  const researchComponentComposite = await Composite.create({
     ceramic,
-    schema: componentSchema
+    schema: researchComponentSchema,
   });
+  modelIDs.researchComponent = researchComponentComposite.modelIDs[1];
+
 
   const referenceRelationSchema = readFileSync(
-    "./composites/08-referenceRelation.graphql",
-    { encoding: "utf-8"}
-  ).replace("$RESEARCH_OBJECT_ID", researchObjComposite.modelIDs[0]);
+    "./composites/2-referenceRelation.graphql",
+    { encoding: "utf-8" },
+  ).replace("$RESEARCH_OBJECT_ID", modelIDs.researchObject);
 
   const referenceRelationComposite = await Composite.create({
     ceramic,
-    schema: referenceRelationSchema
+    schema: referenceRelationSchema,
   });
+  modelIDs.referenceRelation = referenceRelationComposite.modelIDs[1];
 
   const contributorRelationSchema = readFileSync(
-    "./composites/09-contributorRelation.graphql",
-    { encoding: "utf-8"}
-  ).replace("$RESEARCH_OBJECT_ID", researchObjComposite.modelIDs[0])
-  .replace("$PROFILE_ID", profileComposite.modelIDs[0])
+    "./composites/2-contributorRelation.graphql",
+    { encoding: "utf-8" },
+  )
+    .replace("$RESEARCH_OBJECT_ID", modelIDs.researchObject)
+    .replace("$PROFILE_ID", modelIDs.profile);
 
   const contributorRelationComposite = await Composite.create({
     ceramic,
-    schema: contributorRelationSchema
+    schema: contributorRelationSchema,
   });
+  modelIDs.contributorRelation = contributorRelationComposite.modelIDs[2];
 
   const researchFieldRelationSchema = readFileSync(
-    "./composites/10-researchFieldRelation.graphql",
-    { encoding: "utf-8"}
-  ).replace("$RESEARCH_OBJECT_ID", researchObjComposite.modelIDs[0])
-  .replace("$RESEARCH_FIELD_ID", researchFieldComposite.modelIDs[0]);
+    "./composites/2-researchFieldRelation.graphql",
+    { encoding: "utf-8" },
+  )
+    .replace("$RESEARCH_OBJECT_ID", modelIDs.researchObject)
+    .replace("$RESEARCH_FIELD_ID", modelIDs.researchField);
 
   const researchFieldRelationComposite = await Composite.create({
     ceramic,
-    schema: researchFieldRelationSchema
+    schema: researchFieldRelationSchema,
   });
+  modelIDs.researchFieldRelation = researchFieldRelationComposite.modelIDs[2];
 
-  const annotationSchema = readFileSync(
-    "./composites/11-annotation.graphql",
-    { encoding: "utf-8"}
-  ).replace("$CLAIM_ID", claimComposite.modelIDs[0])
-  .replace("$RESEARCH_OBJECT_ID", researchObjComposite.modelIDs[0]);
+  const annotationSchema = readFileSync("./composites/2-annotation.graphql", {
+    encoding: "utf-8",
+  })
+    .replace("$CLAIM_ID", modelIDs.claim)
+    .replace("$RESEARCH_OBJECT_ID", modelIDs.researchObject);
 
   const annotationComposite = await Composite.create({
     ceramic,
-    schema: annotationSchema
+    schema: annotationSchema,
   });
+  modelIDs.annotation = annotationComposite.modelIDs[2];
 
   const additionalRelationsSchema = readFileSync(
-    "./composites/additional-relations.graphql",
-    { encoding: "utf-8" }
+    "./composites/3-additionalRelations.graphql",
+    { encoding: "utf-8" },
   )
-  .replace("$ATTESTATION_ID", attestationComposite.modelIDs[1])
-  .replace("$CLAIM_ID", claimComposite.modelIDs[0])
-  .replace("$RESEARCH_OBJECT_ID", researchObjComposite.modelIDs[0])
-  .replace("$PROFILE_ID", profileComposite.modelIDs[0])
-  .replace("$RESEARCH_COMPONENT_ID", componentComposite.modelIDs[1])
-  .replace("$CONTRIBUTOR_RELATION_ID", contributorRelationComposite.modelIDs[2])
-  .replace("$REFERENCE_RELATION_ID", referenceRelationComposite.modelIDs[1])
-  .replace("$RESEARCH_FIELD_ID", researchFieldComposite.modelIDs[0])
-  .replace("$RESEARCH_FIELD_RELATION_ID", researchFieldRelationComposite.modelIDs[2])
-  .replace("$ANNOTATION_ID", annotationComposite.modelIDs[2]);
+    .replace("$ATTESTATION_ID", modelIDs.attestation)
+    .replace("$CLAIM_ID", modelIDs.claim)
+    .replace("$RESEARCH_OBJECT_ID", modelIDs.researchObject)
+    .replace("$PROFILE_ID", modelIDs.profile)
+    .replace("$RESEARCH_COMPONENT_ID", modelIDs.researchComponent)
+    .replace("$CONTRIBUTOR_RELATION_ID", modelIDs.contributorRelation)
+    .replace("$REFERENCE_RELATION_ID", modelIDs.referenceRelation)
+    .replace("$RESEARCH_FIELD_ID", modelIDs.researchField)
+    .replace("$RESEARCH_FIELD_RELATION_ID", modelIDs.researchFieldRelation)
+    .replace("$ANNOTATION_ID", modelIDs.annotation);
 
   const additionalRelationsComposite = await Composite.create({
     ceramic,
-    schema: additionalRelationsSchema
+    schema: additionalRelationsSchema,
   });
 
   const composite = Composite.from([
     profileComposite,
-    researchObjComposite,
-    orgComposite,
+    researchObjectComposite,
     claimComposite,
     attestationComposite,
-    componentComposite,
+    researchComponentComposite,
     additionalRelationsComposite,
     contributorRelationComposite,
     referenceRelationComposite,
     researchFieldComposite,
     researchFieldRelationComposite,
-    annotationComposite
-   ]);
+    annotationComposite,
+  ]);
 
   await writeEncodedComposite(composite, "./src/__generated__/definition.json");
   spinner.info("creating composite for runtime usage");
   await writeEncodedCompositeRuntime(
     ceramic,
     "./src/__generated__/definition.json",
-    "./src/__generated__/definition.js"
+    "./src/__generated__/definition.js",
   );
   spinner.info("deploying composite");
   const deployComposite = await readEncodedComposite(
     ceramic,
-    "./src/__generated__/definition.json"
+    "./src/__generated__/definition.json",
   );
 
   await deployComposite.startIndexingOn(ceramic);
@@ -178,10 +188,10 @@ const authenticateAdmin = async () => {
 };
 
 const runAsScript =
-  process.argv[0].includes('/bin/node') &&
-  process.argv[1].includes('scripts/composites.mjs');
+  process.argv[0].includes("/bin/node") &&
+  process.argv[1].includes("scripts/composites.mjs");
 
 if (runAsScript) {
   const logSpinner = { info: console.log, succeed: console.log };
   await writeComposite(logSpinner);
-};
+}

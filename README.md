@@ -1,37 +1,47 @@
-# ComposeDB configuration
-This is a rough take on model definitions for DeSci Nodes on Ceramic and ComposeDB,
-based on a Ceramic demo at ETHDenver and snippets from Mark Krasner.
+# Protocol V2 reference implementation
+This repo contains a reference implementation for the next generation of the protocol, built on [Ceramic](https://ceramic.network/) and [ComposeDB](https://composedb.js.org/docs/0.5.x/introduction). It includes data models and an extensive test suite to ensure correct functionality, but also example data population and a GraphiQL interface to explore the protocol structure.
 
-## Getting Started
-1. Install your dependencies:
+By default, the application runs a local Ceramic/ComposeDB node with the bundled IPFS server, uses the `inmemory` network for anchoring, and writes all data and logs to `local-data`.
+
+The protocol documentation can be found [here](pls-replace-me)!
+
+## Getting started
+
+1. Install dependencies:
 
 ```bash
-nvm use # ensure node 20 is selected according to .nvmrc
-npm install
+nvm use # or otherwise ensure the use of node v20
+npm ci # install deps
 ```
 
-2. Generate your admin seed, admin did, and ComposeDB configuration file:
+2. Generate your own seed, admin DID, and ComposeDB configuration file:
 
 ```bash
 npm run generate
 ```
 
-3. Finally, run your application in a new terminal:
+3. Finally, start the services:
 
 ```bash
 npm run dev
 ```
-- Open [http://localhost:3000](http://localhost:3000) to get to Nodes Home
-- Open [http://localhost:5001](http://localhost:5001) for the GraphiQL interface
 
-## Reset
-To clean everything up, delete `local-data`. This is necessary when changing networks, for example.
+Now you can open [http://localhost:5001](http://localhost:5001) for the GraphiQL interface and explore the data models.
 
-## Tests
-There is a test suite running through API operations demonstrating the functional protocol
-requirements in an isolated ceramic instance not to dirty down the state, but can also be
-run against the dev process. Not both at the same time though, because the ports overlap.
+## Test suite
+
+There is a test suite running through API operations demonstrating the functional protocol requirements, by generating random DID's and performing create and mutation operations. Before each run, it will remove the remains of the last test execution.
+
+The test setup clones your user configuration, but changes storage to `local-data/ceramic-test` not to interfere with prepopulated data. It will refuse to run if `npm run dev` is already active.
 
 ```bash
 make test
+```
+
+## Reset
+
+To reset to a clean state, deleting everything except generated seed and user config:
+
+```bash
+make clean
 ```

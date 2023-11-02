@@ -1,0 +1,39 @@
+type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
+  id: ID!
+}
+
+type Profile @loadModel(id: "$PROFILE_ID") {
+  id: ID!
+}
+
+type ContributorRelation
+  @createModel(
+    accountRelation: LIST
+    description: "List a contributor on a research object"
+  )
+  @createIndex(fields: [{ path: "role" }])
+  @createIndex(fields: [{ path: "revoked" }])
+  @createIndex(fields: [{ path: "researchObjectVersion" }]) {
+  owner: DID! @documentAccount
+  version: CommitID! @documentVersion
+
+  # E.g. credit taxonomy
+  role: String! @string(maxLength: 256)
+
+  researchObjectID: StreamID! @documentReference(model: "ResearchObject")
+  researchObject: ResearchObject!
+    @relationDocument(property: "researchObjectID")
+  researchObjectVersion: CommitID!
+
+  # Skipping stream versioning on profile reference
+  contributorID: StreamID @documentReference(model: "Profile")
+  contributor: Profile @relationDocument(property: "contributorID")
+
+  # In case the author doesn't have a profile in the protocol, manual information
+  # can be listed. Otherwise, depend on what the author lists on this profile instead.
+  # Arbitrary JSON mapping the service/social network to the contributors handle.
+  fallbackInfo: String @string(maxLength: 1024)
+
+  # Revoke this relation
+  revoked: Boolean
+}
