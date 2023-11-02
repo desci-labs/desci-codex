@@ -3,6 +3,8 @@ This repo contains a reference implementation for the next generation of the pro
 
 By default, the application runs a local Ceramic/ComposeDB node with the bundled IPFS server, uses the `inmemory` network for anchoring, and writes all data and logs to `local-data`.
 
+The protocol documentation can be found [here](pls-replace-me)!
+
 ## Getting started
 
 1. Install dependencies:
@@ -28,8 +30,9 @@ Now you can open [http://localhost:5001](http://localhost:5001) for the GraphiQL
 
 ## Test suite
 
-There is a test suite running through API operations demonstrating the functional protocol
-requirements. This clones your user configuration, but changes storage to `local-data/ceramic-test` not to interfere with prepopulated data. Do make sure to stop `npm run dev` before executing tests.
+There is a test suite running through API operations demonstrating the functional protocol requirements, by generating random DID's and performing create and mutation operations. Before each run, it will remove the remains of the last test execution.
+
+The test setup clones your user configuration, but changes storage to `local-data/ceramic-test` not to interfere with prepopulated data. It will refuse to run if `npm run dev` is already active.
 
 ```bash
 make test
