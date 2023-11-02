@@ -7,7 +7,7 @@ clean-test:
 	rm -rf local-data/ceramic-test
 
 test: clean-test
-	if pgrep --ignore-ancestors --count --full "ceramic daemon|ipfs daemon"; then \
+	if pgrep --older 1 --count --full "ceramic daemon|ipfs daemon"; then \
 		echo "Refusing to clobber running daemons"; exit 1; \
 	fi
 
