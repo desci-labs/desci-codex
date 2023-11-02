@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     include: ["test/**/*.spec.ts"],
     reporters: process.env.GITHUB_ACTIONS
-      ? ["default", new GithubActionsReporter()]
-      : "default",
+      ? ["verbose", new GithubActionsReporter()]
+      : "verbose",
   },
 });
