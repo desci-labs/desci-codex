@@ -1,4 +1,5 @@
 # Protocol V2 reference implementation
+
 This repo contains a reference implementation for the next generation of the protocol, built on [Ceramic](https://ceramic.network/) and [ComposeDB](https://composedb.js.org/docs/0.5.x/introduction). It includes data models and an extensive test suite to ensure correct functionality, but also example data population and a GraphiQL interface to explore the protocol structure.
 
 By default, the application runs a local Ceramic/ComposeDB node with the bundled IPFS server, uses the `inmemory` network for anchoring, and writes all data and logs to `local-data`.
@@ -26,7 +27,16 @@ npm run generate
 npm run dev
 ```
 
-Now you can open [http://localhost:5001](http://localhost:5001) for the GraphiQL interface and explore the data models.
+This will start a composeDB node, compile the models into composites, and deploy the composites to a local network. Now, you can open [http://localhost:5001](http://localhost:5001) for the GraphiQL interface and explore the data models.
+
+4. If you want to experiment with some actual queries, you can run this command to publish a bit of data from a couple of random DID's:
+
+```bash
+npm run populate
+```
+
+After this is done, your GraphQL queries should return actual information.
+
 
 ## Test suite
 
@@ -45,3 +55,7 @@ To reset to a clean state, deleting everything except generated seed and user co
 ```bash
 make clean
 ```
+
+## Feedback
+
+If you want to discuss any part of the protocol from a practical or theoretical perspective, come on in to our [Discord](https://discord.gg/A5P9fgB5Cf)! This is a community effort, and your thoughts and opinions will help shape its future.
