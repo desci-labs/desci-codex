@@ -1,4 +1,4 @@
-# Protocol V2 reference implementation
+# DeSci CODEX reference implementation
 
 This repo contains a reference implementation for the next generation of the protocol, built on [Ceramic](https://ceramic.network/) and [ComposeDB](https://composedb.js.org/docs/0.5.x/introduction). It includes data models and an extensive test suite to ensure correct functionality, but also example data population and a GraphiQL interface to explore the protocol structure.
 
