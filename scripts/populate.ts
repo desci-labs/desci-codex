@@ -14,9 +14,9 @@ import {
   mutationCreateResearchField,
   mutationCreateResearchFieldRelation,
   mutationCreateResearchObject,
-} from "./queries.js";
+} from "../src/queries.js";
 import { CeramicClient } from "@ceramicnetwork/http-client";
-import { definition } from "./__generated__/definition.js";
+import { definition } from "../src/__generated__/definition.js";
 import { RuntimeCompositeDefinition } from "@composedb/types";
 import {
   Annotation,
@@ -24,7 +24,7 @@ import {
   NodeIDs,
   ResearchComponent,
   ResearchObject,
-} from "./types.js";
+} from "../src/types.js";
 import {
   AnnotationTemplate,
   AttestationTemplate,
