@@ -17,5 +17,8 @@
 
     "allowJs": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "dist"
+  ]
 }
