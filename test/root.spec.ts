@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComposeClient } from "@composedb/client";
 import { definition } from "../src/__generated__/definition.js";
-import { RuntimeCompositeDefinition } from "@composedb/types";
 import { test, describe, beforeAll, expect } from "vitest";
 import {
   mutationCreateAnnotation,
@@ -1022,7 +1021,7 @@ describe("ComposeDB nodes", () => {
 const freshClient = () =>
   new ComposeClient({
     ceramic,
-    definition: definition as RuntimeCompositeDefinition,
+    definition,
   });
 
 /** Sync between fast updates to same streams to make tests less flaky,
