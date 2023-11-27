@@ -1,7 +1,4 @@
 node_modules
-keyfile
-base-composite.json
-.next
 admin_seed.txt
 local-data
 src/__generated__/*
