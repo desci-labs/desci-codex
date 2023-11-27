@@ -4,7 +4,7 @@ This repo contains a reference implementation for the next generation of the pro
 
 By default, the application runs a local Ceramic/ComposeDB node with the bundled IPFS server, uses the `inmemory` network for anchoring, and writes all data and logs to `local-data`.
 
-The protocol documentation can be found [here](pls-replace-me)!
+The protocol documentation can be found [here](https://codex.desci.com)!
 
 ## Getting started
 
