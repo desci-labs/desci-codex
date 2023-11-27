@@ -16,7 +16,8 @@
     "resolveJsonModule": true,
 
     "allowJs": true,
-    "noEmit": true
+    "noEmit": true,
+    "noImplicitReturns": true
   },
   "exclude": [
     "dist"
