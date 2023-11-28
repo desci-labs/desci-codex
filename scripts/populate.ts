@@ -38,6 +38,7 @@ import {
 } from "../template-data/templateData.js";
 
 import untypedTemplateData from "../template-data/template_data.json" assert { type: "json" };
+import { RuntimeCompositeDefinition } from "@composedb/types";
 
 const templateData: DataTemplate = untypedTemplateData;
 
@@ -58,7 +59,7 @@ type ProfileIndexResult = { profileIndex: { edges: [] } };
 export const loadIfUninitialised = async (ceramic: CeramicClient) => {
   const composeClient = new ComposeClient({
     ceramic,
-    definition,
+    definition: definition as RuntimeCompositeDefinition,
   });
   const firstProfile = await composeClient.executeQuery<ProfileIndexResult>(`
     query {

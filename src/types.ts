@@ -28,6 +28,11 @@ export type ResearchComponent = {
 
   metadata?: string; // CID
 };
+export type ResearchComponentStatic = "researchObjectID";
+export type ResearchComponentUpdate = Omit<
+  ResearchComponent,
+  ResearchComponentStatic
+>;
 
 export type Claim = {
   title: string;
@@ -53,7 +58,7 @@ export type AttestationUpdate = Omit<Attestation, AttestationStatic | "claim">;
  * The full range of model fields on the Annotation, unexported
  * because not all combinations make sense. See subtypes below.
  */
-type AnnotationFull = {
+export type AnnotationFull = {
   comment?: string;
 
   researchObjectID: string;
@@ -110,7 +115,10 @@ export type Annotation =
 export type AnnotationStatic = "researchObjectID" | "claimID" | "targetID";
 
 /** Any `Annotation` instance, but excluding static fields. */
-export type AnnotationUpdate = DistributiveOmit<Annotation, AnnotationStatic>;
+export type AnnotationUpdate = DistributiveOmit<
+  Annotation,
+  AnnotationStatic | "claim"
+>;
 
 export type ContributorRelation = {
   role: string;
@@ -123,6 +131,9 @@ export type ContributorRelation = {
   revoked: boolean;
 };
 
+export type ContributorStatic = "researchObjectID" | "contributorID";
+export type ContributorUpdate = Omit<ContributorRelation, ContributorStatic>;
+
 export type ReferenceRelation = {
   toID: string;
   toVersion: string;
@@ -132,6 +143,9 @@ export type ReferenceRelation = {
 
   revoked: boolean;
 };
+
+export type ReferenceStatic = "toID" | "fromID";
+export type ReferenceUpdate = Omit<ReferenceRelation, ReferenceStatic>;
 
 export type ResearchField = {
   title: string;

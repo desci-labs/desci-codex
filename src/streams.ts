@@ -48,7 +48,7 @@ export const loadVersionIndex = async (
 ): Promise<Stream> => {
   const stream = await client.loadStream(id);
   const log = getVersionLog(stream);
-  if (index < 0 || index >= length) {
+  if (index < 0 || index >= log.length) {
     throw new RangeError(
       `Index not within the known ${log.length} stream states`,
     );
