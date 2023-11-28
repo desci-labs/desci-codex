@@ -47,7 +47,7 @@ export type Attestation = {
 };
 
 export type AttestationStatic = "targetID" | "claimID";
-export type AttestationUpdate = Omit<Attestation, AttestationStatic>;
+export type AttestationUpdate = Omit<Attestation, AttestationStatic | "claim">;
 
 /**
  * The full range of model fields on the Annotation, unexported

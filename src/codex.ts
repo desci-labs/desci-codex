@@ -3,11 +3,16 @@ import {
   mutationCreateAnnotation,
   mutationCreateAttestation,
   mutationCreateClaim,
+  mutationCreateContributorRelation,
   mutationCreateProfile,
+  mutationCreateReferenceRelation,
   mutationCreateResearchComponent,
+  mutationCreateResearchFieldRelation,
   mutationCreateResearchObject,
   mutationUpdateAnnotation,
   mutationUpdateAttestation,
+  mutationUpdateContributorRelation,
+  mutationUpdateReferenceRelation,
   mutationUpdateResearchComponent,
   mutationUpdateResearchObject,
 } from "./queries.js";
@@ -17,9 +22,15 @@ import {
   Attestation,
   AttestationUpdate,
   Claim,
+  ContributorRelation,
+  ContributorUpdate,
   PartialWithID,
   Profile,
+  ReferenceRelation,
+  ReferenceUpdate,
   ResearchComponent,
+  ResearchComponentUpdate,
+  ResearchFieldRelation,
   ResearchObject,
 } from "./types.js";
 
@@ -148,5 +159,65 @@ export const createResearchComponent = async (
  */
 export const updateResearchComponent = async (
   client: ComposeClient,
-  props: PartialWithID<ResearchComponent>,
+  props: PartialWithID<ResearchComponentUpdate>,
 ) => await mutationUpdateResearchComponent(client, props);
+
+/**
+ * Create a new relation to a research field.
+ *
+ * @param client - ComposeDB client instance.
+ * @param props - Model field contents.
+ * @returns StreamID and CommitID for the node.
+ */
+export const createResearchFieldRelation = async (
+  client: ComposeClient,
+  props: ResearchFieldRelation,
+) => await mutationCreateResearchFieldRelation(client, props);
+
+/**
+ * Create a new contributor relation between a research object and a profile.
+ *
+ * @param client - ComposeDB client instance.
+ * @param props - Model field contents.
+ * @returns StreamID and CommitID for the node.
+ */
+export const createContributorRelation = async (
+  client: ComposeClient,
+  props: ContributorRelation,
+) => await mutationCreateContributorRelation(client, props);
+
+/**
+ * Update fields on an existing contributor relation.
+ *
+ * @param client - ComposeDB client instance.
+ * @param props - Model field contents.
+ * @returns StreamID and CommitID for the update.
+ */
+export const updateContributorRelation = async (
+  client: ComposeClient,
+  props: PartialWithID<ContributorUpdate>,
+) => await mutationUpdateContributorRelation(client, props);
+
+/**
+ * Create a directed reference relation between two research objects.
+ *
+ * @param client - ComposeDB client instance.
+ * @param props - Model field contents.
+ * @returns StreamID and CommitID for the node.
+ */
+export const createReferenceRelation = async (
+  client: ComposeClient,
+  props: ReferenceRelation,
+) => await mutationCreateReferenceRelation(client, props);
+
+/**
+ * Update an existing reference relation.
+ *
+ * @param client - ComposeDB client instance.
+ * @param props - Model field contents.
+ * @returns StreamID and CommitID for the update.
+ */
+export const updateReferenceRelation = async (
+  client: ComposeClient,
+  props: PartialWithID<ReferenceUpdate>,
+) => await mutationUpdateReferenceRelation(client, props);
