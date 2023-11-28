@@ -43,6 +43,7 @@ import {
   ResearchObject,
 } from "../src/types.js";
 import { CommitID } from "@ceramicnetwork/streamid";
+import { RuntimeCompositeDefinition } from "@composedb/types";
 
 const CERAMIC_API = "http:/localhost:7007";
 const A_CID = "bafybeibeaampol2yz5xuoxex7dxri6ztqveqrybzfh5obz6jrul5gb4cf4";
@@ -1021,7 +1022,7 @@ describe("ComposeDB nodes", () => {
 const freshClient = () =>
   new ComposeClient({
     ceramic,
-    definition,
+    definition: definition as RuntimeCompositeDefinition,
   });
 
 /** Sync between fast updates to same streams to make tests less flaky,

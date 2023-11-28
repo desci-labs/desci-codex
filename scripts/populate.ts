@@ -17,9 +17,9 @@ import {
 } from "../src/queries.js";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import { definition } from "../src/__generated__/definition.js";
-import { RuntimeCompositeDefinition } from "@composedb/types";
 import {
   Annotation,
+  AnnotationFull,
   Attestation,
   NodeIDs,
   ResearchComponent,
@@ -58,7 +58,7 @@ type ProfileIndexResult = { profileIndex: { edges: [] } };
 export const loadIfUninitialised = async (ceramic: CeramicClient) => {
   const composeClient = new ComposeClient({
     ceramic,
-    definition: definition as RuntimeCompositeDefinition,
+    definition,
   });
   const firstProfile = await composeClient.executeQuery<ProfileIndexResult>(`
     query {
@@ -314,15 +314,15 @@ const loadAnnotation = async (
   } = annotationTemplate;
 
   const researchObject = recursePathToID(streamIndex, researchObjectPath);
-  const annotation: Annotation = {
+  const annotation: Partial<AnnotationFull> = {
     comment,
     researchObjectID: researchObject.streamID,
     researchObjectVersion: researchObject.commitID,
   };
   if (targetPath) {
     const target = recursePathToID(streamIndex, targetPath);
-    annotation.targetID = target.streamID;
-    annotation.targetVersion = target.commitID;
+    annotation.researchObjectID = target.streamID;
+    annotation.researchObjectVersion = target.commitID;
   }
   if (claimPath) {
     const claim = recursePathToID(streamIndex, claimPath);
@@ -336,7 +336,7 @@ const loadAnnotation = async (
   if (locationOnFile) annotation.locationOnFile = dagNode;
   if (metadataPayload) annotation.metadataPayload = dagNode;
 
-  return mutationCreateAnnotation(composeClient, annotation);
+  return mutationCreateAnnotation(composeClient, annotation as Annotation);
 };
 
 // Oblivious to human faults, enjoy the footgun
