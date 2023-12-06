@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "test/**/*",
+    "scripts/**/*",
+    "template-data/**/*",
+    "vitest*",
+    "dist"
+  ],
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "declaration": true,
+    "resolveJsonModule": false
+  }
+}

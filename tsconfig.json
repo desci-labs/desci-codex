@@ -13,9 +13,13 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node16",
+    "resolveJsonModule": true,
 
     "allowJs": true,
     "noEmit": true,
-    "resolveJsonModule": true
-  }
+    "noImplicitReturns": true
+  },
+  "exclude": [
+    "dist"
+  ]
 }

@@ -1,24 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComposeClient } from "@composedb/client";
 import { definition } from "../src/__generated__/definition.js";
-import { RuntimeCompositeDefinition } from "@composedb/types";
 import { test, describe, beforeAll, expect } from "vitest";
 import {
-  mutationCreateAnnotation,
-  mutationCreateAttestation,
-  mutationCreateClaim,
-  mutationCreateContributorRelation,
-  mutationCreateProfile,
-  mutationCreateReferenceRelation,
-  mutationCreateResearchComponent,
   mutationCreateResearchField,
-  mutationCreateResearchFieldRelation,
-  mutationCreateResearchObject,
-  mutationUpdateAttestation,
-  mutationUpdateContributorRelation,
-  mutationUpdateReferenceRelation,
-  mutationUpdateResearchComponent,
-  mutationUpdateResearchObject,
   queryAnnotation,
   queryAttestation,
   queryClaim,
@@ -43,7 +28,25 @@ import {
   ReferenceRelation,
   ResearchObject,
 } from "../src/types.js";
-import { CommitID } from "@ceramicnetwork/streamid";
+import { StreamID } from "@ceramicnetwork/streamid";
+import { RuntimeCompositeDefinition } from "@composedb/types";
+import {
+  createAnnotation,
+  createAttestation,
+  createClaim,
+  createContributorRelation,
+  createProfile,
+  createReferenceRelation,
+  createResearchComponent,
+  createResearchFieldRelation,
+  createResearchObject,
+  updateAttestation,
+  updateContributorRelation,
+  updateReferenceRelation,
+  updateResearchComponent,
+  updateResearchObject,
+} from "../src/codex.js";
+import { loadAtTime, loadVersionIndex } from "../src/streams.js";
 
 const CERAMIC_API = "http:/localhost:7007";
 const A_CID = "bafybeibeaampol2yz5xuoxex7dxri6ztqveqrybzfh5obz6jrul5gb4cf4";
@@ -77,10 +80,7 @@ describe("ComposeDB nodes", () => {
         manifest: A_CID,
         metadata: A_CID,
       };
-      const researchObject = await mutationCreateResearchObject(
-        composeClient,
-        data,
-      );
+      const researchObject = await createResearchObject(composeClient, data);
       const result = await queryResearchObject(
         composeClient,
         researchObject.streamID,
@@ -93,7 +93,7 @@ describe("ComposeDB nodes", () => {
         displayName: "First Lastname",
         orcid: "orcidHandle",
       };
-      const profile = await mutationCreateProfile(composeClient, data);
+      const profile = await createProfile(composeClient, data);
 
       const result = await queryProfile(composeClient, profile.streamID);
       expect(result).toEqual(data);
@@ -105,21 +105,18 @@ describe("ComposeDB nodes", () => {
         description: "The point of the claim",
         badge: A_CID,
       };
-      const claim = await mutationCreateClaim(composeClient, data);
+      const claim = await createClaim(composeClient, data);
 
       const result = await queryClaim(composeClient, claim.streamID);
       expect(result).toEqual(data);
     });
 
     test("attestation to own research object", async () => {
-      const myResearchObject = await mutationCreateResearchObject(
-        composeClient,
-        {
-          title: "Test",
-          manifest: A_CID,
-        },
-      );
-      const myClaim = await mutationCreateClaim(composeClient, {
+      const myResearchObject = await createResearchObject(composeClient, {
+        title: "Test",
+        manifest: A_CID,
+      });
+      const myClaim = await createClaim(composeClient, {
         title: "My Claim",
         description: "The point of the claim",
         badge: A_CID,
@@ -131,7 +128,7 @@ describe("ComposeDB nodes", () => {
         claimVersion: myClaim.commitID,
         revoked: false,
       };
-      const attestation = await mutationCreateAttestation(composeClient, data);
+      const attestation = await createAttestation(composeClient, data);
       const result = await queryAttestation(
         composeClient,
         attestation.streamID,
@@ -150,13 +147,10 @@ describe("ComposeDB nodes", () => {
         title: "Test",
         manifest: A_CID,
       };
-      const researchObject = await mutationCreateResearchObject(
-        composeClient,
-        data,
-      );
+      const researchObject = await createResearchObject(composeClient, data);
 
       await waitAndSync(researchObject.streamID);
-      await mutationUpdateResearchObject(composeClient, {
+      await updateResearchObject(composeClient, {
         id: researchObject.streamID,
         metadata: A_CID, // Add some new metadata
       });
@@ -168,7 +162,7 @@ describe("ComposeDB nodes", () => {
     });
 
     test("profile", async () => {
-      const profile = await mutationCreateProfile(composeClient, {
+      const profile = await createProfile(composeClient, {
         displayName: "My Name",
         orcid: "@handle",
       });
@@ -179,7 +173,7 @@ describe("ComposeDB nodes", () => {
       };
       await waitAndSync(profile.streamID);
       // Apparently create acts as an upsert on SINGLE accountRelation models
-      await mutationCreateProfile(composeClient, newProfile);
+      await createProfile(composeClient, newProfile);
 
       const result = await queryProfile(composeClient, profile.streamID);
       expect(result).toEqual(newProfile);
@@ -189,7 +183,7 @@ describe("ComposeDB nodes", () => {
   describe("Attestations", async () => {
     const composeClient = freshClient();
     composeClient.setDID(await randomDID());
-    const testClaim = await mutationCreateClaim(composeClient, {
+    const testClaim = await createClaim(composeClient, {
       title: "Test",
       description: "A nice explanation",
     });
@@ -198,12 +192,12 @@ describe("ComposeDB nodes", () => {
       const user = await randomDID();
       composeClient.setDID(user);
 
-      const ownProfile = await mutationCreateProfile(composeClient, {
+      const ownProfile = await createProfile(composeClient, {
         displayName: "First Lastname",
         orcid: "orcidHandle",
       });
 
-      const attestation = await mutationCreateAttestation(composeClient, {
+      const attestation = await createAttestation(composeClient, {
         targetID: ownProfile.streamID,
         targetVersion: ownProfile.commitID,
         claimID: testClaim.streamID,
@@ -221,17 +215,14 @@ describe("ComposeDB nodes", () => {
     test("can be made to other users research object", async () => {
       const user1 = await randomDID();
       composeClient.setDID(user1);
-      const user1ResearchObject = await mutationCreateResearchObject(
-        composeClient,
-        {
-          title: "Paper",
-          manifest: A_CID,
-        },
-      );
+      const user1ResearchObject = await createResearchObject(composeClient, {
+        title: "Paper",
+        manifest: A_CID,
+      });
 
       const user2 = await randomDID();
       composeClient.setDID(user2);
-      const attestation = await mutationCreateAttestation(composeClient, {
+      const attestation = await createAttestation(composeClient, {
         targetID: user1ResearchObject.streamID,
         targetVersion: user1ResearchObject.commitID,
         claimID: testClaim.streamID,
@@ -249,12 +240,12 @@ describe("ComposeDB nodes", () => {
     test("can be updated with revokation", async () => {
       const user = await randomDID();
       composeClient.setDID(user);
-      const researchObject = await mutationCreateResearchObject(composeClient, {
+      const researchObject = await createResearchObject(composeClient, {
         title: "Paper",
         manifest: A_CID,
       });
 
-      const attestation = await mutationCreateAttestation(composeClient, {
+      const attestation = await createAttestation(composeClient, {
         targetID: researchObject.streamID,
         targetVersion: researchObject.commitID,
         claimID: testClaim.streamID,
@@ -263,7 +254,7 @@ describe("ComposeDB nodes", () => {
       });
 
       await waitAndSync(attestation.streamID);
-      await mutationUpdateAttestation(composeClient, {
+      await updateAttestation(composeClient, {
         id: attestation.streamID,
         revoked: true,
       });
@@ -281,27 +272,24 @@ describe("ComposeDB nodes", () => {
     const user = await randomDID();
     composeClient.setDID(user);
 
-    const researchObject = await mutationCreateResearchObject(composeClient, {
+    const researchObject = await createResearchObject(composeClient, {
       title: "Title",
       manifest: A_CID,
     });
 
-    const claim = await mutationCreateClaim(composeClient, {
+    const claim = await createClaim(composeClient, {
       title: "Title",
       description: "Description",
     });
 
-    const researchComponent = await mutationCreateResearchComponent(
-      composeClient,
-      {
-        name: "Name",
-        mimeType: "text/csv",
-        dagNode: A_CID,
-        pathToNode: "",
-        researchObjectID: researchObject.streamID,
-        researchObjectVersion: researchObject.commitID,
-      },
-    );
+    const researchComponent = await createResearchComponent(composeClient, {
+      name: "Name",
+      mimeType: "text/csv",
+      dagNode: A_CID,
+      pathToNode: "",
+      researchObjectID: researchObject.streamID,
+      researchObjectVersion: researchObject.commitID,
+    });
 
     describe("can be created on", async () => {
       test("research object", async () => {
@@ -315,7 +303,7 @@ describe("ComposeDB nodes", () => {
           claimVersion: claim.commitID,
         };
 
-        const annotation = await mutationCreateAnnotation(composeClient, data);
+        const annotation = await createAnnotation(composeClient, data);
 
         const response = await queryAnnotation(
           composeClient,
@@ -338,7 +326,7 @@ describe("ComposeDB nodes", () => {
           claimVersion: claim.commitID,
         };
 
-        const annotation = await mutationCreateAnnotation(composeClient, data);
+        const annotation = await createAnnotation(composeClient, data);
 
         const response = await queryAnnotation(
           composeClient,
@@ -361,7 +349,7 @@ describe("ComposeDB nodes", () => {
           claimVersion: claim.commitID,
         };
 
-        const annotation = await mutationCreateAnnotation(composeClient, data);
+        const annotation = await createAnnotation(composeClient, data);
 
         const response = await queryAnnotation(
           composeClient,
@@ -385,7 +373,7 @@ describe("ComposeDB nodes", () => {
           metadataPayload: A_CID,
         };
 
-        const annotation = await mutationCreateAnnotation(composeClient, data);
+        const annotation = await createAnnotation(composeClient, data);
 
         const response = await queryAnnotation(
           composeClient,
@@ -410,7 +398,7 @@ describe("ComposeDB nodes", () => {
           metadataPayload: A_CID,
         };
 
-        const annotation = await mutationCreateAnnotation(composeClient, data);
+        const annotation = await createAnnotation(composeClient, data);
 
         const response = await queryAnnotation(
           composeClient,
@@ -435,7 +423,7 @@ describe("ComposeDB nodes", () => {
           metadataPayload: A_CID,
         };
 
-        const annotation = await mutationCreateAnnotation(composeClient, data);
+        const annotation = await createAnnotation(composeClient, data);
 
         const response = await queryAnnotation(
           composeClient,
@@ -456,7 +444,7 @@ describe("ComposeDB nodes", () => {
         researchObjectVersion: researchObject.commitID,
       };
 
-      const annotation = await mutationCreateAnnotation(composeClient, data);
+      const annotation = await createAnnotation(composeClient, data);
 
       const response = await queryAnnotation(
         composeClient,
@@ -477,7 +465,7 @@ describe("ComposeDB nodes", () => {
           claimVersion: claim.commitID,
         };
 
-        const annotation = await mutationCreateAnnotation(composeClient, data);
+        const annotation = await createAnnotation(composeClient, data);
         const response = await queryResearchObject(
           composeClient,
           researchObject.streamID,
@@ -517,7 +505,7 @@ describe("ComposeDB nodes", () => {
           claimVersion: claim.commitID,
         };
 
-        const annotation = await mutationCreateAnnotation(composeClient, data);
+        const annotation = await createAnnotation(composeClient, data);
 
         const response = await queryResearchComponent(
           composeClient,
@@ -559,10 +547,7 @@ describe("ComposeDB nodes", () => {
         claimVersion: claim.commitID,
       };
 
-      const question = await mutationCreateAnnotation(
-        composeClient,
-        questionData,
-      );
+      const question = await createAnnotation(composeClient, questionData);
 
       const replyData: Annotation = {
         comment: "Looks good!",
@@ -577,7 +562,7 @@ describe("ComposeDB nodes", () => {
         claimVersion: claim.commitID,
       };
 
-      const reply = await mutationCreateAnnotation(composeClient, replyData);
+      const reply = await createAnnotation(composeClient, replyData);
 
       const replyFromQuestion = await queryAnnotation(
         composeClient,
@@ -606,7 +591,7 @@ describe("ComposeDB nodes", () => {
     const user1 = await randomDID();
     composeClient.setDID(user1);
 
-    const user1Profile = await mutationCreateProfile(composeClient, {
+    const user1Profile = await createProfile(composeClient, {
       displayName: "Name",
       orcid: "000-111",
     });
@@ -614,7 +599,7 @@ describe("ComposeDB nodes", () => {
     const user2 = await randomDID();
     composeClient.setDID(user2);
 
-    const researchObject = await mutationCreateResearchObject(composeClient, {
+    const researchObject = await createResearchObject(composeClient, {
       title: "Title",
       manifest: A_CID,
     });
@@ -628,7 +613,7 @@ describe("ComposeDB nodes", () => {
     };
 
     test("created", async () => {
-      const contribution = await mutationCreateContributorRelation(
+      const contribution = await createContributorRelation(
         composeClient,
         contributionData,
       );
@@ -640,11 +625,11 @@ describe("ComposeDB nodes", () => {
     });
 
     test("updated with revokation", async () => {
-      const contribution = await mutationCreateContributorRelation(
+      const contribution = await createContributorRelation(
         composeClient,
         contributionData,
       );
-      await mutationUpdateContributorRelation(composeClient, {
+      await updateContributorRelation(composeClient, {
         id: contribution.streamID,
         revoked: true,
       });
@@ -657,7 +642,7 @@ describe("ComposeDB nodes", () => {
     });
 
     test("found from research objects", async () => {
-      const contribution = await mutationCreateContributorRelation(
+      const contribution = await createContributorRelation(
         composeClient,
         contributionData,
       );
@@ -681,7 +666,7 @@ describe("ComposeDB nodes", () => {
     });
 
     test("found from profiles", async () => {
-      const contribution = await mutationCreateContributorRelation(
+      const contribution = await createContributorRelation(
         composeClient,
         contributionData,
       );
@@ -710,21 +695,15 @@ describe("ComposeDB nodes", () => {
     const user1 = await randomDID();
     composeClient.setDID(user1);
 
-    const researchObjectSource = await mutationCreateResearchObject(
-      composeClient,
-      {
-        title: "Title",
-        manifest: A_CID,
-      },
-    );
+    const researchObjectSource = await createResearchObject(composeClient, {
+      title: "Title",
+      manifest: A_CID,
+    });
 
-    const researchObjectTarget = await mutationCreateResearchObject(
-      composeClient,
-      {
-        title: "Title",
-        manifest: A_CID,
-      },
-    );
+    const researchObjectTarget = await createResearchObject(composeClient, {
+      title: "Title",
+      manifest: A_CID,
+    });
 
     const referenceData: ReferenceRelation = {
       fromID: researchObjectSource.streamID,
@@ -735,7 +714,7 @@ describe("ComposeDB nodes", () => {
     };
 
     test("created", async () => {
-      const reference = await mutationCreateReferenceRelation(
+      const reference = await createReferenceRelation(
         composeClient,
         referenceData,
       );
@@ -747,11 +726,11 @@ describe("ComposeDB nodes", () => {
     });
 
     test("updated with revokation", async () => {
-      const reference = await mutationCreateReferenceRelation(
+      const reference = await createReferenceRelation(
         composeClient,
         referenceData,
       );
-      await mutationUpdateReferenceRelation(composeClient, {
+      await updateReferenceRelation(composeClient, {
         id: reference.streamID,
         revoked: true,
       });
@@ -763,7 +742,7 @@ describe("ComposeDB nodes", () => {
     });
 
     test("found from source research objects", async () => {
-      const reference = await mutationCreateReferenceRelation(
+      const reference = await createReferenceRelation(
         composeClient,
         referenceData,
       );
@@ -787,7 +766,7 @@ describe("ComposeDB nodes", () => {
     });
 
     test("found from target research objects", async () => {
-      const reference = await mutationCreateReferenceRelation(
+      const reference = await createReferenceRelation(
         composeClient,
         referenceData,
       );
@@ -816,7 +795,7 @@ describe("ComposeDB nodes", () => {
     const user1 = await randomDID();
     composeClient.setDID(user1);
 
-    const researchObject = await mutationCreateResearchObject(composeClient, {
+    const researchObject = await createResearchObject(composeClient, {
       title: "Title",
       manifest: A_CID,
     });
@@ -843,7 +822,7 @@ describe("ComposeDB nodes", () => {
           researchObjectID: researchObject.streamID,
           researchObjectVersion: researchObject.commitID,
         };
-        const relation = await mutationCreateResearchFieldRelation(
+        const relation = await createResearchFieldRelation(
           composeClient,
           relationData,
         );
@@ -858,14 +837,11 @@ describe("ComposeDB nodes", () => {
         const field = await mutationCreateResearchField(composeClient, {
           title: "DeSci",
         });
-        const relation = await mutationCreateResearchFieldRelation(
-          composeClient,
-          {
-            fieldID: field.streamID,
-            researchObjectID: researchObject.streamID,
-            researchObjectVersion: researchObject.commitID,
-          },
-        );
+        const relation = await createResearchFieldRelation(composeClient, {
+          fieldID: field.streamID,
+          researchObjectID: researchObject.streamID,
+          researchObjectVersion: researchObject.commitID,
+        });
         const response = await queryResearchObject(
           composeClient,
           researchObject.streamID,
@@ -900,14 +876,14 @@ describe("ComposeDB nodes", () => {
       // This assumes anchors have been made, which is very fast running locally
       // but are made in longer time periods with on-chain anchoring
 
-      const { streamID } = await mutationCreateResearchObject(composeClient, {
+      const { streamID } = await createResearchObject(composeClient, {
         title: "Old",
         manifest: A_CID,
       });
       const timeBetween = Math.floor(Date.now() / 1000);
       // Encourage an anchor in between commits
       await waitAndSync(streamID, 200);
-      await mutationUpdateResearchObject(composeClient, {
+      await updateResearchObject(composeClient, {
         id: streamID,
         title: "New",
       });
@@ -915,21 +891,20 @@ describe("ComposeDB nodes", () => {
       const stream = await ceramic.loadStream(streamID);
       expect(stream.state.content.title).toEqual("New");
 
-      const streamBetween = await ceramic.loadStream(streamID, {
-        atTime: timeBetween,
-      });
+      const streamBetween = await loadAtTime(
+        ceramic,
+        StreamID.fromString(streamID),
+        timeBetween,
+      );
       expect(streamBetween.state.content.title).toEqual("Old");
     });
 
     test("can resolve stream refs in old versions", async () => {
-      const researchObjectV0 = await mutationCreateResearchObject(
-        composeClient,
-        {
-          title: "Title",
-          manifest: A_CID,
-        },
-      );
-      const componentV0 = await mutationCreateResearchComponent(composeClient, {
+      const researchObjectV0 = await createResearchObject(composeClient, {
+        title: "Title",
+        manifest: A_CID,
+      });
+      const componentV0 = await createResearchComponent(composeClient, {
         name: "Filename",
         mimeType: "text/plain",
         dagNode: A_CID,
@@ -939,15 +914,12 @@ describe("ComposeDB nodes", () => {
       });
       const newManifest =
         "bafybeibeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-      const researchObjectV1 = await mutationUpdateResearchObject(
-        composeClient,
-        {
-          id: researchObjectV0.streamID,
-          manifest: newManifest,
-        },
-      );
+      const researchObjectV1 = await updateResearchObject(composeClient, {
+        id: researchObjectV0.streamID,
+        manifest: newManifest,
+      });
       await waitAndSync(componentV0.streamID);
-      await mutationUpdateResearchComponent(composeClient, {
+      await updateResearchComponent(composeClient, {
         id: componentV0.streamID,
         dagNode: newManifest,
         // Set a new version indicator
@@ -980,40 +952,30 @@ describe("ComposeDB nodes", () => {
       };
 
       // Create version 0
-      const { streamID } = await mutationCreateResearchObject(
-        composeClient,
-        data,
-      );
+      const { streamID } = await createResearchObject(composeClient, data);
       await waitAndSync(streamID);
 
       // Create version 1
-      await mutationUpdateResearchObject(composeClient, {
+      await updateResearchObject(composeClient, {
         id: streamID,
         title: "Title 1",
       });
       await waitAndSync(streamID);
 
       // Create version 2
-      await mutationUpdateResearchObject(composeClient, {
+      await updateResearchObject(composeClient, {
         id: streamID,
         title: "Title 2",
       });
       await waitAndSync(streamID);
 
       const versionToResolve = 1;
-      const stream = await ceramic.loadStream(streamID);
+      const streamAtV0 = await loadVersionIndex(
+        ceramic,
+        StreamID.fromString(streamID),
+        versionToResolve,
+      );
 
-      // Find n:th commit, excluding anchor commits
-      const commitCID = stream.state.log
-        .filter((c) => c.type !== 2)
-        .map((c) => c.cid)
-        .at(versionToResolve);
-
-      expect(commitCID).not.toBeUndefined();
-      const commit = CommitID.make(stream.id, commitCID!);
-
-      // Load state as of the n:th data commit in the stream
-      const streamAtV0 = await ceramic.loadStream(commit);
       expect(streamAtV0.content.title).toEqual("Title 1"); // yay
     });
   });

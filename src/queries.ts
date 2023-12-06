@@ -12,6 +12,9 @@ import {
   Annotation,
   NodeIDs,
   ResearchField,
+  PartialWithID,
+  AnnotationUpdate,
+  WithDefaultViews,
 } from "./types.js";
 import { ExecutionResult } from "graphql";
 
@@ -181,7 +184,7 @@ export const mutationCreateResearchObject = async (
 
 export const mutationUpdateResearchObject = async (
   composeClient: ComposeClient,
-  inputs: Partial<ResearchObject> & { id: string },
+  inputs: PartialWithID<ResearchObject>,
 ): Promise<NodeIDs> =>
   genericUpdate(
     composeClient,
@@ -213,7 +216,7 @@ export const mutationCreateResearchComponent = async (
 
 export const mutationUpdateResearchComponent = async (
   composeClient: ComposeClient,
-  inputs: Partial<ResearchComponent> & { id: string },
+  inputs: PartialWithID<ResearchComponent>,
 ): Promise<NodeIDs> =>
   genericUpdate(
     composeClient,
@@ -273,7 +276,7 @@ export const mutationCreateAttestation = async (
 
 export const mutationUpdateAttestation = async (
   composeClient: ComposeClient,
-  inputs: Partial<Attestation> & { id: string },
+  inputs: PartialWithID<Attestation>,
 ): Promise<NodeIDs> =>
   genericUpdate(
     composeClient,
@@ -304,9 +307,9 @@ export const mutationCreateAnnotation = async (
 
 export const mutationUpdateAnnotation = async (
   composeClient: ComposeClient,
-  inputs: Partial<Annotation> & { id: string },
+  inputs: PartialWithID<AnnotationUpdate>,
 ): Promise<NodeIDs> =>
-  genericCreate(
+  genericUpdate(
     composeClient,
     inputs,
     makeAllOptional(ANNOTATION_TYPE_MAP),
@@ -333,7 +336,7 @@ export const mutationCreateContributorRelation = async (
 
 export const mutationUpdateContributorRelation = async (
   composeClient: ComposeClient,
-  inputs: Partial<ContributorRelation> & { id: string },
+  inputs: PartialWithID<ContributorRelation>,
 ): Promise<NodeIDs> =>
   genericUpdate(
     composeClient,
@@ -363,7 +366,7 @@ export const mutationCreateReferenceRelation = async (
 
 export const mutationUpdateReferenceRelation = async (
   composeClient: ComposeClient,
-  inputs: Partial<ReferenceRelation> & { id: string },
+  inputs: PartialWithID<ReferenceRelation>,
 ): Promise<NodeIDs> =>
   genericUpdate(
     composeClient,
@@ -583,7 +586,7 @@ export async function genericEntityQuery<T extends ProtocolEntity>(
   entityName: string,
   // Specify the field structure to query for
   selection: string,
-): Promise<T | undefined> {
+): Promise<WithDefaultViews<T> | undefined> {
   const query = `
   query($id: ID!) {
     node(id: $id) {
@@ -640,7 +643,7 @@ async function genericCreate<T extends ProtocolEntity>(
 
 async function genericUpdate<T extends ProtocolEntity>(
   composeClient: ComposeClient,
-  inputs: Partial<T> & { id: string },
+  inputs: PartialWithID<T>,
   // See note in genericCreate
   gqlTypes: Partial<Record<keyof T, string>>,
   mutationName: string,
@@ -698,7 +701,7 @@ const assertQueryErrors = (
   }
 };
 
-/** Get query parameters and doc content string depending on which
+/* Get query parameters and doc content string depending on which
  * input parameters are supplied. E.g. this input:
  *   graphQLParamTypes = { field: "String!" }
  *   inputs = { field: "hello"}

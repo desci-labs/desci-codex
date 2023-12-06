@@ -14,17 +14,17 @@ import {
   mutationCreateResearchField,
   mutationCreateResearchFieldRelation,
   mutationCreateResearchObject,
-} from "./queries.js";
+} from "../src/queries.js";
 import { CeramicClient } from "@ceramicnetwork/http-client";
-import { definition } from "./__generated__/definition.js";
-import { RuntimeCompositeDefinition } from "@composedb/types";
+import { definition } from "../src/__generated__/definition.js";
 import {
   Annotation,
+  AnnotationFull,
   Attestation,
   NodeIDs,
   ResearchComponent,
   ResearchObject,
-} from "./types.js";
+} from "../src/types.js";
 import {
   AnnotationTemplate,
   AttestationTemplate,
@@ -38,6 +38,7 @@ import {
 } from "../template-data/templateData.js";
 
 import untypedTemplateData from "../template-data/template_data.json" assert { type: "json" };
+import { RuntimeCompositeDefinition } from "@composedb/types";
 
 const templateData: DataTemplate = untypedTemplateData;
 
@@ -314,15 +315,15 @@ const loadAnnotation = async (
   } = annotationTemplate;
 
   const researchObject = recursePathToID(streamIndex, researchObjectPath);
-  const annotation: Annotation = {
+  const annotation: Partial<AnnotationFull> = {
     comment,
     researchObjectID: researchObject.streamID,
     researchObjectVersion: researchObject.commitID,
   };
   if (targetPath) {
     const target = recursePathToID(streamIndex, targetPath);
-    annotation.targetID = target.streamID;
-    annotation.targetVersion = target.commitID;
+    annotation.researchObjectID = target.streamID;
+    annotation.researchObjectVersion = target.commitID;
   }
   if (claimPath) {
     const claim = recursePathToID(streamIndex, claimPath);
@@ -336,7 +337,7 @@ const loadAnnotation = async (
   if (locationOnFile) annotation.locationOnFile = dagNode;
   if (metadataPayload) annotation.metadataPayload = dagNode;
 
-  return mutationCreateAnnotation(composeClient, annotation);
+  return mutationCreateAnnotation(composeClient, annotation as Annotation);
 };
 
 // Oblivious to human faults, enjoy the footgun

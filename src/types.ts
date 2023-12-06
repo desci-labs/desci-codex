@@ -1,6 +1,4 @@
 export type Profile = {
-  id?: string;
-  version?: string;
   displayName?: string;
   orcid?: string;
 };
@@ -10,10 +8,6 @@ export type DID = {
 };
 
 export type ResearchObject = {
-  id?: string;
-  version?: string;
-  owner?: DID;
-
   title: string;
   manifest: string;
 
@@ -23,9 +17,6 @@ export type ResearchObject = {
 };
 
 export type ResearchComponent = {
-  owner?: DID;
-  version?: string;
-
   name: string;
   mimeType: string;
 
@@ -37,21 +28,19 @@ export type ResearchComponent = {
 
   metadata?: string; // CID
 };
+export type ResearchComponentStatic = "researchObjectID";
+export type ResearchComponentUpdate = Omit<
+  ResearchComponent,
+  ResearchComponentStatic
+>;
 
 export type Claim = {
-  id?: string;
-  version?: string;
-
   title: string;
   description: string;
   badge?: string;
 };
 
 export type Attestation = {
-  id?: string;
-  version?: string;
-  source?: DID;
-
   targetID: string;
   targetVersion: string;
 
@@ -62,10 +51,15 @@ export type Attestation = {
   revoked: boolean;
 };
 
-export type Annotation = {
-  id?: string;
-  version?: string;
-  comment: string;
+export type AttestationStatic = "targetID" | "claimID";
+export type AttestationUpdate = Omit<Attestation, AttestationStatic | "claim">;
+
+/**
+ * The full range of model fields on the Annotation, unexported
+ * because not all combinations make sense. See subtypes below.
+ */
+export type AnnotationFull = {
+  comment?: string;
 
   researchObjectID: string;
   researchObject?: ResearchObject;
@@ -86,8 +80,47 @@ export type Annotation = {
   metadataPayload?: string;
 };
 
+/** Annotation directly on the research object, not localized */
+export type AnnotationRoot = Omit<
+  AnnotationFull,
+  "targetID" | "targetVersion" | "dagNode" | "pathToNode" | "locationOnFile"
+>;
+
+/** Annotation on a research object, localized to a component */
+export type AnnotationComponent = Omit<
+  AnnotationFull,
+  "dagNode" | "pathToNode" | "locationOnFile"
+>;
+
+/** Annotation on a research object, localized to a raw DAG node */
+export type AnnotationDagNode = Omit<
+  AnnotationFull,
+  "targetID" | "targetVersion"
+>;
+
+/** Annotation on a research object, as a reply to another annotation */
+export type AnnotationReply = Omit<
+  AnnotationFull,
+  "dagNode" | "pathToNode" | "locationOnFile"
+>;
+
+/** Valid variations of an annotation */
+export type Annotation =
+  | AnnotationRoot
+  | AnnotationComponent
+  | AnnotationDagNode
+  | AnnotationReply;
+
+/** Fields which do not make sense to update in any annotation */
+export type AnnotationStatic = "researchObjectID" | "claimID" | "targetID";
+
+/** Any `Annotation` instance, but excluding static fields. */
+export type AnnotationUpdate = DistributiveOmit<
+  Annotation,
+  AnnotationStatic | "claim"
+>;
+
 export type ContributorRelation = {
-  id?: string;
   role: string;
 
   contributorID: string;
@@ -98,9 +131,10 @@ export type ContributorRelation = {
   revoked: boolean;
 };
 
-export type ReferenceRelation = {
-  id?: string;
+export type ContributorStatic = "researchObjectID" | "contributorID";
+export type ContributorUpdate = Omit<ContributorRelation, ContributorStatic>;
 
+export type ReferenceRelation = {
   toID: string;
   toVersion: string;
 
@@ -110,12 +144,14 @@ export type ReferenceRelation = {
   revoked: boolean;
 };
 
+export type ReferenceStatic = "toID" | "fromID";
+export type ReferenceUpdate = Omit<ReferenceRelation, ReferenceStatic>;
+
 export type ResearchField = {
   title: string;
 };
 
 export type ResearchFieldRelation = {
-  id?: string;
   fieldID: string;
 
   researchObjectID: string;
@@ -139,11 +175,35 @@ export type NodeIDs = {
   commitID: string;
 };
 
-export type SidebarProps = {
-  displayName?: string;
+// More or less arcane utility types //
+
+/**
+ * Special fields that aren't part of the models, but available in composeDB as views.
+ * These cannot be set at creation, but are available when querying.
+ */
+export type WithDefaultViews<T extends ProtocolEntity> = T & {
   id?: string;
+  version?: string;
+  owner?: string;
 };
 
-export type RequiredKeys<T> = {
-  [K in keyof T as undefined extends T[K] ? never : K]: T[K];
+/**
+ * Make type partial, and require the `id` property.
+ */
+export type PartialWithID<T> = Partial<T> & {
+  id: string;
 };
+
+/**
+ * Get all keys of a union type, conditional to get union distribution.
+ */
+type UnionKeys<T> = T extends unknown ? keyof T : never;
+
+/**
+ * Omit from all subtypes in a union, like mapping `Omit` over all members.
+ * `T extends unknown` may look pointless, conditional types are distributive
+ * which is what makes it possible.
+ */
+export type DistributiveOmit<T, K extends UnionKeys<T>> = T extends unknown
+  ? Omit<T, Extract<keyof T, K>>
+  : never;
