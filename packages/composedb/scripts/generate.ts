@@ -17,7 +17,7 @@ export const Generate = async () => {
   };
 
   const generateAdminKeyDid = async () => {
-    const seed = readFileSync(SEED_PATH);
+    const seed = readFileSync(SEED_PATH, "utf8");
     const key = fromString(seed, "base16");
     const did = new DID({
       provider: new Ed25519Provider(key),
@@ -27,7 +27,7 @@ export const Generate = async () => {
     return did;
   };
 
-  const generateLocalConfig = async (adminDid) => {
+  const generateLocalConfig = async (adminDid: DID) => {
     const configData = {
       anchor: {},
       "http-api": {

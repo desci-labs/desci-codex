@@ -6,10 +6,9 @@
   "author": "Edvard Hübinette",
   "type": "module",
   "scripts": {
-    "generate": "node scripts/generate.mjs",
-    "dev": "node --no-warnings=ExperimentalWarning scripts/run.mjs",
-    "deployComposites": "node scripts/composites.mjs",
-    "populate": "node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/populate.ts",
+    "generate": "node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/generate.ts",
+    "dev": "node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/run.ts",
+    "deployComposites": "ADMIN_SEED=$(<admin_seed.txt) node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/composites.ts",
     "ceramic": "ceramic daemon --config composedb.config.json",
     "kill": "pkill --full \"ceramic daemon|ipfs daemon\"",
     "lint:fix": "eslint . --fix",

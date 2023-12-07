@@ -11,19 +11,32 @@ import { DID } from "dids";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
 import { fromString } from "uint8arrays/from-string";
+import { Ora } from "ora";
 
 const ceramic = new CeramicClient("http://localhost:7007");
 
-/**
- * @param {Ora} spinner - to provide progress status.
- * @return {Promise<void>} - return void when composite finishes deploying.
- */
-export const writeComposite = async (spinner) => {
-  await authenticateAdmin();
+type Models = {
+  profile?: string;
+  researchObject?: string;
+  researchField?: string;
+  claim?: string;
+  attestation?: string;
+  researchComponent?: string;
+  referenceRelation?: string;
+  contributorRelation?: string;
+  researchFieldRelation?: string;
+  annotation?: string;
+};
+
+export const writeComposite = async (seed: string, spinner?: Ora) => {
+  if (!spinner) {
+    spinner = { info: console.log, succeed: console.log } as Ora;
+  }
+  await authenticateAdmin(seed);
   spinner.info("writing composite to Ceramic");
 
   /** Collect streamID of each composite as it is created */
-  const modelIDs = {};
+  const modelIDs: Models = {};
 
   const profileComposite = await createComposite(
     ceramic,
@@ -49,10 +62,9 @@ export const writeComposite = async (spinner) => {
   );
   modelIDs.claim = claimComposite.modelIDs[0];
 
-  const attestationSchema = readFileSync(
-    "./composites/2-attestation.graphql",
-    { encoding: "utf-8" },
-  ).replace("$CLAIM_ID", modelIDs.claim);
+  const attestationSchema = readFileSync("./composites/2-attestation.graphql", {
+    encoding: "utf-8",
+  }).replace("$CLAIM_ID", modelIDs.claim);
 
   const attestationComposite = await Composite.create({
     ceramic,
@@ -70,7 +82,6 @@ export const writeComposite = async (spinner) => {
     schema: researchComponentSchema,
   });
   modelIDs.researchComponent = researchComponentComposite.modelIDs[1];
-
 
   const referenceRelationSchema = readFileSync(
     "./composites/2-referenceRelation.graphql",
@@ -174,10 +185,8 @@ export const writeComposite = async (spinner) => {
 
 /**
  * Authenticating DID for publishing composite
- * @return {Promise<void>} - return void when DID is authenticated.
  */
-const authenticateAdmin = async () => {
-  const seed = readFileSync("./admin_seed.txt");
+const authenticateAdmin = async (seed: string): Promise<void> => {
   const key = fromString(seed, "base16");
   const did = new DID({
     resolver: getResolver(),
@@ -189,9 +198,10 @@ const authenticateAdmin = async () => {
 
 const runAsScript =
   process.argv[0].includes("/bin/node") &&
-  process.argv[1].includes("scripts/composites.mjs");
+  process.argv[1].includes("scripts/composites.ts");
 
 if (runAsScript) {
-  const logSpinner = { info: console.log, succeed: console.log };
-  await writeComposite(logSpinner);
+  const seed = process.env.ADMIN_SEED;
+  if (!seed) throw new Error("No ADMIN_SEED environment variable set!");
+  await writeComposite(seed);
 }

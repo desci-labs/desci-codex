@@ -1,14 +1,14 @@
 {
   "name": "@desci-labs/desci-codex",
+  "version": "1.0.0",
+  "description": "DeSci Codex",
+  "license": "MIT",
+  "author": "Edvard Hübinette",
   "workspaces": [
     "packages/lib",
     "packages/cli",
     "packages/composedb"
   ],
-  "version": "1.0.0",
-  "description": "An implementation of DeSci Codex on Ceramic & ComposeDB",
-  "license": "MIT",
-  "author": "Edvard Hübinette",
   "scripts": {
     "lint:fix": "eslint . --fix",
     "lint:check": "eslint .",

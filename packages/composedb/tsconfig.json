@@ -13,12 +13,16 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node16",
+    "resolveJsonModule": true,
 
     "allowJs": true,
-    "resolveJsonModule": true,
     "noEmit": true,
     "noImplicitReturns": true
   },
+  "include": [
+    "scripts/*",
+    "src/__generated__/*"
+  ],
   "exclude": [
     "dist"
   ]

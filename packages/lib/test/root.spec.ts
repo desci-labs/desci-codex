@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComposeClient } from "@composedb/client";
-import { definition } from "../src/__generated__/definition.js";
+import { definition } from "../../composedb/src/__generated__/definition.js";
 import { test, describe, beforeAll, expect } from "vitest";
 import {
   mutationCreateResearchField,
@@ -17,7 +17,6 @@ import {
 } from "../src/queries.js";
 import { randomDID } from "./util.js";
 import { CeramicClient } from "@ceramicnetwork/http-client";
-import { writeComposite } from "../scripts/composites.mjs";
 import { setTimeout } from "timers/promises";
 import {
   Annotation,
@@ -63,9 +62,6 @@ describe("ComposeDB nodes", () => {
       );
       process.exit(1);
     }
-
-    // Takes a spinner param which just screws with our test output
-    await writeComposite({ info: () => {}, succeed: () => {} });
   });
 
   describe("User can create", async () => {

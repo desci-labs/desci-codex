@@ -35,9 +35,9 @@ import {
   ResearchComponentTemplate,
   ResearchFieldRelationTemplate,
   ResearchObjectTemplate,
-} from "../template-data/templateData.js";
+} from "../test/template-data/templateData.js";
 
-import untypedTemplateData from "../template-data/template_data.json" assert { type: "json" };
+import untypedTemplateData from "../test/template-data/template_data.json" assert { type: "json" };
 import { RuntimeCompositeDefinition } from "@composedb/types";
 
 const templateData: DataTemplate = untypedTemplateData;

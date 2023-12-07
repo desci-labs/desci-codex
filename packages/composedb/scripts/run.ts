@@ -1,8 +1,8 @@
 import ora from "ora";
-
+import { readFileSync } from "fs";
 import { spawn } from "child_process";
 import { EventEmitter } from "events";
-import { writeComposite } from "./composites.mjs";
+import { writeComposite } from "./composites.js";
 
 const events = new EventEmitter();
 const spinner = ora();
@@ -26,10 +26,10 @@ const bootstrap = async () => {
   //       & do not create the model if it already exists & has not been updated
   try {
     spinner.info("[Composites] bootstrapping composites");
-    await writeComposite(spinner);
+    await writeComposite(readFileSync("admin_seed.txt", "utf8"), spinner);
     spinner.succeed("Composites] composites bootstrapped");
   } catch (err) {
-    spinner.fail(err.message);
+    spinner.fail(JSON.stringify(err, undefined, 2));
     ceramic.kill();
     throw err;
   }
@@ -59,12 +59,12 @@ const start = async () => {
     });
   } catch (err) {
     ceramic.kill();
-    spinner.fail(err);
+    spinner.fail(JSON.stringify(err, undefined, 2));
   }
 };
 
 for (const signal in ["SIGTERM", "SIGINT", "beforeExit"]) {
   process.on(signal, () => ceramic.kill());
-};
+}
 
 start();
