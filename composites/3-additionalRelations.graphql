@@ -88,6 +88,8 @@ type Profile @loadModel(id: "$PROFILE_ID") {
 
   recievedAttestations: [Attestation]
     @relationFrom(model: "Attestation", property: "targetID")
+  recievedAttestationCount: Int!
+    @relationCountFrom(model: "Attestation", property: "targetID")
   # bork bork bork because the attestation is associated with the DID, not the profile streamID
   # fix: can be accessed through owner -> attestationList
   # givenAttestations: [Attestation] @relationFrom(model: "Attestation", property: "source")
