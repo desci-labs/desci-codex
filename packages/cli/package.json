@@ -1,0 +1,9 @@
+{
+  "name": "@desci-labs/desci-codex-cli",
+  "version": "1.0.0",
+  "description": "An implementation of DeSci Codex on Ceramic & ComposeDB",
+  "license": "MIT",
+  "author": "Edvard Hübinette",
+  "type": "module",
+  "scripts": {}
+}
