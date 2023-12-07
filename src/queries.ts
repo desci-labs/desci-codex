@@ -14,120 +14,38 @@ import {
   ResearchField,
   PartialWithID,
   AnnotationUpdate,
-  WithDefaultViews,
+  DefaultViews,
+  AnnotationQueryResult,
+  ResearchComponentQueryResult,
+  AttestationQueryResult,
+  ClaimQueryResult,
+  ProfileQueryResult,
+  ResearchObjectQueryResult,
+  ContributorQueryResult,
+  ReferenceQueryResult,
+  ResearchFieldQueryResult,
+  ResearchFieldRelationQueryResult,
 } from "./types.js";
 import { ExecutionResult } from "graphql";
-
-export const queryViewerId = async (
-  composeClient: ComposeClient,
-): Promise<string> => {
-  const response = await composeClient.executeQuery<{
-    viewer: { id: string };
-  }>(`
-    query {
-      viewer {
-        id
-      }
-    }`);
-  assertQueryErrors(response, "viewer id");
-  return response.data!.viewer.id;
-};
-
-/**
- * Queries for the viewer profile, which could be null if authentication isn't done yet
- */
-export const queryViewerProfile = async (
-  composeClient: ComposeClient,
-): Promise<Profile | null> => {
-  const response = await composeClient.executeQuery<{
-    viewer: { profile: Profile | null };
-  }>(`
-    query {
-      viewer {
-        profile {
-          id
-          displayName
-          orcid
-        }
-      }
-    }`);
-  assertQueryErrors(response, "viewer profile");
-  return response.data!.viewer.profile;
-};
-
-export const queryViewerResearchObjects = async (
-  composeClient: ComposeClient,
-): Promise<ResearchObject[]> => {
-  const response = await composeClient.executeQuery<{
-    viewer: { researchObjectList: { edges: { node: ResearchObject }[] } };
-  }>(`
-    query {
-      viewer {
-        researchObjectList(first: 100) {
-          edges {
-            node {
-              id
-              title
-              manifest
-            }
-          }
-        }
-      }
-    }
-  `);
-  assertQueryErrors(response, "viewer research objects");
-  return response.data!.viewer.researchObjectList.edges.map((e) => e.node);
-};
-
-export const queryViewerClaims = async (
-  composeClient: ComposeClient,
-): Promise<Claim[]> => {
-  const response = await composeClient.executeQuery<{
-    viewer: { claimList: { edges: { node: Claim }[] } };
-  }>(`
-    query {
-      viewer {
-        claimList(first: 100) {
-          edges {
-            node {
-              id
-              title
-              description 
-              badge 
-            }
-          }
-        }
-      }
-    }
-  `);
-  assertQueryErrors(response, "viewer claims");
-  return response.data!.viewer.claimList.edges.map((e) => e.node);
-};
+import * as gql from "gql-query-builder";
 
 export const queryResearchObjects = async (
   composeClient: ComposeClient,
 ): Promise<ResearchObject[]> => {
   const response = await composeClient.executeQuery<{
     researchObjectIndex: { edges: { node: ResearchObject }[] };
-  }>(`
-    query {
-      researchObjectIndex(first: 100) {
-        edges {
-          node {
-            id
-            title
-            manifest
-            owner {
-              profile {
-                displayName
-                orcid
-              }
-            }
-          }
-        }
-      }
-    }
-  `);
+  }>(
+    gql.query({
+      operation: "researchObjectIndex",
+      fields: [
+        {
+          edges: {
+            node: ["id", "title", "manifest"],
+          },
+        },
+      ],
+    }).query,
+  );
   assertQueryErrors(response, "research objects");
   return response.data!.researchObjectIndex.edges.map((e) => e.node);
 };
@@ -407,8 +325,8 @@ export const queryResearchObject = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<ResearchObject | undefined> =>
-  genericEntityQuery(
+) =>
+  genericEntityQuery<ResearchObjectQueryResult>(
     composeClient,
     id,
     "ResearchObject",
@@ -424,8 +342,8 @@ export const queryProfile = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<Profile | undefined> =>
-  genericEntityQuery(
+) =>
+  genericEntityQuery<ProfileQueryResult>(
     composeClient,
     id,
     "Profile",
@@ -440,8 +358,8 @@ export const queryClaim = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<Claim | undefined> =>
-  genericEntityQuery(
+) =>
+  genericEntityQuery<ClaimQueryResult>(
     composeClient,
     id,
     "Claim",
@@ -457,8 +375,8 @@ export const queryAttestation = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<Attestation | undefined> =>
-  genericEntityQuery(
+) =>
+  genericEntityQuery<AttestationQueryResult>(
     composeClient,
     id,
     "Attestation",
@@ -476,8 +394,8 @@ export const queryResearchComponent = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<ResearchComponent | undefined> =>
-  genericEntityQuery(
+) =>
+  genericEntityQuery<ResearchComponentQueryResult>(
     composeClient,
     id,
     "ResearchComponent",
@@ -497,8 +415,8 @@ export const queryAnnotation = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<Annotation | undefined> =>
-  genericEntityQuery(
+) =>
+  genericEntityQuery<AnnotationQueryResult>(
     composeClient,
     id,
     "Annotation",
@@ -522,8 +440,8 @@ export const queryContributorRelation = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<ContributorRelation | undefined> =>
-  genericEntityQuery(
+) =>
+  genericEntityQuery<ContributorQueryResult>(
     composeClient,
     id,
     "ContributorRelation",
@@ -541,8 +459,8 @@ export const queryReferenceRelation = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<ReferenceRelation | undefined> =>
-  genericEntityQuery(
+) =>
+  genericEntityQuery<ReferenceQueryResult>(
     composeClient,
     id,
     "ReferenceRelation",
@@ -560,15 +478,20 @@ export const queryResearchFields = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<ResearchField | undefined> =>
-  genericEntityQuery(composeClient, id, "ResearchField", selection ?? "title");
+) =>
+  genericEntityQuery<ResearchFieldQueryResult>(
+    composeClient,
+    id,
+    "ResearchField",
+    selection ?? "title",
+  );
 
 export const queryResearchFieldRelation = async (
   composeClient: ComposeClient,
   id: string,
   selection?: string,
-): Promise<ResearchFieldRelation | undefined> =>
-  genericEntityQuery(
+) =>
+  genericEntityQuery<ResearchFieldRelationQueryResult>(
     composeClient,
     id,
     "ResearchFieldRelation",
@@ -580,13 +503,15 @@ export const queryResearchFieldRelation = async (
   `,
   );
 
-export async function genericEntityQuery<T extends ProtocolEntity>(
+export async function genericEntityQuery<
+  T extends ProtocolEntity & DefaultViews,
+>(
   composeClient: ComposeClient,
   id: string,
   entityName: string,
   // Specify the field structure to query for
   selection: string,
-): Promise<WithDefaultViews<T> | undefined> {
+): Promise<T | undefined> {
   const query = `
   query($id: ID!) {
     node(id: $id) {

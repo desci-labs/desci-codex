@@ -45,7 +45,7 @@ import {
   updateReferenceRelation,
   updateResearchComponent,
   updateResearchObject,
-} from "../src/codex.js";
+} from "../src/mutate.js";
 import { loadAtTime, loadVersionIndex } from "../src/streams.js";
 
 const CERAMIC_API = "http:/localhost:7007";

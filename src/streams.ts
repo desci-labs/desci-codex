@@ -82,16 +82,18 @@ export const loadAtTime = async (
   epoch: number,
 ): Promise<Stream> => await client.loadStream(id, { atTime: epoch });
 
+export type LogWithCommits = Array<LogEntry & { commit: CommitID }>;
+
 /**
-* Get the version history for a stream, by default excluding anchor commits.
-*
-* @param stream - The stream to get log from.
-8 @returns The log of commits.
-*/
+ * Get the version history for a stream, by default excluding anchor commits.
+ *
+ * @param stream - The stream to get log from.
+ * @returns The log of commits.
+ */
 export const getVersionLog = (
   stream: Stream,
   includeAnchors: boolean = false,
-): Array<LogEntry & { commit: CommitID }> =>
+): LogWithCommits =>
   stream.state.log
     .filter((c) => includeAnchors || c.type !== CommitType.ANCHOR)
     .map((c) => ({ ...c, commit: CommitID.make(stream.id, c.cid) }));

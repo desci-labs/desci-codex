@@ -1,7 +1,44 @@
+/**
+ * This module defines types for the protocol entities, as well as some
+ * helpers. For each entity, there is in general three categories of types.
+ *
+ * Firstly, the fields required to create an instance of the entity. Optionals
+ * here indicate an optional field in the model.
+ *
+ * Secondly, an `*Update` type. This has all fields optional, because it
+ * is used when doing a mutation on an existing entity. Additionally, it omits
+ * stream reference fields as they are not valid to update according to the
+ * protocol spec.
+ *
+ * Thirdly, an `*Views` type. This contains the additional fields available
+ * when querying. This is a superset of the entity type, as it also holds
+ * a few extra categories of data:
+ * 1. Ceramic metadata (`id`, `version`, `owner`)
+ * 2. Outgoing edges (the typed summon of a `StreamID` reference)
+ * 3. Incoming edges (indexed with `@relationFrom`)
+ *
+ * Lastly, a `*QueryResult` type which is the intersection of all of the
+ * above categories, with everything optional. This is what one can select
+ * from when querying for an entity.
+ *
+ * @packageDocumentation
+ */
+
+/***/
 export type Profile = {
   displayName?: string;
   orcid?: string;
 };
+
+export type ProfileViews = {
+  contributions?: ContributorQueryResult[];
+  contributionCount?: number;
+
+  recievedAttestations?: AttestationQueryResult[];
+  recievedAttestationCount?: number;
+};
+
+export type ProfileQueryResult = Partial<Profile> & ProfileViews & DefaultViews;
 
 export type DID = {
   profile?: Profile;
@@ -10,11 +47,34 @@ export type DID = {
 export type ResearchObject = {
   title: string;
   manifest: string;
-
-  components?: ResearchComponent[];
-
   metadata?: string; // CID
 };
+
+export type ResearchObjectViews = {
+  annotations?: AnnotationQueryResult[];
+  annotationCount?: number;
+
+  attestations?: AttestationQueryResult[];
+  attestationCount?: number;
+
+  components?: ResearchComponentQueryResult[];
+  componentCount?: number;
+
+  incomingReferences?: ReferenceQueryResult[];
+  incomingReferenceCount?: number;
+
+  outgoingReferences?: ReferenceQueryResult[];
+  outgoingReferenceCount?: number;
+
+  contributors?: ContributorQueryResult[];
+  contributorCount?: number;
+
+  researchFields?: ResearchFieldRelationQueryResult[];
+};
+
+export type ResearchObjectQueryResult = Partial<ResearchObject> &
+  ResearchObjectViews &
+  DefaultViews;
 
 export type ResearchComponent = {
   name: string;
@@ -28,11 +88,22 @@ export type ResearchComponent = {
 
   metadata?: string; // CID
 };
+
 export type ResearchComponentStatic = "researchObjectID";
 export type ResearchComponentUpdate = Omit<
   ResearchComponent,
   ResearchComponentStatic
 >;
+
+export type ResearchComponentViews = {
+  annotations?: AnnotationQueryResult[];
+  annotationCount?: number;
+
+  researchObject?: ResearchObject;
+};
+export type ResearchComponentQueryResult = Partial<ResearchComponent> &
+  ResearchComponentViews &
+  DefaultViews;
 
 export type Claim = {
   title: string;
@@ -40,19 +111,36 @@ export type Claim = {
   badge?: string;
 };
 
+export type ClaimViews = {
+  attestations?: AttestationQueryResult[];
+  attestationCount?: number;
+
+  annotations?: AnnotationQueryResult[];
+  annotationCount?: number;
+};
+
+export type ClaimQueryResult = Partial<Claim> & ClaimViews & DefaultViews;
+
 export type Attestation = {
   targetID: string;
   targetVersion: string;
 
   claimID: string;
   claimVersion: string;
-  claim?: Claim;
 
   revoked: boolean;
 };
 
 export type AttestationStatic = "targetID" | "claimID";
 export type AttestationUpdate = Omit<Attestation, AttestationStatic | "claim">;
+
+export type AttestationViews = {
+  claim?: ClaimQueryResult;
+};
+
+export type AttestationQueryResult = Partial<Attestation> &
+  AttestationViews &
+  DefaultViews;
 
 /**
  * The full range of model fields on the Annotation, unexported
@@ -62,7 +150,6 @@ export type AnnotationFull = {
   comment?: string;
 
   researchObjectID: string;
-  researchObject?: ResearchObject;
   researchObjectVersion: string;
 
   targetID?: string;
@@ -74,7 +161,6 @@ export type AnnotationFull = {
   locationOnFile?: string;
 
   claimID?: string;
-  claim?: Claim;
   claimVersion?: string;
 
   metadataPayload?: string;
@@ -111,14 +197,19 @@ export type Annotation =
   | AnnotationDagNode
   | AnnotationReply;
 
-/** Fields which do not make sense to update in any annotation */
 export type AnnotationStatic = "researchObjectID" | "claimID" | "targetID";
+export type AnnotationUpdate = DistributiveOmit<Annotation, AnnotationStatic>;
 
-/** Any `Annotation` instance, but excluding static fields. */
-export type AnnotationUpdate = DistributiveOmit<
-  Annotation,
-  AnnotationStatic | "claim"
->;
+export type AnnotationViews = {
+  replies?: AnnotationQueryResult[];
+  replyCount?: number;
+  researchObject?: ResearchObjectQueryResult;
+  claim?: ClaimQueryResult;
+};
+
+export type AnnotationQueryResult = Partial<Annotation> &
+  AnnotationViews &
+  DefaultViews;
 
 export type ContributorRelation = {
   role: string;
@@ -134,6 +225,15 @@ export type ContributorRelation = {
 export type ContributorStatic = "researchObjectID" | "contributorID";
 export type ContributorUpdate = Omit<ContributorRelation, ContributorStatic>;
 
+export type ContributorViews = {
+  contributor?: Profile;
+  researchObject?: ResearchObjectQueryResult;
+};
+
+export type ContributorQueryResult = Partial<ContributorRelation> &
+  ContributorViews &
+  DefaultViews;
+
 export type ReferenceRelation = {
   toID: string;
   toVersion: string;
@@ -147,9 +247,26 @@ export type ReferenceRelation = {
 export type ReferenceStatic = "toID" | "fromID";
 export type ReferenceUpdate = Omit<ReferenceRelation, ReferenceStatic>;
 
+export type ReferenceViews = {
+  to?: ResearchObjectQueryResult;
+  from?: ResearchObjectQueryResult;
+};
+
+export type ReferenceQueryResult = Partial<ReferenceRelation> &
+  ReferenceViews &
+  DefaultViews;
+
 export type ResearchField = {
   title: string;
 };
+
+export type ResearchFieldViews = {
+  researchObjects?: ResearchObject[];
+  researchObjectCount?: number;
+};
+export type ResearchFieldQueryResult = Partial<ResearchField> &
+  ResearchFieldViews &
+  DefaultViews;
 
 export type ResearchFieldRelation = {
   fieldID: string;
@@ -157,6 +274,13 @@ export type ResearchFieldRelation = {
   researchObjectID: string;
   researchObjectVersion: string;
 };
+export type ResearchFieldRelationViews = {
+  field?: ResearchField;
+  researchObject?: ResearchObject;
+};
+export type ResearchFieldRelationQueryResult = Partial<ResearchFieldRelation> &
+  ResearchFieldRelationViews &
+  DefaultViews;
 
 export type ProtocolEntity =
   | Profile
@@ -181,7 +305,7 @@ export type NodeIDs = {
  * Special fields that aren't part of the models, but available in composeDB as views.
  * These cannot be set at creation, but are available when querying.
  */
-export type WithDefaultViews<T extends ProtocolEntity> = T & {
+export type DefaultViews = {
   id?: string;
   version?: string;
   owner?: string;
