@@ -1,7 +1,6 @@
 node_modules
 admin_seed.txt
 local-data
-src/__generated__/*
 composedb.config.json
 test.config.json
 *.tsbuildinfo

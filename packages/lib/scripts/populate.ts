@@ -16,7 +16,6 @@ import {
   mutationCreateResearchObject,
 } from "../src/queries.js";
 import { CeramicClient } from "@ceramicnetwork/http-client";
-import { definition } from "../src/__generated__/definition.js";
 import {
   Annotation,
   AnnotationFull,
@@ -36,9 +35,10 @@ import {
   ResearchFieldRelationTemplate,
   ResearchObjectTemplate,
 } from "../test/template-data/templateData.js";
+import { RuntimeCompositeDefinition } from "@composedb/types";
+import { definition } from "../../composedb/src/__generated__/definition.js";
 
 import untypedTemplateData from "../test/template-data/template_data.json" assert { type: "json" };
-import { RuntimeCompositeDefinition } from "@composedb/types";
 
 const templateData: DataTemplate = untypedTemplateData;
 
