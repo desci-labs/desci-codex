@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComposeClient } from "@composedb/client";
-import { definition } from "../../composedb/src/__generated__/definition.js";
+import { definition } from "@desci-labs/desci-codex-composedb/src/__generated__/definition.js";
 import { test, describe, beforeAll, expect } from "vitest";
 import {
   mutationCreateResearchField,
