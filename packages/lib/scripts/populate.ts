@@ -1,7 +1,3 @@
-import KeyDIDResolver from "key-did-resolver";
-import { Ed25519Provider } from "key-did-provider-ed25519";
-import { DID } from "dids";
-import { fromString } from "uint8arrays/from-string";
 import { ComposeClient } from "@composedb/client";
 import {
   mutationCreateAnnotation,
@@ -39,21 +35,9 @@ import { RuntimeCompositeDefinition } from "@composedb/types";
 import { definition } from "../../composedb/src/__generated__/definition.js";
 
 import untypedTemplateData from "../test/template-data/template_data.json" assert { type: "json" };
+import { didFromSeed } from "../src/clients.js";
 
 const templateData: DataTemplate = untypedTemplateData;
-
-const didFromSeed = async (seed: string) => {
-  const keyResolver = KeyDIDResolver.getResolver();
-  const key = fromString(seed, "base16");
-  const did = new DID({
-    provider: new Ed25519Provider(key),
-    resolver: {
-      ...keyResolver,
-    },
-  });
-  await did.authenticate();
-  return did;
-};
 
 type ProfileIndexResult = { profileIndex: { edges: [] } };
 export const loadIfUninitialised = async (ceramic: CeramicClient) => {

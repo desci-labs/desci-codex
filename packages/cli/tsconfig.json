@@ -2,6 +2,7 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Node 20",
   "_version": "20.1.0",
+
   "compilerOptions": {
     "lib": ["es2023"],
     "module": "nodenext",
@@ -15,10 +16,9 @@
 
     "allowJs": true,
     "resolveJsonModule": true,
-    "noEmit": true,
-    "noImplicitReturns": true
-  },
-  "exclude": [
-    "dist"
-  ]
+    "noImplicitReturns": true,
+
+    "outDir": "dist",
+    "rootDir": "src"
+  }
 }

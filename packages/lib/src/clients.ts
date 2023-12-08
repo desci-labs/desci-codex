@@ -1,12 +1,26 @@
+import KeyDIDResolver from "key-did-resolver";
+import { Ed25519Provider } from "key-did-provider-ed25519";
+import { DID } from "dids";
+import { fromString } from "uint8arrays/from-string";
 import { ComposeClient, ComposeClientParams } from "@composedb/client";
 import {
   CeramicClient,
   CeramicClientConfig,
 } from "@ceramicnetwork/http-client";
-import { definition } from "./__generated__/definition.js";
-import { RuntimeCompositeDefinition } from "@composedb/types";
+import { definition } from "@desci-labs/desci-codex-composedb/src/__generated__/definition.js";
 
 const DEFAULT_LOCAL_CERAMIC = "http://localhost:7007";
+
+export const authenticatedCeramicClient = async (
+  didSeed: string,
+  endpoint?: string,
+  config?: CeramicClientConfig,
+) => {
+  const client = newCeramicClient(endpoint, config);
+  const did = await didFromSeed(didSeed);
+  client.setDID(did);
+  return client;
+};
 
 export const newCeramicClient = (
   endpoint?: string,
@@ -21,7 +35,7 @@ export const newCeramicClient = (
   return new CeramicClient(endpoint ?? DEFAULT_LOCAL_CERAMIC, config);
 };
 
-export const newComposeClient = (params?: ComposeClientParams) => {
+export const newComposeClient = (params?: Partial<ComposeClientParams>) => {
   if (!params?.ceramic) {
     console.log(
       "[codex] ceramic client not provided; defaulting to",
@@ -31,8 +45,21 @@ export const newComposeClient = (params?: ComposeClientParams) => {
 
   return new ComposeClient({
     ceramic: DEFAULT_LOCAL_CERAMIC,
-    definition: definition as RuntimeCompositeDefinition,
+    definition,
     // Let passed config overwrite, if present
     ...params,
   });
+};
+
+export const didFromSeed = async (seed: string) => {
+  const keyResolver = KeyDIDResolver.getResolver();
+  const key = fromString(seed, "base16");
+  const did = new DID({
+    provider: new Ed25519Provider(key),
+    resolver: {
+      ...keyResolver,
+    },
+  });
+  await did.authenticate();
+  return did;
 };

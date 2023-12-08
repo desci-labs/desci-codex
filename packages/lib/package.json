@@ -11,17 +11,17 @@
     "test": "ADMIN_SEED=$(<../composedb/admin_seed.txt) vitest --run --config vitest.config.ts"
   },
   "devDependencies": {
-    "@desci-labs/desci-codex-composedb": "^1.0.0",
-    "dids": "^4.0.4",
-    "key-did-provider-ed25519": "^3.0.2",
-    "key-did-resolver": "^3.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
-    "uint8arrays": "^4.0.6",
     "vitest": "^0.34.5",
     "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
+    "@desci-labs/desci-codex-composedb": "^1.0.0",
+    "uint8arrays": "^4.0.6",
+    "dids": "^4.0.4",
+    "key-did-provider-ed25519": "^3.0.2",
+    "key-did-resolver": "^3.0.0",
     "@composedb/client": "^0.6.0",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.8.0"
