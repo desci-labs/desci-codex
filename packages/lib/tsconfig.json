@@ -1,21 +1,25 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Node 20",
-  "_version": "20.1.0",
+  /** https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html */
   "compilerOptions": {
-    "lib": ["es2023"],
-    "module": "nodenext",
-    "target": "es2022",
-
+    /** Maximise compatibility with ESM/cjs and importer `moduleResolution: bundler` setting */
+    "module": "node16",
+    "target": "es2020",
+    /** Without strict, we'd error when imported into a project with `strict` */
     "strict": true,
-    "esModuleInterop": true,
+    /** Prevent misbehaving import/export statements */
+    "verbatimModuleSyntax": true,
+    /** Misbehaving deps: @ceramicnetwork/{codecs,common}, @didtools/{cacao,codecs}, codeco, ipfs-core-types */
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node16",
 
-    "allowJs": true,
+    /** Import friendliness */
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "outDir": "dist",
+
+    /** populate script imports template data as a json module */
     "resolveJsonModule": true,
-    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true
   },
   "exclude": [

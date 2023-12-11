@@ -1,4 +1,4 @@
-import { CommitType, LogEntry, Stream } from "@ceramicnetwork/common";
+import { CommitType, type LogEntry, Stream } from "@ceramicnetwork/common";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import { CommitID, StreamID } from "@ceramicnetwork/streamid";
 

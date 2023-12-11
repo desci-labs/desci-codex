@@ -18,7 +18,7 @@ import {
 import { randomDID } from "./util.js";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import { setTimeout } from "timers/promises";
-import {
+import type {
   Annotation,
   Attestation,
   Claim,
@@ -28,7 +28,7 @@ import {
   ResearchObject,
 } from "../src/types.js";
 import { StreamID } from "@ceramicnetwork/streamid";
-import { RuntimeCompositeDefinition } from "@composedb/types";
+import type { RuntimeCompositeDefinition } from "@composedb/types";
 import {
   createAnnotation,
   createAttestation,

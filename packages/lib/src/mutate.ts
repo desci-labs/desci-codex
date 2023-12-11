@@ -16,7 +16,7 @@ import {
   mutationUpdateResearchComponent,
   mutationUpdateResearchObject,
 } from "./queries.js";
-import {
+import type {
   Annotation,
   AnnotationUpdate,
   Attestation,

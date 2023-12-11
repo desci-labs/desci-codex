@@ -1,24 +1,19 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Node 20",
-  "_version": "20.1.0",
-
+  /** https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html */
   "compilerOptions": {
-    "lib": ["es2023"],
-    "module": "nodenext",
-    "target": "es2022",
-
+    "module": "node16",
+    "target": "es2020",
     "strict": true,
-    "esModuleInterop": true,
+
+    /** Misbehaving deps, see codex lib tsconfig for list of shame */
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node16",
 
-    "allowJs": true,
-    "resolveJsonModule": true,
     "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
 
-    "outDir": "dist",
-    "rootDir": "src"
-  }
+    "outDir": "dist"
+  },
+  "exclude": [
+    "dist"
+  ]
 }

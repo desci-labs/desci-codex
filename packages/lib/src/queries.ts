@@ -1,5 +1,5 @@
 import { ComposeClient } from "@composedb/client";
-import {
+import type {
   Attestation,
   Claim,
   ResearchComponent,
@@ -26,7 +26,7 @@ import {
   ResearchFieldQueryResult,
   ResearchFieldRelationQueryResult,
 } from "./types.js";
-import { ExecutionResult } from "graphql";
+import type { ExecutionResult } from "graphql";
 import * as gql from "gql-query-builder";
 
 export const queryResearchObjects = async (

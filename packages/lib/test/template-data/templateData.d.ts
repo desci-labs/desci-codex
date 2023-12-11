@@ -1,4 +1,4 @@
-import { Profile, ResearchComponent } from "../src/types.js";
+import { Profile, ResearchComponent } from "../../src/types.js";
 
 export type Seed = string;
 // Address properties and array indices for indicating the future StreamID,

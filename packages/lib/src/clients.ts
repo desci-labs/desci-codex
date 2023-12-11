@@ -2,10 +2,10 @@ import KeyDIDResolver from "key-did-resolver";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { DID } from "dids";
 import { fromString } from "uint8arrays/from-string";
-import { ComposeClient, ComposeClientParams } from "@composedb/client";
+import { ComposeClient, type ComposeClientParams } from "@composedb/client";
 import {
   CeramicClient,
-  CeramicClientConfig,
+  type CeramicClientConfig,
 } from "@ceramicnetwork/http-client";
 import { definition } from "@desci-labs/desci-codex-composedb/src/__generated__/definition.js";
 

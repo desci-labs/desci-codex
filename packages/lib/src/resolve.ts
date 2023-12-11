@@ -28,7 +28,7 @@
 
 import { CommitID, StreamID } from "@ceramicnetwork/streamid";
 import {
-  LogWithCommits,
+  type LogWithCommits,
   getState,
   getVersionLog,
   loadAtTime,
