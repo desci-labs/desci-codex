@@ -66,7 +66,7 @@ export const Generate = async () => {
   };
 
   if (!existsSync(SEED_PATH)) {
-    console.log("Creating new admin seed...");
+    console.log(`Creating new admin seed at ${SEED_PATH}...`);
     writeFileSync(SEED_PATH, newSeed());
 
     console.log("Generating new config...");

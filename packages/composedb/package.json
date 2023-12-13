@@ -8,7 +8,7 @@
   "scripts": {
     "generate": "node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/generate.ts",
     "dev": "node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/run.ts",
-    "deployComposites": "ADMIN_SEED=$(<admin_seed.txt) node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/composites.ts",
+    "deployComposites": "export ADMIN_SEED=$(cat admin_seed.txt) && echo \"[DEBUG] seed from deployComposites: $ADMIN_SEED \n [DEBUG] content: $(cat admin_seed.txt) \" && node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/composites.ts",
     "ceramic": "ceramic daemon --config composedb.config.json",
     "kill": "pkill --full \"ceramic daemon|ipfs daemon\""
   },

@@ -1,4 +1,4 @@
-.PHONY: clean clean-test start-test-env kill-test-env
+.PHONY: generate clean clean-test start-test-env kill-test-env
 
 generate:
 	npm run generate
