@@ -29,6 +29,11 @@ import type {
 import type { ExecutionResult } from "graphql";
 import * as gql from "gql-query-builder";
 
+export type PageInfo = {
+  endCursor: string;
+  hasNextPage: boolean;
+};
+
 export const queryResearchObjects = async (
   composeClient: ComposeClient,
 ): Promise<ResearchObject[]> => {
