@@ -1,25 +1,17 @@
 .PHONY: clean clean-test test
 
 clean:
-	rm -rf node_modules local-data
+	rm -rf node_modules
+	$(MAKE) -C packages/composedb clean
 
 clean-test:
-	rm -rf local-data/ceramic-test
+	$(MAKE) -C packages/composedb clean-test
 
 test: clean-test
-	if pgrep --older 1 --count --full "ceramic daemon|ipfs daemon"; then \
-		echo "Refusing to clobber running daemons"; exit 1; \
-	fi
-
-	sed 's|local-data/ceramic|local-data/ceramic-test|' composedb.config.json \
-		> test.config.json
-	npx ceramic daemon --config test.config.json &>/dev/null &
-	sleep 5
-
-	npm run deployComposites
+	$(MAKE) -C packages/composedb start-test-env
 	# Ensure daemons dead, without losing test exit code for CI
-	if npm test; then \
-		npm run kill; true; \
+	if npm run test --workspace packages/lib; then \
+		$(MAKE) -C packages/composedb kill-test-env; true; \
 	else \
-		npm run kill; false; \
+		$(MAKE) -C packages/composedb kill-test-env; false; \
 	fi

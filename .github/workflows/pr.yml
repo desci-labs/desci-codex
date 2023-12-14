@@ -14,5 +14,4 @@ jobs:
           cache-dependency-path: "package-lock.json"
           check-latest: false
       - run: npm ci
-      - run: npm run generate
       - run: make test

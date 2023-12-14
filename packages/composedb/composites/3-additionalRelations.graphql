@@ -1,0 +1,103 @@
+# This composite holds additional relations that cause circular dependencies when deploying
+type Attestation @loadModel(id: "$ATTESTATION_ID") {
+  id: ID!
+}
+
+type ReferenceRelation @loadModel(id: "$REFERENCE_RELATION_ID") {
+  id: ID!
+}
+
+type ContributorRelation @loadModel(id: "$CONTRIBUTOR_RELATION_ID") {
+  id: ID!
+}
+
+type ResearchFieldRelation @loadModel(id: "$RESEARCH_FIELD_RELATION_ID") {
+  id: ID!
+}
+
+type Annotation @loadModel(id: "$ANNOTATION_ID") {
+  replies: [Annotation] @relationFrom(model: "Annotation", property: "targetID")
+  replyCount: Int! @relationCountFrom(model: "Annotation", property: "targetID")
+}
+
+type ResearchComponent @loadModel(id: "$RESEARCH_COMPONENT_ID") {
+  annotations: [Annotation]
+    @relationFrom(model: "Annotation", property: "targetID")
+  annotationCount: Int!
+    @relationCountFrom(model: "Annotation", property: "targetID")
+}
+
+type Claim @loadModel(id: "$CLAIM_ID") {
+  attestations: [Attestation]
+    @relationFrom(model: "Attestation", property: "claimID")
+  attestationCount: Int!
+    @relationCountFrom(model: "Attestation", property: "claimID")
+
+  annotations: [Annotation]
+    @relationFrom(model: "Annotation", property: "claimID")
+  annotationCount: Int!
+    @relationCountFrom(model: "Annotation", property: "claimID")
+}
+
+type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
+  attestations: [Attestation]
+    @relationFrom(model: "Attestation", property: "targetID")
+  attestationCount: Int!
+    @relationCountFrom(model: "Attestation", property: "targetID")
+
+  components: [ResearchComponent]
+    @relationFrom(model: "ResearchComponent", property: "researchObjectID")
+  componentCount: Int!
+    @relationCountFrom(model: "ResearchComponent", property: "researchObjectID")
+
+  incomingReferences: [ReferenceRelation]
+    @relationFrom(model: "ReferenceRelation", property: "toID")
+  outgoingReferences: [ReferenceRelation]
+    @relationFrom(model: "ReferenceRelation", property: "fromID")
+  incomingReferenceCount: Int!
+    @relationCountFrom(model: "ReferenceRelation", property: "toID")
+  outgoingReferenceCount: Int!
+    @relationCountFrom(model: "ReferenceRelation", property: "fromID")
+
+  contributors: [ContributorRelation]
+    @relationFrom(model: "ContributorRelation", property: "researchObjectID")
+  contributorCount: Int!
+    @relationCountFrom(
+      model: "ContributorRelation"
+      property: "researchObjectID"
+    )
+
+  researchFields: [ResearchFieldRelation]
+    @relationFrom(model: "ResearchFieldRelation", property: "researchObjectID")
+
+  annotations: [Annotation]
+    @relationFrom(model: "Annotation", property: "researchObjectID")
+  annotationCount: Int!
+    @relationCountFrom(model: "Annotation", property: "researchObjectID")
+}
+
+# Support for incoming relations on CeramicAccounts is coming, but we'd need a separate
+# account attestation because DID !== streamID. Main tradeoff that you can attest to an
+# yet inactive DID if known, even if they haven't created a profile. Does it make sense
+# though?
+type Profile @loadModel(id: "$PROFILE_ID") {
+  contributions: [ContributorRelation]
+    @relationFrom(model: "ContributorRelation", property: "contributorID")
+  contributionCount: Int!
+    @relationCountFrom(model: "ContributorRelation", property: "contributorID")
+
+  recievedAttestations: [Attestation]
+    @relationFrom(model: "Attestation", property: "targetID")
+  recievedAttestationCount: Int!
+    @relationCountFrom(model: "Attestation", property: "targetID")
+  # bork bork bork because the attestation is associated with the DID, not the profile streamID
+  # fix: can be accessed through owner -> attestationList
+  # givenAttestations: [Attestation] @relationFrom(model: "Attestation", property: "source")
+}
+
+type ResearchField @loadModel(id: "$RESEARCH_FIELD_ID") {
+  researchObjects: [ResearchFieldRelation]
+    @relationFrom(model: "ResearchFieldRelation", property: "fieldID")
+  researchObjectCount: Int!
+    @relationCountFrom(model: "ResearchFieldRelation", property: "fieldID")
+}

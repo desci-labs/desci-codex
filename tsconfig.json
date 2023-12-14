@@ -1,25 +1,14 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Node 20",
-  "_version": "20.1.0",
-
-  "compilerOptions": {
-    "lib": ["es2023"],
-    "module": "nodenext",
-    "target": "es2022",
-
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node16",
-    "resolveJsonModule": true,
-
-    "allowJs": true,
-    "noEmit": true,
-    "noImplicitReturns": true
-  },
-  "exclude": [
-    "dist"
+  "files": [],
+  "references": [
+    {
+      "path": "packages/lib/tsconfig.ref.json"
+    },
+    {
+      "path": "packages/cli/tsconfig.ref.json"
+    },
+    {
+      "path": "packages/composedb/tsconfig.ref.json"
+    }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  // https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html
+  "compilerOptions": {
+    "module": "node16",
+    "target": "es2020",
+    "strict": true,
+
+    /** Misbehaving deps, see codex lib tsconfig for list of shame */
+    "skipLibCheck": true,
+
+    /** Import friendliness */
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "outDir": "dist",
+
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true
+  },
+  "include": [
+    "scripts/*",
+    "src/__generated__/*"
+  ],
+  "exclude": [
+    "dist"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@desci-labs/desci-codex-composedb",
+  "version": "1.0.0",
+  "description": "ComposeDB models and scripts for Codex",
+  "license": "MIT",
+  "author": "Edvard Hübinette",
+  "type": "module",
+  "scripts": {
+    "generate": "node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/generate.ts",
+    "dev": "node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/run.ts",
+    "deployComposites": "export ADMIN_SEED=$(cat admin_seed.txt) && echo \"[DEBUG] seed from deployComposites: $ADMIN_SEED \n [DEBUG] content: $(cat admin_seed.txt) \" && node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/composites.ts",
+    "ceramic": "ceramic daemon --config composedb.config.json",
+    "kill": "pkill --full \"ceramic daemon|ipfs daemon\""
+  },
+  "devDependencies": {
+    "@ceramicnetwork/cli": "^3.0.0",
+    "@ceramicnetwork/http-client": "^3.0.0",
+    "@composedb/devtools": "^0.6.0",
+    "@composedb/devtools-node": "^0.6.0",
+    "dids": "^4.0.4",
+    "key-did-provider-ed25519": "^3.0.2",
+    "key-did-resolver": "^3.0.0",
+    "ora": "^7.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2",
+    "uint8arrays": "^4.0.6"
+  },
+  "dependencies": {
+    "@composedb/types": "^0.6.0"
+  }
+}
