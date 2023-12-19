@@ -1,3 +1,5 @@
+![DeSci Codex logotype](../../codex.png)
+
 # DeSci Codex - Integration library
 This package implements a typed API for interacting directly with Codex, by
 talking directly with a Ceramic and/or ComposeDB node.

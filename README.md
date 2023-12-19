@@ -1,11 +1,11 @@
-![DeSci Codex logotype](/codex.png)
+![DeSci Codex logotype](./codex.png)
 
 This repo contains a reference implementation for the next generation of the protocol, built on [Ceramic](https://ceramic.network/) and [ComposeDB](https://composedb.js.org/docs/0.5.x/introduction). It includes data models and an extensive test suite to ensure correct functionality, but also example data population and a GraphiQL interface to explore the protocol structure.
 
 The repo consists of several packages:
-- [the codex integration library](/packages/lib/README.md)
-- [composedb models and test env](/packages/composedb/README.md)
-- [a codex CLI](/packages/cli/README.md)
+- [the codex integration library](./packages/lib/README.md)
+- [composedb models and test env](./packages/composedb/README.md)
+- [a codex CLI](./packages/cli/README.md)
 
 
 By default, the tests and scripts run against a local Ceramic/ComposeDB node with the bundled IPFS server, uses the `inmemory` network for anchoring, and writes all data and logs to `local-data`.
