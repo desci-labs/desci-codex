@@ -27,7 +27,7 @@
 /***/
 export type Profile = {
   displayName?: string;
-  orcid?: string;
+  publicKey?: string;
 };
 
 export type ProfileViews = {
@@ -40,6 +40,16 @@ export type ProfileViews = {
 
 export type ProfileQueryResult = Partial<Profile> & ProfileViews & DefaultViews;
 
+export type SocialHandle = {
+  platform: string;
+  handle: string;
+};
+
+export type SocialHandleQueryResult = Partial<SocialHandle> & DefaultViews;
+
+/**
+ * This is what's returned by graphQL when a DID/CeramicAccount is included
+ */
 export type DID = {
   profile?: Profile;
 };
@@ -284,6 +294,7 @@ export type ResearchFieldRelationQueryResult = Partial<ResearchFieldRelation> &
 
 export type ProtocolEntity =
   | Profile
+  | SocialHandle
   | ResearchObject
   | ResearchComponent
   | Claim

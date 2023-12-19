@@ -1,0 +1,3 @@
+src/__generated__/*
+!src/__generates__/*.d.ts
+
