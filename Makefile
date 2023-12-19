@@ -1,4 +1,4 @@
-.PHONY: clean clean-test test
+.PHONY: clean clean-test test test-stop
 
 clean:
 	rm -rf node_modules
@@ -15,3 +15,6 @@ test: clean-test
 	else \
 		$(MAKE) -C packages/composedb kill-test-env; false; \
 	fi
+
+test-stop:
+	$(MAKE) -C packages/composedb kill-test-env;
