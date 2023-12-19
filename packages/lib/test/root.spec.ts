@@ -14,6 +14,7 @@ import {
   queryResearchFieldRelation,
   queryResearchFields,
   queryResearchObject,
+  querySocialHandle,
 } from "../src/queries.js";
 import { randomDID } from "./util.js";
 import { CeramicClient } from "@ceramicnetwork/http-client";
@@ -26,6 +27,7 @@ import type {
   Profile,
   ReferenceRelation,
   ResearchObject,
+  SocialHandle,
 } from "../src/types.js";
 import { StreamID } from "@ceramicnetwork/streamid";
 import type { RuntimeCompositeDefinition } from "@composedb/types";
@@ -39,11 +41,14 @@ import {
   createResearchComponent,
   createResearchFieldRelation,
   createResearchObject,
+  createSocialHandle,
   updateAttestation,
   updateContributorRelation,
+  updateProfile,
   updateReferenceRelation,
   updateResearchComponent,
   updateResearchObject,
+  updateSocialHandle,
 } from "../src/mutate.js";
 import { loadAtTime, loadVersionIndex } from "../src/streams.js";
 
@@ -87,11 +92,25 @@ describe("ComposeDB nodes", () => {
     test("profile", async () => {
       const data: Profile = {
         displayName: "First Lastname",
-        orcid: "orcidHandle",
+        publicKey: "public-key",
       };
       const profile = await createProfile(composeClient, data);
 
       const result = await queryProfile(composeClient, profile.streamID);
+      expect(result).toEqual(data);
+    });
+
+    test("social handle", async () => {
+      const data: SocialHandle = {
+        platform: "orcid",
+        handle: "111-222",
+      };
+      const socialHandle = await createSocialHandle(composeClient, data);
+
+      const result = await querySocialHandle(
+        composeClient,
+        socialHandle.streamID,
+      );
       expect(result).toEqual(data);
     });
 
@@ -160,19 +179,39 @@ describe("ComposeDB nodes", () => {
     test("profile", async () => {
       const profile = await createProfile(composeClient, {
         displayName: "My Name",
-        orcid: "@handle",
       });
 
-      const newProfile: Profile = {
-        displayName: "New Name",
-        orcid: "@handle",
+      const newProfile = {
+        displayName: "My Name",
+        publicKey: "public-key",
       };
       await waitAndSync(profile.streamID);
-      // Apparently create acts as an upsert on SINGLE accountRelation models
-      await createProfile(composeClient, newProfile);
+      await updateProfile(composeClient, newProfile);
 
       const result = await queryProfile(composeClient, profile.streamID);
       expect(result).toEqual(newProfile);
+    });
+
+    test("social handle", async () => {
+      const socialHandle = await createSocialHandle(composeClient, {
+        platform: "orcid",
+        handle: "111-222",
+      });
+
+      const newSocialHandle = {
+        handle: "000-000",
+      };
+      await waitAndSync(socialHandle.streamID);
+      await updateSocialHandle(composeClient, {
+        ...newSocialHandle,
+        id: socialHandle.streamID,
+      });
+
+      const result = await querySocialHandle(
+        composeClient,
+        socialHandle.streamID,
+      );
+      expect(result).toEqual({ ...newSocialHandle, platform: "orcid" });
     });
   });
 
@@ -190,7 +229,6 @@ describe("ComposeDB nodes", () => {
 
       const ownProfile = await createProfile(composeClient, {
         displayName: "First Lastname",
-        orcid: "orcidHandle",
       });
 
       const attestation = await createAttestation(composeClient, {
@@ -589,7 +627,6 @@ describe("ComposeDB nodes", () => {
 
     const user1Profile = await createProfile(composeClient, {
       displayName: "Name",
-      orcid: "000-111",
     });
 
     const user2 = await randomDID();
