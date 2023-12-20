@@ -25,6 +25,8 @@ import type {
   ReferenceQueryResult,
   ResearchFieldQueryResult,
   ResearchFieldRelationQueryResult,
+  SocialHandle,
+  SocialHandleQueryResult,
 } from "./types.js";
 import type { ExecutionResult } from "graphql";
 import * as gql from "gql-query-builder";
@@ -148,19 +150,42 @@ export const mutationUpdateResearchComponent = async (
     "updateResearchComponent",
   );
 
+const PROFILE_TYPE_MAP = {
+  displayName: "String!",
+  publicKey: "String",
+};
+
 export const mutationCreateProfile = async (
   composeClient: ComposeClient,
   inputs: Profile,
 ): Promise<NodeIDs> =>
+  genericCreate(composeClient, inputs, PROFILE_TYPE_MAP, "createProfile", true);
+
+const SOCIAL_HANDLE_TYPE_MAP = {
+  platform: "String!",
+  handle: "String!",
+};
+
+export const mutationCreateSocialHandle = async (
+  composeClient: ComposeClient,
+  inputs: SocialHandle,
+): Promise<NodeIDs> =>
   genericCreate(
     composeClient,
     inputs,
-    {
-      displayName: "String!",
-      orcid: "String",
-    },
-    "createProfile",
-    true,
+    SOCIAL_HANDLE_TYPE_MAP,
+    "createSocialHandle",
+  );
+
+export const mutationUpdateSocialHandle = async (
+  composeClient: ComposeClient,
+  inputs: PartialWithID<SocialHandle>,
+): Promise<NodeIDs> =>
+  genericUpdate(
+    composeClient,
+    inputs,
+    makeAllOptional(SOCIAL_HANDLE_TYPE_MAP),
+    "updateSocialHandle",
   );
 
 export const mutationCreateClaim = async (
@@ -355,7 +380,23 @@ export const queryProfile = async (
     selection ??
       `
   displayName
-  orcid
+  publicKey
+  `,
+  );
+
+export const querySocialHandle = async (
+  composeClient: ComposeClient,
+  id: string,
+  selection?: string,
+) =>
+  genericEntityQuery<SocialHandleQueryResult>(
+    composeClient,
+    id,
+    "SocialHandle",
+    selection ??
+      `
+  platform
+  handle
   `,
   );
 

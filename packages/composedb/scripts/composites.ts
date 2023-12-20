@@ -17,6 +17,7 @@ const ceramic = new CeramicClient("http://localhost:7007");
 
 type Models = {
   profile?: string;
+  socialHandle?: string;
   researchObject?: string;
   researchField?: string;
   claim?: string;
@@ -43,6 +44,12 @@ export const writeComposite = async (seed: string, spinner?: Ora) => {
     "./composites/1-profile.graphql",
   );
   modelIDs.profile = profileComposite.modelIDs[0];
+
+  const socialHandleComposite = await createComposite(
+    ceramic,
+    "./composites/1-socialHandle.graphql",
+  );
+  modelIDs.socialHandle = socialHandleComposite.modelIDs[0];
 
   const researchObjectComposite = await createComposite(
     ceramic,
@@ -154,6 +161,7 @@ export const writeComposite = async (seed: string, spinner?: Ora) => {
 
   const composite = Composite.from([
     profileComposite,
+    socialHandleComposite,
     researchObjectComposite,
     claimComposite,
     attestationComposite,

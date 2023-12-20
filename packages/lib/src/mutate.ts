@@ -9,12 +9,14 @@ import {
   mutationCreateResearchComponent,
   mutationCreateResearchFieldRelation,
   mutationCreateResearchObject,
+  mutationCreateSocialHandle,
   mutationUpdateAnnotation,
   mutationUpdateAttestation,
   mutationUpdateContributorRelation,
   mutationUpdateReferenceRelation,
   mutationUpdateResearchComponent,
   mutationUpdateResearchObject,
+  mutationUpdateSocialHandle,
 } from "./queries.js";
 import type {
   Annotation,
@@ -32,6 +34,7 @@ import type {
   ResearchComponentUpdate,
   ResearchFieldRelation,
   ResearchObject,
+  SocialHandle,
 } from "./types.js";
 
 /**
@@ -133,10 +136,32 @@ export const createProfile = async (client: ComposeClient, props: Profile) =>
  * @param props - Model field contents.
  * @returns StreamID and CommitID for the update.
  */
-export const updateProfile = async (
+export const updateProfile = async (client: ComposeClient, props: Profile) =>
+  await mutationCreateProfile(client, props);
+
+/**
+ * Create a new social handle.
+ *
+ * @param client - ComposeDB client instance.
+ * @param props - Model field contents.
+ * @returns StreamID and CommitID for the node.
+ */
+export const createSocialHandle = async (
   client: ComposeClient,
-  props: PartialWithID<Profile>,
-) => await mutationCreateProfile(client, props);
+  props: SocialHandle,
+) => await mutationCreateSocialHandle(client, props);
+
+/**
+ * Update fields on an existing social handle.
+ *
+ * @param client - ComposeDB client instance.
+ * @param props - Model field contents.
+ * @returns StreamID and CommitID for the update.
+ */
+export const updateSocialHandle = async (
+  client: ComposeClient,
+  props: PartialWithID<SocialHandle>,
+) => await mutationUpdateSocialHandle(client, props);
 
 /**
  * Create a new research component.
