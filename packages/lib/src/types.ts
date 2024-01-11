@@ -332,7 +332,7 @@ export type PartialWithID<T> = Partial<T> & {
 /**
  * Get all keys of a union type, conditional to get union distribution.
  */
-type UnionKeys<T> = T extends unknown ? keyof T : never;
+export type UnionKeys<T> = T extends unknown ? keyof T : never;
 
 /**
  * Omit from all subtypes in a union, like mapping `Omit` over all members.
