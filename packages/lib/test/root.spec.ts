@@ -662,6 +662,7 @@ describe("ComposeDB nodes", () => {
         composeClient,
         contributionData,
       );
+      await waitAndSync(contribution.streamID);
       await updateContributorRelation(composeClient, {
         id: contribution.streamID,
         revoked: true,
@@ -763,6 +764,7 @@ describe("ComposeDB nodes", () => {
         composeClient,
         referenceData,
       );
+      await waitAndSync(reference.streamID);
       await updateReferenceRelation(composeClient, {
         id: reference.streamID,
         revoked: true,
