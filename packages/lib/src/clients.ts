@@ -63,3 +63,5 @@ export const didFromSeed = async (seed: string) => {
   await did.authenticate();
   return did;
 };
+
+export type { ComposeClient, CeramicClient };
