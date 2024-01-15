@@ -11,9 +11,10 @@ type ContributorRelation
     accountRelation: LIST
     description: "List a contributor on a research object"
   )
-  @createIndex(fields: [{ path: "role" }])
-  @createIndex(fields: [{ path: "revoked" }])
-  @createIndex(fields: [{ path: "researchObjectVersion" }]) {
+  # @createIndex(fields: [{ path: "role" }])
+  # @createIndex(fields: [{ path: "revoked" }])
+  # @createIndex(fields: [{ path: "researchObjectVersion" }])
+{
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
 

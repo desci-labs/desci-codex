@@ -4,12 +4,5 @@
     "test/**/*",
     "vitest*",
     "dist"
-  ],
-  "compilerOptions": {
-    "noEmit": false,
-    "outDir": "dist",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
-  }
+  ]
 }

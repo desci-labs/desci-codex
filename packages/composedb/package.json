@@ -13,10 +13,10 @@
     "kill": "pkill --full \"ceramic daemon|ipfs daemon\""
   },
   "devDependencies": {
-    "@ceramicnetwork/cli": "^3.0.0",
-    "@ceramicnetwork/http-client": "^3.0.0",
-    "@composedb/devtools": "^0.6.0",
-    "@composedb/devtools-node": "^0.6.0",
+    "@ceramicnetwork/cli": "^3.1.0",
+    "@ceramicnetwork/http-client": "^3.1.0",
+    "@composedb/devtools": "^0.6.1",
+    "@composedb/devtools-node": "^0.6.1",
     "dids": "^4.0.4",
     "key-did-provider-ed25519": "^3.0.2",
     "key-did-resolver": "^3.0.0",
