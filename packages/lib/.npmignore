@@ -1,0 +1,9 @@
+node_modules
+admin_seed.txt
+local-data
+composedb.config.json
+test.config.json
+*.tsbuildinfo
+.vscode
+dist/test/
+dist/scripts/
