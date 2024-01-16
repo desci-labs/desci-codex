@@ -15,6 +15,6 @@ jobs:
           check-latest: false
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: npm --workspace packages/lib publish
+      - run: npm --workspace packages/lib publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -7,3 +7,5 @@ test.config.json
 .vscode
 dist/test/
 dist/scripts/
+test/
+vitest.config.ts
