@@ -1,6 +1,6 @@
 {
   "name": "@desci-labs/desci-codex-lib",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Codex interaction primitives",
   "license": "MIT",
   "author": "Edvard Hübinette",
@@ -19,13 +19,12 @@
     "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
-    "@desci-labs/desci-codex-composedb": "^1.0.0",
-    "uint8arrays": "^4.0.6",
+    "@composedb/client": "^0.6.0",
     "dids": "^4.0.4",
+    "gql-query-builder": "^3.8.0",
+    "graphql": "^16.8.0",
     "key-did-provider-ed25519": "^3.0.2",
     "key-did-resolver": "^3.0.0",
-    "@composedb/client": "^0.6.0",
-    "gql-query-builder": "^3.8.0",
-    "graphql": "^16.8.0"
+    "uint8arrays": "^4.0.6"
   }
 }

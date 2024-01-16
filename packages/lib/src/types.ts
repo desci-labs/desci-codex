@@ -342,3 +342,8 @@ export type UnionKeys<T> = T extends unknown ? keyof T : never;
 export type DistributiveOmit<T, K extends UnionKeys<T>> = T extends unknown
   ? Omit<T, Extract<keyof T, K>>
   : never;
+
+/**
+ * Make one key optional in a record type
+ */
+export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
