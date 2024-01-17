@@ -18,6 +18,7 @@ jobs:
       - run: npm --workspace packages/composedb publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm --workspace packages/lib run build
       - run: npm --workspace packages/lib publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
