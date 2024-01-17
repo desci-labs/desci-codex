@@ -1,6 +1,6 @@
 {
   "name": "@desci-labs/desci-codex-composedb",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ComposeDB models and scripts for Codex",
   "license": "MIT",
   "author": "Edvard Hübinette",

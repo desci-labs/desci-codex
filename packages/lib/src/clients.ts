@@ -7,7 +7,7 @@ import {
   CeramicClient,
   type CeramicClientConfig,
 } from "@ceramicnetwork/http-client";
-import type { Optional } from "./types.js";
+import { definition } from "@desci-labs/desci-codex-composedb/src/__generated__/definition.js";
 
 const DEFAULT_LOCAL_CERAMIC = "http://localhost:7007";
 
@@ -35,9 +35,7 @@ export const newCeramicClient = (
   return new CeramicClient(endpoint ?? DEFAULT_LOCAL_CERAMIC, config);
 };
 
-export const newComposeClient = (
-  params: Optional<ComposeClientParams, "ceramic">,
-) => {
+export const newComposeClient = (params: Partial<ComposeClientParams>) => {
   if (!params.ceramic) {
     console.log(
       "[codex] ceramic client not provided; defaulting to",
@@ -47,6 +45,7 @@ export const newComposeClient = (
 
   return new ComposeClient({
     ceramic: DEFAULT_LOCAL_CERAMIC,
+    definition,
     // Let passed config overwrite ceramic, if present
     ...params,
   });
