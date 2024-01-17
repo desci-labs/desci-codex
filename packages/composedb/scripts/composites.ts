@@ -1,4 +1,4 @@
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import {
   createComposite,
@@ -14,6 +14,8 @@ import { fromString } from "uint8arrays/from-string";
 import { Ora } from "ora";
 
 const ceramic = new CeramicClient("http://localhost:7007");
+const ENCODED_PATH = "./src/__generated__/definition.json";
+const ENCODED_RUNTIME_PATH = "./src/__generated__/definition.js";
 
 type Models = {
   profile?: string;
@@ -174,18 +176,19 @@ export const writeComposite = async (seed: string, spinner?: Ora) => {
     annotationComposite,
   ]);
 
-  await writeEncodedComposite(composite, "./src/__generated__/definition.json");
+  await writeEncodedComposite(composite, ENCODED_PATH);
   spinner.info("creating composite for runtime usage");
   await writeEncodedCompositeRuntime(
     ceramic,
-    "./src/__generated__/definition.json",
-    "./src/__generated__/definition.js",
+    ENCODED_PATH,
+    ENCODED_RUNTIME_PATH,
   );
+
+  // Fix non-determinism due to arbitrarily sorted keys in files
+  await orderCompositeFileKeys();
+
   spinner.info("deploying composite");
-  const deployComposite = await readEncodedComposite(
-    ceramic,
-    "./src/__generated__/definition.json",
-  );
+  const deployComposite = await readEncodedComposite(ceramic, ENCODED_PATH);
 
   await deployComposite.startIndexingOn(ceramic);
   spinner.succeed("composite deployed & ready for use");
@@ -202,6 +205,41 @@ const authenticateAdmin = async (seed: string): Promise<void> => {
   });
   await did.authenticate();
   await ceramic.setDID(did);
+};
+
+/**
+ * Repeated runs yield diffs in generated composite definition files, even
+ * if they are semantically the same, because the keys aren't serialized
+ * in order. This function fixes that, making it clear in git when they
+ * actually have changed.
+ */
+const orderCompositeFileKeys = async () => {
+  /* eslint-disable @typescript-eslint/no-explicit-any*/
+
+  /**
+   * Recursively order object keys to get deterministic serialization
+   * https://gist.github.com/davidfurlong/463a83a33b70a3b6618e97ec9679e490
+   */
+  const orderedReplacer = (_key: any, value: any) =>
+    value instanceof Object && !(value instanceof Array)
+      ? Object.keys(value)
+          .sort()
+          .reduce((sorted, key) => {
+            sorted[key] = value[key];
+            return sorted;
+          }, {} as any)
+      : value;
+
+  const encoded = JSON.parse(readFileSync(ENCODED_PATH, { encoding: "ascii" }));
+  writeFileSync(ENCODED_PATH, JSON.stringify(encoded, orderedReplacer));
+
+  const { definition } = await import(
+    process.cwd() + "/" + ENCODED_RUNTIME_PATH
+  );
+  const encoded_runtime_ordered = `
+export const definition = ${JSON.stringify(definition, orderedReplacer)}
+`;
+  writeFileSync(ENCODED_RUNTIME_PATH, encoded_runtime_ordered);
 };
 
 const runAsScript =
