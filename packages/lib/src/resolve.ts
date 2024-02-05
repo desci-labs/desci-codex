@@ -118,13 +118,31 @@ export const resolveState = async (
  * necessary to discern between multiple updates under the same anchor.
  *
  * @param client - A Ceramic client instance.
- * @param pid - The address of a node state.
+ * @param id - The address of a node state.
  * @param includeAnchors - Optionally include anchor commits in the log.
  * @returns an array of the historical events of the stream.
  */
 export const resolveHistory = async (
   client: CeramicClient,
-  pid: RootNode,
+  id: StreamID | string,
   includeAnchors: boolean = false,
-): Promise<LogWithCommits> =>
-  await loadID(client, pid.id).then((s) => getVersionLog(s, includeAnchors));
+): Promise<LogWithCommits> => {
+  if (typeof id === "string") {
+    id = StreamID.fromString(id);
+  }
+  return await loadID(client, id).then((s) => getVersionLog(s, includeAnchors));
+};
+
+export const pidFromStringID = (stringID: string): RootNode | VersionedNode => {
+  const commit = CommitID.fromStringNoThrow(stringID);
+  if (commit instanceof CommitID) {
+    return { tag: "versioned", id: commit };
+  }
+
+  const stream = StreamID.fromStringNoThrow(stringID);
+  if (stream instanceof StreamID) {
+    return { tag: "root", id: stream };
+  }
+
+  throw new Error("Passed string is neither a stream nor a commit ID");
+};
