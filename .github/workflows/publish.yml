@@ -15,10 +15,22 @@ jobs:
           check-latest: false
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: npm --workspace packages/composedb publish --access public
+      - run: |
+          if ! npm --workspace packages/composedb view .@${npm_package_version} > /dev/null; then
+            echo "New version of composedb package; running publish..."
+            npm --workspace packages/composedb publish --access public
+          else
+            echo "This version of the composedb package already exists on npm; doing nothing."
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: npm --workspace packages/lib run build
-      - run: npm --workspace packages/lib publish --access public
+      - run: |
+          if ! npm --workspace packages/lib view .@${npm_package_version} > /dev/null; then
+            echo "New version of lib package; running publish..."
+            npm --workspace packages/lib publish --access public
+          else
+            echo "This version of the lib package already exists on npm; doing nothing."
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
