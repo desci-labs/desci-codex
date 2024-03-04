@@ -11,7 +11,7 @@
     "build": "rm -rf ./dist && tsc --project tsconfig.build.json",
     "populate": "node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/populate.ts",
     "test": "export ADMIN_SEED=$(<../composedb/admin_seed.txt) && vitest --run --config vitest.config.ts",
-    "doPublish": "npm run build && cd ../.. && npm publish --workspace packages/lib --access public --dry-run"
+    "doPublish": "npm run build && cd ../.. && npm publish --workspace packages/lib --access public"
   },
   "devDependencies": {
     "ts-node": "^10.9.1",
@@ -20,7 +20,7 @@
     "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
-    "@composedb/client": "^0.6.0",
+    "@composedb/client": "^0.7.1",
     "@desci-labs/desci-codex-composedb": "^1.0.1",
     "dids": "^4.0.4",
     "gql-query-builder": "^3.8.0",
