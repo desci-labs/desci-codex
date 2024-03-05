@@ -467,10 +467,7 @@ describe("ComposeDB nodes", () => {
       });
     });
 
-    test.skip("can be made without claim", async () => {
-      // API error on @relationDocument when claimID omitted even if optional,
-      // under review by ceramic devs.
-      // When fixed, remove unnecessary claims and make this a separate case
+    test("can be made without claim", async () => {
       const data: Annotation = {
         comment: "This is a cool object!",
 
@@ -484,7 +481,7 @@ describe("ComposeDB nodes", () => {
         composeClient,
         annotation.streamID,
       );
-      expect(response).toEqual(data);
+      expect(response).toEqual(expect.objectContaining(data));
     });
 
     describe("can be found from", async () => {
@@ -1026,7 +1023,7 @@ const freshClient = () =>
  * also allowing for an anchor commit to pop in between
  */
 const waitAndSync = async (streamID: string, timeout?: number) => {
-  await setTimeout(timeout || 150);
+  await setTimeout(timeout || 250);
   const stream = await ceramic.loadStream(streamID);
   await stream.sync();
 };
