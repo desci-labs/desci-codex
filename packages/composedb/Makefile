@@ -7,7 +7,7 @@ clean:
 	rm -rf local-data
 
 clean-test:
-	rm -rf packages/composedb/local-data/ceramic-test
+	rm -rf local-data/ceramic-test
 
 start-test-env: clean-test generate
 	if pgrep --older 1 --count --full "ceramic daemon|ipfs daemon"; then \

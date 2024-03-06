@@ -4,9 +4,9 @@ type Claim @loadModel(id: "$CLAIM_ID") {
 
 type Attestation
   @createModel(accountRelation: LIST, description: "General attestation")
-  # @createIndex(fields: [{ path: "revoked" }])
-  # @createIndex(fields: [{ path: "targetVersion" }])
-  # @createIndex(fields: [{ path: "claimVersion" }])
+  @createIndex(fields: [{ path: "revoked" }])
+  @createIndex(fields: [{ path: "targetVersion" }])
+  @createIndex(fields: [{ path: "claimVersion" }])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion

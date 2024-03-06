@@ -1,6 +1,6 @@
 type ResearchObject
   @createModel(accountRelation: LIST, description: "A research object")
-  # @createIndex(fields: [{ path: "title" }])
+  @createIndex(fields: [{ path: "title" }])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
