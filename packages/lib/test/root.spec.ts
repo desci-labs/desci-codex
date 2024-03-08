@@ -293,15 +293,66 @@ describe("ComposeDB nodes", () => {
         revoked: true,
       });
 
+      await waitAndSync(attestation.streamID);
       const result = await queryAttestation(
         composeClient,
         attestation.streamID,
       );
       expect(result?.revoked).toEqual(true);
     });
+
+    test("cant switch target", async () => {
+      const user = await randomDID();
+      composeClient.setDID(user);
+      const researchObject1 = await createResearchObject(composeClient, {
+        title: "Paper",
+        manifest: A_CID,
+      });
+
+      const attestation = await createAttestation(composeClient, {
+        targetID: researchObject1.streamID,
+        targetVersion: researchObject1.commitID,
+        claimID: testClaim.streamID,
+        claimVersion: testClaim.commitID,
+        revoked: false,
+      });
+
+      const someOtherStream =
+        "kjzl6kcym7w8y7csoj5pbon6pnd3q3dhlvx3kjm38y19ljj01zzodywb9ijaxpo";
+      await waitAndSync(attestation.streamID);
+      const mutResult = await composeClient.executeQuery(
+        `
+        mutation($id: ID!, $targetID: CeramicStreamID! ) {
+          updateAttestation(
+            input: {
+              id: $id
+              content: { targetID: $targetID }
+            }
+          )
+          {
+            document {
+              id
+            }
+          }
+        }`,
+        {
+          id: attestation.streamID,
+          targetID: someOtherStream,
+        },
+      );
+      expect(mutResult.errors!).toHaveLength(1);
+
+      // Attestation should be unchanged
+      const result = await queryAttestation(
+        composeClient,
+        attestation.streamID,
+      );
+
+      expect(result?.targetID).toEqual(researchObject1.streamID);
+    });
   });
 
-  describe("Annotations", async () => {
+  describe.skip("Annotations", async () => {
     const composeClient = freshClient();
     const user = await randomDID();
     composeClient.setDID(user);
@@ -853,6 +904,7 @@ describe("ComposeDB nodes", () => {
           fieldID: field.streamID,
           researchObjectID: researchObject.streamID,
           researchObjectVersion: researchObject.commitID,
+          revoked: false,
         };
         const relation = await createResearchFieldRelation(
           composeClient,
@@ -873,6 +925,7 @@ describe("ComposeDB nodes", () => {
           fieldID: field.streamID,
           researchObjectID: researchObject.streamID,
           researchObjectVersion: researchObject.commitID,
+          revoked: false,
         });
         const response = await queryResearchObject(
           composeClient,

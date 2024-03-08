@@ -14,15 +14,16 @@ type ResearchFieldRelation
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
 
-  researchObjectID: StreamID! @documentReference(model: "ResearchObject")
+  researchObjectID: StreamID!
+    @documentReference(model: "ResearchObject")
+    @immutable
   researchObject: ResearchObject!
     @relationDocument(property: "researchObjectID")
   researchObjectVersion: CommitID!
 
-  # Skipping stream versioning on field refs
-  fieldID: StreamID! @documentReference(model: "ResearchField")
+  fieldID: StreamID! @documentReference(model: "ResearchField") @immutable
   field: ResearchField! @relationDocument(property: "fieldID")
 
   # Revoke this relation
-  revoked: Boolean
+  revoked: Boolean!
 }

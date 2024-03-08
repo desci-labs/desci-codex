@@ -4,22 +4,22 @@ type Claim @loadModel(id: "$CLAIM_ID") {
 
 type Attestation
   @createModel(accountRelation: LIST, description: "General attestation")
+  @createIndex(fields: [{ path: "targetID" }])
+  @createIndex(fields: [{ path: "claimID" }])
   @createIndex(fields: [{ path: "revoked" }])
-  @createIndex(fields: [{ path: "targetVersion" }])
-  @createIndex(fields: [{ path: "claimVersion" }])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
   # 1. Any type of document, shown with relation on reciever end but cannot use
   #    @documentRelation without specifying the target type before interfaces land
   # 2. This cannot be a DID, so attestations to people target the Profile
-  targetID: StreamID!
+  targetID: StreamID! @immutable
   targetVersion: CommitID!
 
-  claimID: StreamID! @documentReference(model: "Claim")
+  claimID: StreamID! @documentReference(model: "Claim") @immutable
   claim: Claim! @relationDocument(property: "claimID")
   claimVersion: CommitID!
 
   # Revoke this attestation
-  revoked: Boolean
+  revoked: Boolean!
 }

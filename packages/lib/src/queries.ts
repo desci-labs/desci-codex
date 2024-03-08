@@ -208,7 +208,7 @@ const ATTESTATION_TYPE_MAP = {
   targetVersion: "CeramicCommitID!",
   claimID: "CeramicStreamID!",
   claimVersion: "CeramicCommitID!",
-  revoked: "Boolean",
+  revoked: "Boolean!",
 };
 
 export const mutationCreateAttestation = async (
@@ -334,6 +334,7 @@ export const mutationCreateResearchFieldRelation = async (
       fieldID: "CeramicStreamID!",
       researchObjectID: "CeramicStreamID!",
       researchObjectVersion: "CeramicCommitID!",
+      revoked: "Boolean!",
     },
     "createResearchFieldRelation",
   );
@@ -546,6 +547,7 @@ export const queryResearchFieldRelation = async (
   fieldID
   researchObjectID
   researchObjectVersion
+  revoked
   `,
   );
 

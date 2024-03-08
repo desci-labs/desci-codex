@@ -23,7 +23,9 @@ type ResearchComponent
   pathToNode: String! @string(maxLength: 512)
 
   # The associated research object
-  researchObjectID: StreamID! @documentReference(model: "ResearchObject")
+  researchObjectID: StreamID!
+    @documentReference(model: "ResearchObject")
+    @immutable
   researchObject: ResearchObject!
     @relationDocument(property: "researchObjectID")
   researchObjectVersion: CommitID!

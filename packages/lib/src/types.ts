@@ -283,7 +283,10 @@ export type ResearchFieldRelation = {
 
   researchObjectID: string;
   researchObjectVersion: string;
+
+  revoked: boolean;
 };
+
 export type ResearchFieldRelationViews = {
   field?: ResearchField;
   researchObject?: ResearchObject;
