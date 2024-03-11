@@ -57,6 +57,7 @@ export type DID = {
 export type ResearchObject = {
   title: string;
   manifest: string;
+  license: string;
   metadata?: string; // CID
 };
 

@@ -79,6 +79,7 @@ describe("ComposeDB nodes", () => {
       const data: ResearchObject = {
         title: "Test",
         manifest: A_CID,
+        license: "CC-BY",
         metadata: A_CID,
       };
       const researchObject = await createResearchObject(composeClient, data);
@@ -130,6 +131,7 @@ describe("ComposeDB nodes", () => {
       const myResearchObject = await createResearchObject(composeClient, {
         title: "Test",
         manifest: A_CID,
+        license: "CC-BY",
       });
       const myClaim = await createClaim(composeClient, {
         title: "My Claim",
@@ -161,6 +163,7 @@ describe("ComposeDB nodes", () => {
       const data: ResearchObject = {
         title: "Test",
         manifest: A_CID,
+        license: "CC-BY",
       };
       const researchObject = await createResearchObject(composeClient, data);
 
@@ -252,6 +255,7 @@ describe("ComposeDB nodes", () => {
       const user1ResearchObject = await createResearchObject(composeClient, {
         title: "Paper",
         manifest: A_CID,
+        license: "CC-BY",
       });
 
       const user2 = await randomDID();
@@ -277,6 +281,7 @@ describe("ComposeDB nodes", () => {
       const researchObject = await createResearchObject(composeClient, {
         title: "Paper",
         manifest: A_CID,
+        license: "CC-BY",
       });
 
       const attestation = await createAttestation(composeClient, {
@@ -307,6 +312,7 @@ describe("ComposeDB nodes", () => {
       const researchObject1 = await createResearchObject(composeClient, {
         title: "Paper",
         manifest: A_CID,
+        license: "CC-BY",
       });
 
       const attestation = await createAttestation(composeClient, {
@@ -360,6 +366,7 @@ describe("ComposeDB nodes", () => {
     const researchObject = await createResearchObject(composeClient, {
       title: "Title",
       manifest: A_CID,
+      license: "CC-BY",
     });
 
     const claim = await createClaim(composeClient, {
@@ -683,6 +690,7 @@ describe("ComposeDB nodes", () => {
     const researchObject = await createResearchObject(composeClient, {
       title: "Title",
       manifest: A_CID,
+      license: "CC-BY",
     });
 
     const contributionData: ContributorRelation = {
@@ -780,11 +788,13 @@ describe("ComposeDB nodes", () => {
     const researchObjectSource = await createResearchObject(composeClient, {
       title: "Title",
       manifest: A_CID,
+      license: "CC-BY",
     });
 
     const researchObjectTarget = await createResearchObject(composeClient, {
       title: "Title",
       manifest: A_CID,
+      license: "CC-BY",
     });
 
     const referenceData: ReferenceRelation = {
@@ -881,6 +891,7 @@ describe("ComposeDB nodes", () => {
     const researchObject = await createResearchObject(composeClient, {
       title: "Title",
       manifest: A_CID,
+      license: "CC-BY",
     });
 
     test("can be created", async () => {
@@ -964,6 +975,7 @@ describe("ComposeDB nodes", () => {
       const { streamID } = await createResearchObject(composeClient, {
         title: "Old",
         manifest: A_CID,
+        license: "CC-BY",
       });
       const timeBetween = Math.floor(Date.now() / 1000);
       // Encourage an anchor in between commits
@@ -988,6 +1000,7 @@ describe("ComposeDB nodes", () => {
       const researchObjectV0 = await createResearchObject(composeClient, {
         title: "Title",
         manifest: A_CID,
+        license: "CC-BY",
       });
       const componentV0 = await createResearchComponent(composeClient, {
         name: "Filename",
@@ -1034,6 +1047,7 @@ describe("ComposeDB nodes", () => {
       const data: ResearchObject = {
         title: "Title 0",
         manifest: A_CID,
+        license: "CC-BY",
       };
 
       // Create version 0

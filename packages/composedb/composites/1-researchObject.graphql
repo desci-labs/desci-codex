@@ -7,7 +7,7 @@ type ResearchObject
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
   title: String! @string(maxLength: 250)
-  license: String @string(maxLength: 100)
+  license: String! @string(maxLength: 100)
   manifest: CID!
   metadata: CID
 }

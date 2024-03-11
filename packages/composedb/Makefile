@@ -17,7 +17,7 @@ start-test-env: clean-test generate
 	sed 's|local-data/ceramic|local-data/ceramic-test|' composedb.config.json \
 		> test.config.json
 	npx ceramic daemon --config test.config.json &>/dev/null &
-	sleep 5
+	sleep 10
 
 	npm run deployComposites
 

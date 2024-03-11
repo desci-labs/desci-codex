@@ -98,6 +98,7 @@ export const queryResearchObjectAttestations = async (
 const RO_TYPE_MAP = {
   title: "String!",
   manifest: "InterPlanetaryCID!",
+  license: "String!",
   metadata: "InterPlanetaryCID",
 };
 
@@ -365,6 +366,7 @@ export const queryResearchObject = async (
       `
   title
   manifest
+  license
   metadata
   `,
   );
