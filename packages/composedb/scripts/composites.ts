@@ -13,7 +13,9 @@ import { getResolver } from "key-did-resolver";
 import { fromString } from "uint8arrays/from-string";
 import { Ora } from "ora";
 
-const ceramic = new CeramicClient("http://localhost:7007");
+const ceramic = new CeramicClient(
+  process.env.CERAMIC_ENDPOINT || "http://localhost:7007",
+);
 const ENCODED_PATH = "./src/__generated__/definition.json";
 const ENCODED_RUNTIME_PATH = "./src/__generated__/definition.js";
 
