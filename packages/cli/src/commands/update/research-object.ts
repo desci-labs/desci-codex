@@ -12,6 +12,10 @@ export default class ResearchObject extends BaseCommand {
       description: 'ID of the research object to update',
       required: true,
     }),
+    license: Flags.string({
+      char: 'l',
+      description: 'License for research object contents',
+    }),
     manifest: Flags.string({
       char: 'm',
       description: 'Manifest file CID',
@@ -29,6 +33,7 @@ export default class ResearchObject extends BaseCommand {
     const client = newComposeClient({ceramic})
     const ids = await updateResearchObject(client, {
       id: flags.id,
+      license: flags.license,
       manifest: flags.manifest,
       title: flags.title,
     })

@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "generate": "tsx scripts/generate.ts",
-    "dev": "tsx scripts/run.ts",
+    "dev": "unset CERAMIC_ENDPOINT && tsx scripts/run.ts",
     "deployComposites": "npm run generate && export ADMIN_SEED=$(cat admin_seed.txt) && tsx scripts/composites.ts",
     "ceramic": "ceramic daemon --config composedb.config.json",
     "kill": "pkill --full \"ceramic daemon|ipfs daemon\""

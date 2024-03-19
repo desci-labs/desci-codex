@@ -8,6 +8,11 @@ export default class ResearchObject extends BaseCommand {
   static description = 'Create a new research object'
 
   static flags = {
+    license: Flags.string({
+      chat: 'l',
+      description: 'Default license on content',
+      required: true,
+    }),
     manifest: Flags.string({
       char: 'm',
       description: 'Manifest file CID',
@@ -26,6 +31,7 @@ export default class ResearchObject extends BaseCommand {
     const ceramic = await authenticatedCeramicClient(flags.didSeed, flags.ceramicNode)
     const client = newComposeClient({ceramic})
     const ids = await createResearchObject(client, {
+      license: flags.license,
       manifest: flags.manifest,
       title: flags.title,
     })

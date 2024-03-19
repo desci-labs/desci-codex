@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@composedb/client": "^0.7.1",
-    "@desci-labs/desci-codex-composedb": "^1.0.1",
+    "@desci-labs/desci-codex-composedb": "^2.0.0",
     "dids": "^4.0.4",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.8.0",
