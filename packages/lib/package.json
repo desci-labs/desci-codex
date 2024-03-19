@@ -1,6 +1,6 @@
 {
   "name": "@desci-labs/desci-codex-lib",
-  "version": "1.1.6-rc0",
+  "version": "1.1.6",
   "description": "Codex interaction primitives",
   "license": "MIT",
   "author": "Edvard Hübinette",
