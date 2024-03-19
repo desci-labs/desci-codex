@@ -1,6 +1,6 @@
 {
   "name": "@desci-labs/desci-codex-composedb",
-  "version": "2.0.0",
+  "version": "2.0.0-rc0",
   "description": "ComposeDB models and scripts for Codex",
   "license": "MIT",
   "author": "Edvard Hübinette",
@@ -10,7 +10,8 @@
     "dev": "unset CERAMIC_ENDPOINT && tsx scripts/run.ts",
     "deployComposites": "npm run generate && export ADMIN_SEED=$(cat admin_seed.txt) && tsx scripts/composites.ts",
     "ceramic": "ceramic daemon --config composedb.config.json",
-    "kill": "pkill --full \"ceramic daemon|ipfs daemon\""
+    "kill": "pkill --full \"ceramic daemon|ipfs daemon\"",
+    "doPublish": "cd ../.. && npm publish --workspace packages/composedb --access public"
   },
   "devDependencies": {
     "@ceramicnetwork/cli": "^5.2.0",
