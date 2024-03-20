@@ -3,8 +3,7 @@ type Claim
     accountRelation: LIST
     description: "A reusable claim to be granted via attestation"
   )
-  # @createIndex(fields: [{ path: "title" }])
-  # @createIndex(fields: [{ path: "badge" }]) 
+  @createIndex(fields: [{ path: "title" }])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion

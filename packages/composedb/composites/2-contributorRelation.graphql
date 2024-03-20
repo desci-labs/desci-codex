@@ -11,9 +11,9 @@ type ContributorRelation
     accountRelation: LIST
     description: "List a contributor on a research object"
   )
-  # @createIndex(fields: [{ path: "role" }])
-  # @createIndex(fields: [{ path: "revoked" }])
-  # @createIndex(fields: [{ path: "researchObjectVersion" }])
+  @createIndex(fields: [{ path: "role" }])
+  @createIndex(fields: [{ path: "researchObjectID" }])
+  @createIndex(fields: [{ path: "revoked" }])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
@@ -21,7 +21,9 @@ type ContributorRelation
   # E.g. credit taxonomy
   role: String! @string(maxLength: 256)
 
-  researchObjectID: StreamID! @documentReference(model: "ResearchObject")
+  researchObjectID: StreamID!
+    @documentReference(model: "ResearchObject")
+    @immutable
   researchObject: ResearchObject!
     @relationDocument(property: "researchObjectID")
   researchObjectVersion: CommitID!
@@ -36,5 +38,5 @@ type ContributorRelation
   fallbackInfo: String @string(maxLength: 1024)
 
   # Revoke this relation
-  revoked: Boolean
+  revoked: Boolean!
 }

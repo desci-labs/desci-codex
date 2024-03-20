@@ -57,6 +57,7 @@ export type DID = {
 export type ResearchObject = {
   title: string;
   manifest: string;
+  license: string;
   metadata?: string; // CID
 };
 
@@ -283,7 +284,10 @@ export type ResearchFieldRelation = {
 
   researchObjectID: string;
   researchObjectVersion: string;
+
+  revoked: boolean;
 };
+
 export type ResearchFieldRelationViews = {
   field?: ResearchField;
   researchObject?: ResearchObject;

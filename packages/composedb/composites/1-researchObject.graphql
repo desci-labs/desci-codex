@@ -1,10 +1,13 @@
 type ResearchObject
   @createModel(accountRelation: LIST, description: "A research object")
-  # @createIndex(fields: [{ path: "title" }])
+  @createIndex(fields: [{ path: "title" }])
+  @createIndex(fields: [{ path: "license" }])
+  @createIndex(fields: [{ path: "manifest" }])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
   title: String! @string(maxLength: 250)
+  license: String! @string(maxLength: 100)
   manifest: CID!
   metadata: CID
 }

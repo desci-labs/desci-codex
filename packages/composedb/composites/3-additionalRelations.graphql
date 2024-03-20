@@ -15,17 +15,15 @@ type ResearchFieldRelation @loadModel(id: "$RESEARCH_FIELD_RELATION_ID") {
   id: ID!
 }
 
-type Annotation @loadModel(id: "$ANNOTATION_ID") {
-  replies: [Annotation] @relationFrom(model: "Annotation", property: "targetID")
-  replyCount: Int! @relationCountFrom(model: "Annotation", property: "targetID")
+type ResearchComponent @loadModel(id: "$RESEARCH_COMPONENT_ID") {
+  id: ID!
 }
 
-type ResearchComponent @loadModel(id: "$RESEARCH_COMPONENT_ID") {
-  annotations: [Annotation]
-    @relationFrom(model: "Annotation", property: "targetID")
-  annotationCount: Int!
-    @relationCountFrom(model: "Annotation", property: "targetID")
+type Annotation @loadModel(id: "$ANNOTATION_ID") {
+  replies: [Annotation] @relationFrom(model: "Annotation", property: "parentID")
+  replyCount: Int! @relationCountFrom(model: "Annotation", property: "parentID")
 }
+
 
 type Claim @loadModel(id: "$CLAIM_ID") {
   attestations: [Attestation]
@@ -69,11 +67,6 @@ type ResearchObject @loadModel(id: "$RESEARCH_OBJECT_ID") {
 
   researchFields: [ResearchFieldRelation]
     @relationFrom(model: "ResearchFieldRelation", property: "researchObjectID")
-
-  annotations: [Annotation]
-    @relationFrom(model: "Annotation", property: "researchObjectID")
-  annotationCount: Int!
-    @relationCountFrom(model: "Annotation", property: "researchObjectID")
 }
 
 # Support for incoming relations on CeramicAccounts is coming, but we'd need a separate

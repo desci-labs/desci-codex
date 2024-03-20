@@ -98,6 +98,7 @@ export const queryResearchObjectAttestations = async (
 const RO_TYPE_MAP = {
   title: "String!",
   manifest: "InterPlanetaryCID!",
+  license: "String!",
   metadata: "InterPlanetaryCID",
 };
 
@@ -208,7 +209,7 @@ const ATTESTATION_TYPE_MAP = {
   targetVersion: "CeramicCommitID!",
   claimID: "CeramicStreamID!",
   claimVersion: "CeramicCommitID!",
-  revoked: "Boolean",
+  revoked: "Boolean!",
 };
 
 export const mutationCreateAttestation = async (
@@ -334,6 +335,7 @@ export const mutationCreateResearchFieldRelation = async (
       fieldID: "CeramicStreamID!",
       researchObjectID: "CeramicStreamID!",
       researchObjectVersion: "CeramicCommitID!",
+      revoked: "Boolean!",
     },
     "createResearchFieldRelation",
   );
@@ -364,6 +366,7 @@ export const queryResearchObject = async (
       `
   title
   manifest
+  license
   metadata
   `,
   );
@@ -546,6 +549,7 @@ export const queryResearchFieldRelation = async (
   fieldID
   researchObjectID
   researchObjectVersion
+  revoked
   `,
   );
 

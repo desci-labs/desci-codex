@@ -7,21 +7,21 @@ type ReferenceRelation
     accountRelation: LIST
     description: "Indicate a reference between research objects"
   )
-  # @createIndex(fields: [{ path: "fromVersion" }])
-  # @createIndex(fields: [{ path: "toVersion" }])
-  # @createIndex(fields: [{ path: "revoked" }])
+  @createIndex(fields: [{ path: "fromID" }])
+  @createIndex(fields: [{ path: "toID" }])
+  @createIndex(fields: [{ path: "revoked" }])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
 
-  fromID: StreamID! @documentReference(model: "ResearchObject")
+  fromID: StreamID! @documentReference(model: "ResearchObject") @immutable
   from: ResearchObject! @relationDocument(property: "fromID")
   fromVersion: CommitID!
 
-  toID: StreamID! @documentReference(model: "ResearchObject")
+  toID: StreamID! @documentReference(model: "ResearchObject") @immutable
   to: ResearchObject! @relationDocument(property: "toID")
   toVersion: CommitID!
 
   # Revoke this relation
-  revoked: Boolean
+  revoked: Boolean!
 }

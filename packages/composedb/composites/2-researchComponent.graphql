@@ -7,10 +7,10 @@ type ResearchComponent
     accountRelation: LIST
     description: "A contextualized DAG pointer for a research object"
   )
-  # @createIndex(fields: [{ path: "mimeType" }])
-  # @createIndex(fields: [{ path: "researchObjectVersion" }])
+  @createIndex(fields: [{ path: "mimeType" }])
+  @createIndex(fields: [{ path: "researchObjectVersion" }])
   # Don't join index with path as it prevents efficient reverse CID lookups
-  # @createIndex(fields: [{ path: "dagNode" }]) 
+  @createIndex(fields: [{ path: "dagNode" }]) 
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion
@@ -23,7 +23,9 @@ type ResearchComponent
   pathToNode: String! @string(maxLength: 512)
 
   # The associated research object
-  researchObjectID: StreamID! @documentReference(model: "ResearchObject")
+  researchObjectID: StreamID!
+    @documentReference(model: "ResearchObject")
+    @immutable
   researchObject: ResearchObject!
     @relationDocument(property: "researchObjectID")
   researchObjectVersion: CommitID!

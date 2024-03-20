@@ -1,7 +1,7 @@
 type SocialHandle
   @createModel(accountRelation: LIST, description: "A social handle on other platforms")
-  # @createIndex(fields: [{ path: "platform"}])
-  # @createIndex(fields: [{ path: "handle"}])
+  @createIndex(fields: [{ path: "platform"}])
+  @createIndex(fields: [{ path: "handle"}])
 {
   owner: DID! @documentAccount
   version: CommitID! @documentVersion

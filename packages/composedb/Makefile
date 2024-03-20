@@ -7,7 +7,7 @@ clean:
 	rm -rf local-data
 
 clean-test:
-	rm -rf packages/composedb/local-data/ceramic-test
+	rm -rf local-data/ceramic-test
 
 start-test-env: clean-test generate
 	if pgrep --older 1 --count --full "ceramic daemon|ipfs daemon"; then \
@@ -17,7 +17,7 @@ start-test-env: clean-test generate
 	sed 's|local-data/ceramic|local-data/ceramic-test|' composedb.config.json \
 		> test.config.json
 	npx ceramic daemon --config test.config.json &>/dev/null &
-	sleep 5
+	sleep 10
 
 	npm run deployComposites
 

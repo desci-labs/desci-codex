@@ -1,6 +1,6 @@
 {
   "name": "@desci-labs/desci-codex-lib",
-  "version": "1.0.6",
+  "version": "1.1.6",
   "description": "Codex interaction primitives",
   "license": "MIT",
   "author": "Edvard Hübinette",
@@ -9,19 +9,18 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rm -rf ./dist && tsc --project tsconfig.build.json",
-    "populate": "node --no-warnings=ExperimentalWarning --loader ts-node/esm scripts/populate.ts",
     "test": "export ADMIN_SEED=$(<../composedb/admin_seed.txt) && vitest --run --config vitest.config.ts",
-    "doPublish": "npm run build && cd ../.. && npm publish --workspace packages/lib --access public --dry-run"
+    "doPublish": "npm run build && cd ../.. && npm publish --workspace packages/lib --access public"
   },
   "devDependencies": {
-    "ts-node": "^10.9.1",
+    "tsx": "^4.7.1",
     "typescript": "^5.2.2",
     "vitest": "^0.34.5",
     "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
-    "@composedb/client": "^0.6.0",
-    "@desci-labs/desci-codex-composedb": "^1.0.1",
+    "@composedb/client": "^0.7.1",
+    "@desci-labs/desci-codex-composedb": "^2.0.0",
     "dids": "^4.0.4",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.8.0",

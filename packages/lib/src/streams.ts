@@ -1,4 +1,4 @@
-import { CommitType, type LogEntry, Stream } from "@ceramicnetwork/common";
+import { EventType, type LogEntry, Stream } from "@ceramicnetwork/common";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import { CommitID, StreamID } from "@ceramicnetwork/streamid";
 
@@ -95,7 +95,7 @@ export const getVersionLog = (
   includeAnchors: boolean = false,
 ): LogWithCommits =>
   stream.state.log
-    .filter((c) => includeAnchors || c.type !== CommitType.ANCHOR)
+    .filter((c) => includeAnchors || c.type !== EventType.TIME)
     .map((c) => ({ ...c, commit: CommitID.make(stream.id, c.cid) }));
 
 export const getState = (stream: Stream): unknown => stream.state.content;
