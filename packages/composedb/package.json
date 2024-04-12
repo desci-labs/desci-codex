@@ -1,6 +1,6 @@
 {
   "name": "@desci-labs/desci-codex-composedb",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "ComposeDB models and scripts for Codex",
   "license": "MIT",
   "author": "Edvard Hübinette",
@@ -19,8 +19,8 @@
     "@ceramicnetwork/stream-model": "^4.1.0",
     "@composedb/devtools": "^0.7.1",
     "@composedb/devtools-node": "^0.7.1",
-    "dids": "^4.0.4",
-    "key-did-provider-ed25519": "^3.0.2",
+    "dids": "^5.0.2",
+    "key-did-provider-ed25519": "^4.0.2",
     "key-did-resolver": "^3.0.0",
     "ora": "^7.0.1",
     "tsx": "^4.7.1",
