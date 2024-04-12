@@ -3,3 +3,4 @@ export * from "./mutate.js";
 export * from "./clients.js";
 export * from "./resolve.js";
 export * from "./queries.js";
+export * as streams from "./streams.js";

@@ -99,3 +99,5 @@ export const getVersionLog = (
     .map((c) => ({ ...c, commit: CommitID.make(stream.id, c.cid) }));
 
 export const getState = (stream: Stream): unknown => stream.state.content;
+
+export { Stream, StreamID, CommitID };

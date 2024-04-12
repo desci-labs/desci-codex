@@ -1,6 +1,5 @@
 import KeyDIDResolver from "key-did-resolver";
 import { Ed25519Provider } from "key-did-provider-ed25519";
-import { DID } from "dids";
 import { fromString } from "uint8arrays/from-string";
 import { ComposeClient, type ComposeClientParams } from "@composedb/client";
 import {
@@ -8,16 +7,17 @@ import {
   type CeramicClientConfig,
 } from "@ceramicnetwork/http-client";
 import { definition } from "@desci-labs/desci-codex-composedb/src/__generated__/definition.js";
+import { DID } from "dids";
 
 const DEFAULT_LOCAL_CERAMIC = "http://localhost:7007";
 
 export const authenticatedCeramicClient = async (
-  didSeed: string,
+  pkey: string,
   endpoint?: string,
   config?: CeramicClientConfig,
 ) => {
   const client = newCeramicClient(endpoint, config);
-  const did = await didFromSeed(didSeed);
+  const did = await didFromPkey(pkey);
   client.setDID(did);
   return client;
 };
@@ -35,6 +35,10 @@ export const newCeramicClient = (
   return new CeramicClient(endpoint ?? DEFAULT_LOCAL_CERAMIC, config);
 };
 
+/**
+ * Returns a new, unauthenticated compose client. Call `client.setDid()` to
+ * authenticate the instance.
+ */
 export const newComposeClient = (params: Partial<ComposeClientParams>) => {
   if (!params.ceramic) {
     console.log(
@@ -51,7 +55,7 @@ export const newComposeClient = (params: Partial<ComposeClientParams>) => {
   });
 };
 
-export const didFromSeed = async (seed: string) => {
+export const didFromPkey = async (seed: string) => {
   const keyResolver = KeyDIDResolver.getResolver();
   const key = fromString(seed, "base16");
   const did = new DID({
@@ -63,5 +67,8 @@ export const didFromSeed = async (seed: string) => {
   await did.authenticate();
   return did;
 };
+
+/** Get the resources necessary for authorizing a CACAO */
+export const getResources = () => newComposeClient({}).resources;
 
 export type { ComposeClient, CeramicClient };
