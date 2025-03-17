@@ -7,7 +7,8 @@
   "workspaces": [
     "packages/lib",
     "packages/cli",
-    "packages/composedb"
+    "packages/composedb",
+    "packages/models"
   ],
   "scripts": {
     "lint:fix": "eslint . --fix",

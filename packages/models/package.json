@@ -1,0 +1,21 @@
+{
+  "name": "@desci-labs/desci-codex-models",
+  "version": "1.0.0",
+  "description": "Model definitions and management for CODEX",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "register": "tsx src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Edvard Hübinette",
+  "license": "MIT",
+  "dependencies": {
+    "@ceramic-sdk/http-client": "^0.2.1",
+    "dotenv": "^16.4.7",
+    "pino-std-serializers": "^7.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.3"
+  }
+}

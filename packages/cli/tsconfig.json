@@ -4,13 +4,10 @@
     "module": "node16",
     "target": "es2020",
     "strict": true,
-
     /** Misbehaving deps, see codex lib tsconfig for list of shame */
     "skipLibCheck": true,
-
     "noImplicitReturns": true,
     "forceConsistentCasingInFileNames": true,
-
     "outDir": "dist"
   },
   "exclude": [
