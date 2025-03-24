@@ -1,0 +1,50 @@
+{
+  "name": "@desci-labs/desci-codex-node",
+  "version": "1.0.0",
+  "description": "Codex node package",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rm -rf ./dist && tsc --build tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "NODE_ENV=development tsx watch src/index.ts"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.24",
+    "pino-pretty": "^10.3.1",
+    "tsx": "^4.7.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@ceramic-sdk/flight-sql-client": "^0.7.0",
+    "@ceramic-sdk/http-client": "^0.2.1",
+    "@chainsafe/libp2p-noise": "^16.0.3",
+    "@chainsafe/libp2p-yamux": "^7.0.1",
+    "@desci-labs/desci-codex-models": "workspace:*",
+    "@helia/block-brokers": "^4.1.0",
+    "@helia/routers": "^3.0.1",
+    "@helia/unixfs": "^4.0.0",
+    "@helia/verified-fetch": "^2.6.4",
+    "@libp2p/bootstrap": "^11.0.31",
+    "@libp2p/circuit-relay-v2": "^3.2.7",
+    "@libp2p/identify": "^3.0.26",
+    "@libp2p/kad-dht": "^14.2.15",
+    "@libp2p/mdns": "^11.0.32",
+    "@libp2p/tcp": "^10.1.7",
+    "@libp2p/websockets": "^9.2.8",
+    "apache-arrow": "^19.0.1",
+    "blockstore-fs": "^2.0.0",
+    "datastore-fs": "^10.0.0",
+    "express": "^4.18.2",
+    "file-type": "^18.7.0",
+    "helia": "^5.3.0",
+    "libp2p": "^2.8.1",
+    "multiformats": "^13.3.2",
+    "p-queue": "^8.1.0",
+    "pino": "^8.19.0",
+    "pino-std-serializers": "^7.0.0"
+  }
+}

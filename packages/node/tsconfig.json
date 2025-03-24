@@ -1,5 +1,4 @@
 {
-  // https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html
   "compilerOptions": {
     "module": "node16",
     "target": "es2020",
@@ -9,12 +8,20 @@
     "declaration": true,
     "sourceMap": true,
     "declarationMap": true,
+    "outDir": "dist",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "lib": ["es2020"],
     "rootDir": "src",
-    "outDir": "dist",
     "composite": true
   },
   "include": ["src/**/*"],
-  "exclude": ["dist/**/*"]
+  "exclude": [
+    "dist"
+  ],
+  "references": [
+    { "path": "../models" }
+  ]
 }

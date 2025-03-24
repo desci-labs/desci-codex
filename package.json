@@ -4,12 +4,7 @@
   "description": "DeSci Codex",
   "license": "MIT",
   "author": "Edvard Hübinette",
-  "workspaces": [
-    "packages/lib",
-    "packages/cli",
-    "packages/composedb",
-    "packages/models"
-  ],
+  "private": true,
   "scripts": {
     "lint:fix": "eslint . --fix",
     "lint:check": "eslint .",
@@ -26,5 +21,24 @@
     "prettier": "^3.1.0",
     "typedoc": "^0.25.4",
     "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@ipshipyard/node-datachannel",
+      "@scarf/scarf",
+      "aws-sdk",
+      "classic-level",
+      "esbuild",
+      "go-ipfs",
+      "protobufjs",
+      "secp256k1",
+      "sqlite3",
+      "tiny-secp256k1",
+      "yarn"
+    ]
   }
 }
