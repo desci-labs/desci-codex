@@ -53,7 +53,10 @@ export function createCeramicEventsService(
         }
 
         const table = tableFromIPC(next);
-        log.info({ size: next?.byteLength, numRows: table.numRows }, "got data from feed");
+        log.info(
+          { size: next?.byteLength, numRows: table.numRows },
+          "got data from feed",
+        );
 
         for (const record of table.toArray()) {
           if (record.manifest) {

@@ -11,9 +11,9 @@ import { kadDHT } from "@libp2p/kad-dht";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import logger from "./logger.js";
 import type { FsDatastore } from "datastore-fs";
-import { keychain } from '@libp2p/keychain'
-import { dcutr } from '@libp2p/dcutr'
-import { ping } from '@libp2p/ping'
+import { keychain } from "@libp2p/keychain";
+import { dcutr } from "@libp2p/dcutr";
+import { ping } from "@libp2p/ping";
 import { mplex } from "@libp2p/mplex";
 import { tls } from "@libp2p/tls";
 import { autoNAT } from "@libp2p/autonat";
@@ -25,11 +25,11 @@ const log = logger.child({ module: "libp2p" });
 
 // IPFS bootstrap nodes
 export const BOOTSTRAP_NODES = [
-  '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN',
-  '/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb',
-  '/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt',
-  '/dnsaddr/va1.bootstrap.libp2p.io/p2p/12D3KooWKnDdG3iXw9eTFijk3EWSunZcFi54Zka4wmtqtt6rPxc8',
-  '/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ'
+  "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
+  "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
+  "/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt",
+  "/dnsaddr/va1.bootstrap.libp2p.io/p2p/12D3KooWKnDdG3iXw9eTFijk3EWSunZcFi54Zka4wmtqtt6rPxc8",
+  "/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
 ];
 
 /**
@@ -56,20 +56,11 @@ export async function initLibp2p(datastore: FsDatastore): Promise<Libp2p> {
       tcp(),
       webRTC(),
       webRTCDirect(),
-      webSockets()
+      webSockets(),
     ],
-    connectionEncrypters: [
-      noise(),
-      tls()
-    ],
-    streamMuxers: [
-      yamux(),
-      mplex()
-    ],
-    peerDiscovery: [
-      mdns(),
-      bootstrap({ list: BOOTSTRAP_NODES }),
-    ],
+    connectionEncrypters: [noise(), tls()],
+    streamMuxers: [yamux(), mplex()],
+    peerDiscovery: [mdns(), bootstrap({ list: BOOTSTRAP_NODES })],
     services: {
       autoNAT: autoNAT(),
       autoTLS: autoTLS(),
@@ -80,16 +71,16 @@ export async function initLibp2p(datastore: FsDatastore): Promise<Libp2p> {
         protocol: "/ipfs/kad/1.0.0",
         // This approximates kubo's acceleratedDhtClient mode
         kBucketSize: Infinity,
-        kBucketSplitThreshold: 20
+        kBucketSplitThreshold: 20,
       }),
       identify: identify(),
       identifyPush: identifyPush(),
       keychain: keychain(),
       ping: ping(),
-      upnp: uPnPNAT()
+      upnp: uPnPNAT(),
     },
     connectionManager: {
-      maxConnections: 500
+      maxConnections: 500,
     },
   });
 

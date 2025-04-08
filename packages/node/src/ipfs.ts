@@ -51,10 +51,7 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
           datastore,
           blockstore,
           libp2p,
-          blockBrokers: [
-            trustlessGateway(),
-            bitswap(),
-          ],
+          blockBrokers: [trustlessGateway(), bitswap()],
           routers: [
             httpGatewayRouting({
               gateways: ["https://ipfs.desci.com", "https://pub.desci.com"],
@@ -125,7 +122,10 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
 
         const startTime = Date.now();
         for await (const pinnedCid of helia.pins.add(cidObj)) {
-          log.debug({ cid, block: pinnedCid.toString(), time: Date.now() }, "Pinned block");
+          log.debug(
+            { cid, block: pinnedCid.toString(), time: Date.now() },
+            "Pinned block",
+          );
         }
         const duration = Date.now() - startTime;
         log.info({ cid, duration }, "File pinned successfully");
