@@ -1,8 +1,7 @@
 services:
   ceramic:
-    # PR branch: fix/desci-migration
     image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.54.2
-    container_name: ceramic-one
+    container_name: ceramic-one-local
     restart: on-failure
     # entrypoint: ["/bin/sh", "-c", "sleep infinity"]
     ports:
@@ -18,21 +17,19 @@ services:
       CERAMIC_ONE_SWARM_ADDRESSES: "/ip4/0.0.0.0/tcp/4101,/ip4/0.0.0.0/udp/4102/quic-v1"
       CERAMIC_ONE_METRICS_BIND_ADDRESS: "0.0.0.0:9465"
       CERAMIC_ONE_FLIGHT_SQL_BIND_ADDRESS: "0.0.0.0:5102"
-      CERAMIC_ONE_LOCAL_NETWORK_ID: "0"
-      CERAMIC_ONE_NETWORK: "testnet-clay"
+      # CERAMIC_ONE_LOCAL_NETWORK_ID: "0"
+      CERAMIC_ONE_NETWORK: "inmemory"
       # RUST_LOG: "info,recon::protocol=debug,ceramic_one=debug,multipart=error"
       RUST_LOG: "info,ceramic_one=debug,multipart=error,datafusion_flight_sql_server::service=trace,ceramic_pipeline=info"
       CERAMIC_ONE_LOG_FORMAT: "multi-line"
-    env_file:
-      packages/models/.env
     volumes:
-      - ./local-data/ceramic-one:/data/ceramic-one
+      - ../local-data/local/ceramic-one:/data/ceramic-one
 
   codex-node:
     build:
       context: .
       dockerfile: packages/node/Dockerfile
-    container_name: codex-node
+    container_name: codex-node-local
     restart: on-failure
     ports:
       - 3000:3000 # HTTP API
@@ -43,7 +40,7 @@ services:
       - CERAMIC_ONE_RPC_URL=http://ceramic:5101
       - CERAMIC_ONE_FLIGHT_URL=http://ceramic:5102
     volumes:
-      - ./local-data/codex-node:/app/local-data/codex-node
+      - ../local-data/local/codex-node:/app/local-data/codex-node
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:3000/health"]
       interval: 5s

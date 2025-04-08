@@ -1,0 +1,12 @@
+services:
+  ceramic:
+    container_name: ceramic-one-testnet
+    environment:
+      CERAMIC_ONE_NETWORK: "testnet-clay"
+      CERAMIC_ONE_ETHEREUM_RPC_URLS: "https://gnosis-mainnet.public.blastapi.io"
+    volumes:
+      - ../local-data/dev/ceramic-one:/data/ceramic-one
+  codex-node:
+    container_name: codex-node-testnet
+    volumes:
+      - ../local-data/testnet/codex-node:/app/local-data/codex-node
