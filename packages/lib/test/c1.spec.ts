@@ -15,8 +15,7 @@ import {
   createResearchObject,
   updateResearchObject,
 } from "../src/c1/mutate.js";
-import { DID } from "dids";
-import { didFromPkey } from "../src/clients.js";
+
 import {
   registerModelInterests,
   MODEL_SCHEMAS,
@@ -24,19 +23,16 @@ import {
 import { ModelClient } from "@ceramic-sdk/model-client";
 import { errWithCause } from "pino-std-serializers";
 import { CommitID, randomCID, StreamID } from "@ceramic-sdk/identifiers";
+import { randomDID } from "./util.js";
 
 describe("C1 module", async () => {
+  const testDID = await randomDID();
   let flightClient: FlightSqlClient;
   let modelClient: ModelClient;
   let midClient: ModelInstanceClient;
-  let testDID: DID;
   let testModel: StreamID;
 
   beforeAll(async () => {
-    testDID = await didFromPkey(
-      "7052adea8f9823817065456ecad5bf24dcd31c5cd8277aa825ad6a84c6f369df",
-    );
-
     try {
       modelClient = new ModelClient({
         ceramic: "http://localhost:5101",
