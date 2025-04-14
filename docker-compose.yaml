@@ -1,8 +1,10 @@
 services:
   ceramic:
-    image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.54.1
+    # PR branch: fix/desci-migration
+    image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.54.2
     container_name: ceramic-one
     restart: on-failure
+    # entrypoint: ["/bin/sh", "-c", "sleep infinity"]
     ports:
       - 4101:4101 # swarm TCP
       - 4102:4102 # swarm UDP
@@ -19,23 +21,12 @@ services:
       CERAMIC_ONE_LOCAL_NETWORK_ID: "0"
       CERAMIC_ONE_NETWORK: "testnet-clay"
       # RUST_LOG: "info,recon::protocol=debug,ceramic_one=debug,multipart=error"
-      RUST_LOG: "info,ceramic_one=debug,multipart=error,datafusion_flight_sql_server::service=trace"
+      RUST_LOG: "info,ceramic_one=debug,multipart=error,datafusion_flight_sql_server::service=trace,ceramic_pipeline=info"
       CERAMIC_ONE_LOG_FORMAT: "multi-line"
     env_file:
       packages/models/.env
     volumes:
       - ./local-data/ceramic-one:/data/ceramic-one
-    # healthcheck:
-    #   test:
-    #     [
-    #       "CMD",
-    #       "curl",
-    #       "--fail-with-body",
-    #       "http://localhost:5101/ceramic/liveness",
-    #     ]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 5
 
   codex-node:
     build:
@@ -50,6 +41,7 @@ services:
       - PORT=3000
       - IPFS_DATA_DIR=/app/local-data/codex-node
       - CERAMIC_ONE_RPC_URL=http://ceramic:5101
+      - CERAMIC_ONE_FLIGHT_URL=http://ceramic:5102
     volumes:
       - ./local-data/codex-node:/app/local-data/codex-node
     healthcheck:
@@ -60,31 +52,3 @@ services:
     depends_on:
       ceramic:
         condition: service_started
-  
-  # ceramic-debug:
-  #   image: ceramic-one-debug:latest
-  #   container_name: ceramic-one-debug
-  #   restart: on-failure
-  #   entrypoint: tail -f /dev/null
-  #   ports:
-  #     - 4101:4101 # swarm TCP
-  #     - 4102:4102 # swarm UDP
-  #     - 5101:5101 # RPC
-  #     - 5102:5102 # flight SQL (> v0.53.0)
-  #     - 9465:9465 # prometheus metrics
-  #   environment:
-  #     CERAMIC_ONE_STORE_DIR: "/data/ceramic-one"
-  #     CERAMIC_ONE_P2P_KEY_DIR: "/data/ceramic-one"
-  #     CERAMIC_ONE_BIND_ADDRESS: "0.0.0.0:5101"
-  #     CERAMIC_ONE_SWARM_ADDRESSES: "/ip4/0.0.0.0/tcp/4101,/ip4/0.0.0.0/udp/4102/quic-v1"
-  #     CERAMIC_ONE_METRICS_BIND_ADDRESS: "0.0.0.0:9465"
-  #     CERAMIC_ONE_FLIGHT_SQL_BIND_ADDRESS: "0.0.0.0:5102"
-  #     CERAMIC_ONE_LOCAL_NETWORK_ID: "0"
-  #     CERAMIC_ONE_NETWORK: "testnet-clay"
-  #     # RUST_LOG: "info,ceramic_one=debug,multipart=error,ceramic_event_svc=debug"
-  #     RUST_LOG: "debug"
-  #     CERAMIC_ONE_LOG_FORMAT: "multi-line"
-  #   env_file:
-  #     packages/models/.env
-  #   volumes:
-  #     - ./local-data/ceramic-one-debug:/data/ceramic-one

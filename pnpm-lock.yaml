@@ -152,12 +152,27 @@ importers:
 
   packages/lib:
     dependencies:
+      '@ceramic-sdk/flight-sql-client':
+        specifier: ^0.7.0
+        version: 0.7.0
+      '@ceramic-sdk/model-instance-client':
+        specifier: ^0.9.0
+        version: 0.9.0(typescript@5.8.2)
+      '@ceramicnetwork/common':
+        specifier: ^6.4.0
+        version: 6.4.0(encoding@0.1.13)(typescript@5.8.2)
+      '@ceramicnetwork/http-client':
+        specifier: ^5.2.0
+        version: 5.16.0(encoding@0.1.13)(typescript@5.8.2)
+      '@ceramicnetwork/streamid':
+        specifier: ^5.6.0
+        version: 5.6.0
       '@composedb/client':
         specifier: ^0.7.1
-        version: 0.7.1(typescript@5.8.2)
+        version: 0.7.1(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.2)
       '@desci-labs/desci-codex-composedb':
         specifier: ^2.0.1
-        version: 2.0.2(typescript@5.8.2)
+        version: 2.0.2(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.2)
       dids:
         specifier: ^5.0.2
         version: 5.0.3(typescript@5.8.2)
@@ -177,6 +192,9 @@ importers:
         specifier: ^4.0.6
         version: 4.0.10
     devDependencies:
+      '@composedb/types':
+        specifier: ^0.7.1
+        version: 0.7.1(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.2)
       tsx:
         specifier: ^4.7.1
         version: 4.19.3
@@ -221,8 +239,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1(typescript@5.8.2)
       '@chainsafe/libp2p-noise':
-        specifier: ^16.0.3
-        version: 16.0.3
+        specifier: ^16.1.0
+        version: 16.1.0
       '@chainsafe/libp2p-yamux':
         specifier: ^7.0.1
         version: 7.0.1
@@ -232,6 +250,9 @@ importers:
       '@helia/block-brokers':
         specifier: ^4.1.0
         version: 4.1.0
+      '@helia/delegated-routing-v1-http-api-client':
+        specifier: ^4.2.2
+        version: 4.2.2
       '@helia/routers':
         specifier: ^3.0.1
         version: 3.0.1
@@ -241,24 +262,54 @@ importers:
       '@helia/verified-fetch':
         specifier: ^2.6.4
         version: 2.6.4(encoding@0.1.13)(react-native@0.78.0(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(react@19.0.0))
+      '@ipshipyard/libp2p-auto-tls':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@libp2p/autonat':
+        specifier: ^2.0.28
+        version: 2.0.28
       '@libp2p/bootstrap':
-        specifier: ^11.0.31
+        specifier: ^11.0.32
         version: 11.0.32
       '@libp2p/circuit-relay-v2':
-        specifier: ^3.2.7
+        specifier: ^3.2.8
         version: 3.2.8
+      '@libp2p/config':
+        specifier: ^1.1.4
+        version: 1.1.4
+      '@libp2p/dcutr':
+        specifier: ^2.0.27
+        version: 2.0.27
       '@libp2p/identify':
-        specifier: ^3.0.26
+        specifier: ^3.0.27
         version: 3.0.27
       '@libp2p/kad-dht':
         specifier: ^14.2.15
         version: 14.2.15
+      '@libp2p/keychain':
+        specifier: ^5.1.4
+        version: 5.1.4
       '@libp2p/mdns':
         specifier: ^11.0.32
         version: 11.0.32
+      '@libp2p/mplex':
+        specifier: ^11.0.32
+        version: 11.0.32
+      '@libp2p/ping':
+        specifier: ^2.0.27
+        version: 2.0.27
       '@libp2p/tcp':
-        specifier: ^10.1.7
+        specifier: ^10.1.8
         version: 10.1.8
+      '@libp2p/tls':
+        specifier: ^2.1.1
+        version: 2.1.1
+      '@libp2p/upnp-nat':
+        specifier: ^3.1.11
+        version: 3.1.11
+      '@libp2p/webrtc':
+        specifier: ^5.2.9
+        version: 5.2.9(react-native@0.78.0(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(react@19.0.0))
       '@libp2p/websockets':
         specifier: ^9.2.8
         version: 9.2.8
@@ -1168,6 +1219,10 @@ packages:
     resolution: {integrity: sha512-/qdbPZKRoBqJtYhRDi6IYFFMyBMZWEzVTficm+lb0GZr9PzgcCcmfJAKuo0WEC0umMDR1XypEvJQwrq7GJNxMw==}
     engines: {node: '>=20'}
 
+  '@ceramic-sdk/events@0.9.0':
+    resolution: {integrity: sha512-7w3qLK2kZGB4YDIGkq+Fh9DnTL1cIHPQfdckGW8t7oPvdVasn9/llPQK60N7PSh999pyCsJI73EJqjTzVJlhIg==}
+    engines: {node: '>=20'}
+
   '@ceramic-sdk/flight-sql-client-darwin-arm64@0.7.0':
     resolution: {integrity: sha512-BImNBMqBnBBfOyfzz3YYpnwcj3+3dMnI8gXN8V0xYyWNy6L5JrevvPEsPm0OYuodj+jPwExeCedika63nYyAEw==}
     engines: {node: '>= 10'}
@@ -1194,12 +1249,32 @@ packages:
     resolution: {integrity: sha512-ahxzIQfI+qz1YlAtLZuxrwu25QZxRi9Qg9+W0W7SQQCEOvzY2Mw8tw+6vsnLkb2poWVG56cNjp+U9bP2hggEZw==}
     engines: {node: '>=20'}
 
+  '@ceramic-sdk/http-client@0.9.0':
+    resolution: {integrity: sha512-4CR8/9MkQhSN9iHDOFTTpvB4PhNFrulo3weUtcgBIUdjlciJ2Lj88XL4zkCJJvMSA6CJ4g0YcjUU22nOXNDvEA==}
+    engines: {node: '>=20'}
+
   '@ceramic-sdk/identifiers@0.2.0':
     resolution: {integrity: sha512-ulefGj/oq/F5TCZsS1J2DTvXwJcGPZYIbkR7e+MybP7JyBF0QSrSgXjqHK1VnRRyJ1aI5OYolXhDhEwBX6Q2Lw==}
     engines: {node: '>=20'}
 
+  '@ceramic-sdk/identifiers@0.9.0':
+    resolution: {integrity: sha512-SD7kUPyJ909T8uTO62mAlT1s/GeByTkJ5MimMgYefGaZ4VDj0vqeY6sIFffc5nyzZtKhWRb+vvbZiKo4ejK0sQ==}
+    engines: {node: '>=20'}
+
+  '@ceramic-sdk/model-instance-client@0.9.0':
+    resolution: {integrity: sha512-WDcObfUFbRBxILYxhGqcWmvkvt94XhkrNK4HL2CA1c5pDESMYN0hzcFcJv3kiBV0JU97bGnRPIFfTzpVG6o2fQ==}
+    engines: {node: '>=20'}
+
+  '@ceramic-sdk/model-instance-protocol@0.9.0':
+    resolution: {integrity: sha512-WeNRdzCN8vDzzyNbzUoG3Ttw4Zqor1MvB9mLEWa9nuQJKhQnDu8fAGUtv4fQfGAU7LLu2q5FjHgpOvhN6ANETw==}
+    engines: {node: '>=20'}
+
   '@ceramic-sdk/model-protocol@0.2.1':
     resolution: {integrity: sha512-eLQ3L9O18nTlHTsyKxoxvmSrYbkBd3ND82sdYcWLTrA7HayLj7Un0Cp6euYNb3/Imng6nFttTFxw+4AftJZaGw==}
+    engines: {node: '>=20'}
+
+  '@ceramic-sdk/stream-client@0.9.0':
+    resolution: {integrity: sha512-RvPIq0qjScjRA/mQo/MkufFOoXttat0pYYSzNnSq8T87loxob4HAtx+lnvQm2rrQse3Ye5pzoPqg+GZQuu9csA==}
     engines: {node: '>=20'}
 
   '@ceramicnetwork/3id-did-resolver@5.16.0':
@@ -1233,6 +1308,9 @@ packages:
 
   '@ceramicnetwork/common@5.15.0':
     resolution: {integrity: sha512-yseYMFT36Ty9FAUuYv5yqygQ4H1jGGfxcjKEYSNDBwczMjVKYsPm77/txzpFDDjOWiVM4hHlM15bPiRVXW4L4w==}
+
+  '@ceramicnetwork/common@6.4.0':
+    resolution: {integrity: sha512-awLgRGhMpGtJwTiIFebSDbuKTlir0RdmsePZO7qmXQYoiaML7SDPr88mDZvzucrNkOyzIVzKhQPA1qJ9YiCvcg==}
 
   '@ceramicnetwork/core@5.16.0':
     resolution: {integrity: sha512-mRTbGJGaHZjTzGuc+GsS1qBmwcqrXAzUioXMYya9n8D5AoIjYAaJANJXKXd4+aOUwFGlx099MSMwu12FIOy9sA==}
@@ -1317,8 +1395,8 @@ packages:
   '@chainsafe/is-ip@2.1.0':
     resolution: {integrity: sha512-KIjt+6IfysQ4GCv66xihEitBjvhU/bixbbbFxdJ1sqCp4uJ0wuZiYBPhksZoy4lfaF0k9cwNzY5upEW/VWdw3w==}
 
-  '@chainsafe/libp2p-noise@16.0.3':
-    resolution: {integrity: sha512-g09b2AP7exCVZddN/QB0+MPNc6kc3CyLpNBrNBUlrPRNjKNdx88AM1IcK+e/QCdLFiaY5/27C4GhHOc/VBHd/A==}
+  '@chainsafe/libp2p-noise@16.1.0':
+    resolution: {integrity: sha512-GJA/i5pd6VmetxokvnPlEbVCeL7SfLHkSuUHwbJ4w0u7dZUbse4Hr8SA8RYGwNHbZr2TEKFC9WerhvMWbciIrQ==}
 
   '@chainsafe/libp2p-yamux@7.0.1':
     resolution: {integrity: sha512-949MI0Ll0AsYq1gUETZmL/MijwX0jilOQ1i4s8wDEXGiMhuPWWiMsPgEnX6n+VzFmTrfNYyGaaJj5/MqxV9y/g==}
@@ -6054,10 +6132,6 @@ packages:
     resolution: {integrity: sha512-BhyluvGps26u9a7eQIpOI1YN7mFgi8lFwmiPi07whewbBARKAG9LE09Odc8s1Wtbt2MB6rNUrl7j9vvfXTJwdQ==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
 
-  it-length-prefixed@9.1.1:
-    resolution: {integrity: sha512-O88nBweT6M9ozsmok68/auKH7ik/slNM4pYbM9lrfy2z5QnpokW5SlrepHZDKtN71llhG2sZvd6uY4SAl+lAQg==}
-    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
-
   it-length@3.0.7:
     resolution: {integrity: sha512-URrszwrzPrUn6PtsSFcixG4NwHydaARmPubO0UUnFH+NSNylBaGtair1fnxX7Zf2qVJQltPBVs3PZvcmFPTLXA==}
 
@@ -10426,6 +10500,22 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@ceramic-sdk/events@0.9.0(typescript@5.8.2)':
+    dependencies:
+      '@ceramic-sdk/identifiers': 0.9.0
+      '@didtools/codecs': 3.0.0
+      '@ipld/dag-cbor': 9.2.2
+      '@ipld/dag-json': 10.2.3
+      cartonne: 3.0.1
+      codeco: 1.4.3
+      dag-jose: 5.1.1
+      multiformats: 13.3.2
+      multihashes-sync: 2.0.0
+      ts-essentials: 10.0.4(typescript@5.8.2)
+      uint8arrays: 5.1.0
+    transitivePeerDependencies:
+      - typescript
+
   '@ceramic-sdk/flight-sql-client-darwin-arm64@0.7.0':
     optional: true
 
@@ -10448,6 +10538,13 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@ceramic-sdk/http-client@0.9.0(typescript@5.8.2)':
+    dependencies:
+      '@ceramic-sdk/events': 0.9.0(typescript@5.8.2)
+      openapi-fetch: 0.12.5
+    transitivePeerDependencies:
+      - typescript
+
   '@ceramic-sdk/identifiers@0.2.0':
     dependencies:
       '@ipld/dag-cbor': 9.2.2
@@ -10456,6 +10553,38 @@ snapshots:
       multiformats: 13.3.2
       uint8arrays: 5.1.0
       varint: 6.0.0
+
+  '@ceramic-sdk/identifiers@0.9.0':
+    dependencies:
+      '@ipld/dag-cbor': 9.2.2
+      codeco: 1.4.3
+      mapmoize: 1.2.1
+      multiformats: 13.3.2
+      uint8arrays: 5.1.0
+      varint: 6.0.0
+
+  '@ceramic-sdk/model-instance-client@0.9.0(typescript@5.8.2)':
+    dependencies:
+      '@ceramic-sdk/events': 0.9.0(typescript@5.8.2)
+      '@ceramic-sdk/identifiers': 0.9.0
+      '@ceramic-sdk/model-instance-protocol': 0.9.0(typescript@5.8.2)
+      '@ceramic-sdk/stream-client': 0.9.0(typescript@5.8.2)
+      '@didtools/codecs': 3.0.0
+      fast-json-patch: 3.1.1
+      multiformats: 13.3.2
+    transitivePeerDependencies:
+      - typescript
+
+  '@ceramic-sdk/model-instance-protocol@0.9.0(typescript@5.8.2)':
+    dependencies:
+      '@ceramic-sdk/events': 0.9.0(typescript@5.8.2)
+      '@ceramic-sdk/identifiers': 0.9.0
+      '@didtools/codecs': 3.0.0
+      codeco: 1.4.3
+      object-sizeof: 2.6.5
+      ts-essentials: 10.0.4(typescript@5.8.2)
+    transitivePeerDependencies:
+      - typescript
 
   '@ceramic-sdk/model-protocol@0.2.1(typescript@5.8.2)':
     dependencies:
@@ -10473,6 +10602,13 @@ snapshots:
       - typescript
       - utf-8-validate
       - zod
+
+  '@ceramic-sdk/stream-client@0.9.0(typescript@5.8.2)':
+    dependencies:
+      '@ceramic-sdk/http-client': 0.9.0(typescript@5.8.2)
+      '@ceramic-sdk/identifiers': 0.9.0
+    transitivePeerDependencies:
+      - typescript
 
   '@ceramicnetwork/3id-did-resolver@5.16.0(encoding@0.1.13)(typescript@5.8.2)':
     dependencies:
@@ -10682,6 +10818,33 @@ snapshots:
       lodash.clonedeep: 4.5.0
       logfmt: 1.4.0
       multiformats: 13.3.2
+      rxjs: 7.8.2
+      uint8arrays: 5.1.0
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+      - zod
+
+  '@ceramicnetwork/common@6.4.0(encoding@0.1.13)(typescript@5.8.2)':
+    dependencies:
+      '@ceramicnetwork/streamid': 5.6.0
+      '@didtools/cacao': 3.0.1(typescript@5.8.2)
+      '@didtools/key-webauthn': 2.0.2(typescript@5.8.2)
+      '@didtools/pkh-ethereum': 0.2.1
+      '@didtools/pkh-solana': 0.2.0(typescript@5.8.2)
+      '@didtools/pkh-stacks': 0.2.0(encoding@0.1.13)(typescript@5.8.2)
+      '@didtools/pkh-tezos': 0.3.0(typescript@5.8.2)
+      '@ipld/dag-cbor': 9.2.2
+      '@stablelib/random': 1.0.2
+      caip: 1.1.1
+      flat: 5.0.2
+      it-first: 3.0.7
+      jet-logger: 1.2.2
+      lodash.clonedeep: 4.5.0
+      logfmt: 1.4.0
+      multiformats: 13.1.3
       rxjs: 7.8.2
       uint8arrays: 5.1.0
     transitivePeerDependencies:
@@ -11195,7 +11358,7 @@ snapshots:
 
   '@chainsafe/is-ip@2.1.0': {}
 
-  '@chainsafe/libp2p-noise@16.0.3':
+  '@chainsafe/libp2p-noise@16.1.0':
     dependencies:
       '@chainsafe/as-chacha20poly1305': 0.1.0
       '@chainsafe/as-sha256': 1.0.1
@@ -11205,7 +11368,7 @@ snapshots:
       '@noble/ciphers': 1.2.1
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
-      it-length-prefixed: 9.1.1
+      it-length-prefixed: 10.0.1
       it-length-prefixed-stream: 1.2.1
       it-pair: 2.0.6
       it-pipe: 3.0.1
@@ -11543,6 +11706,25 @@ snapshots:
   '@datastructures-js/priority-queue@6.3.2':
     dependencies:
       '@datastructures-js/heap': 4.3.3
+
+  '@desci-labs/desci-codex-composedb@2.0.2(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.2)':
+    dependencies:
+      '@composedb/types': 0.7.1(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.2)
+    transitivePeerDependencies:
+      - '@polkadot/util'
+      - better-sqlite3
+      - bluebird
+      - bufferutil
+      - debug
+      - encoding
+      - mysql
+      - mysql2
+      - pg-native
+      - supports-color
+      - tedious
+      - typescript
+      - utf-8-validate
+      - zod
 
   '@desci-labs/desci-codex-composedb@2.0.2(typescript@5.8.2)':
     dependencies:
@@ -13352,7 +13534,7 @@ snapshots:
   '@libp2p/webrtc@5.2.9(react-native@0.78.0(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(react@19.0.0))':
     dependencies:
       '@chainsafe/is-ip': 2.1.0
-      '@chainsafe/libp2p-noise': 16.0.3
+      '@chainsafe/libp2p-noise': 16.1.0
       '@ipshipyard/node-datachannel': 0.26.5
       '@libp2p/interface': 2.7.0
       '@libp2p/interface-internal': 2.3.9
@@ -14761,7 +14943,7 @@ snapshots:
 
   '@types/bn.js@5.1.6':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
 
   '@types/body-parser@1.19.5':
     dependencies:
@@ -14770,13 +14952,13 @@ snapshots:
 
   '@types/bs58check@2.1.2':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
 
   '@types/cacheable-request@6.0.3':
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
       '@types/responselike': 1.0.3
 
   '@types/chai-subset@1.3.6(@types/chai@4.3.20)':
@@ -14799,7 +14981,7 @@ snapshots:
 
   '@types/dns-packet@5.6.5':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
 
   '@types/estree@1.0.6': {}
 
@@ -14843,7 +15025,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
 
   '@types/lodash@4.17.16': {}
 
@@ -14856,11 +15038,11 @@ snapshots:
   '@types/multicast-dns@7.2.4':
     dependencies:
       '@types/dns-packet': 5.6.5
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
 
   '@types/mute-stream@0.0.4':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
 
   '@types/node-forge@1.3.11':
     dependencies:
@@ -14894,7 +15076,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
 
   '@types/retry@0.12.2': {}
 
@@ -14923,7 +15105,7 @@ snapshots:
 
   '@types/ws@8.18.0':
     dependencies:
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -15753,7 +15935,7 @@ snapshots:
 
   c32check@2.0.0:
     dependencies:
-      '@noble/hashes': 1.1.5
+      '@noble/hashes': 1.7.1
       base-x: 4.0.1
 
   cac@6.7.14: {}
@@ -17494,7 +17676,7 @@ snapshots:
 
   helia@5.3.0(react-native@0.78.0(@babel/core@7.26.10)(@babel/preset-env@7.26.9(@babel/core@7.26.10))(react@19.0.0)):
     dependencies:
-      '@chainsafe/libp2p-noise': 16.0.3
+      '@chainsafe/libp2p-noise': 16.1.0
       '@chainsafe/libp2p-yamux': 7.0.1
       '@helia/block-brokers': 4.1.0
       '@helia/delegated-routing-v1-http-api-client': 4.2.2
@@ -17844,7 +18026,7 @@ snapshots:
       it-to-stream: 1.0.0
       merge-options: 3.0.4
       nanoid: 3.3.11
-      native-fetch: 3.0.0(node-fetch@2.7.0(encoding@0.1.13))
+      native-fetch: 3.0.0(node-fetch@2.7.0)
       node-fetch: 2.7.0(encoding@0.1.13)
       react-native-fetch-api: 3.0.0
       stream-to-it: 0.2.4
@@ -18140,14 +18322,6 @@ snapshots:
       uint8arraylist: 2.4.8
 
   it-length-prefixed@10.0.1:
-    dependencies:
-      it-reader: 6.0.4
-      it-stream-types: 2.0.2
-      uint8-varint: 2.0.4
-      uint8arraylist: 2.4.8
-      uint8arrays: 5.1.0
-
-  it-length-prefixed@9.1.1:
     dependencies:
       it-reader: 6.0.4
       it-stream-types: 2.0.2
@@ -19182,7 +19356,7 @@ snapshots:
 
   napi-macros@2.2.2: {}
 
-  native-fetch@3.0.0(node-fetch@2.7.0(encoding@0.1.13)):
+  native-fetch@3.0.0(node-fetch@2.7.0):
     dependencies:
       node-fetch: 2.7.0(encoding@0.1.13)
 
@@ -19827,7 +20001,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 20.17.24
+      '@types/node': 20.17.27
       long: 5.3.1
 
   protons-runtime@5.5.0:

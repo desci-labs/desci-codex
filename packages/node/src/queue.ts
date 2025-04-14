@@ -5,7 +5,7 @@ import { errWithCause } from "pino-std-serializers";
 const log = logger.child({ module: "queue" });
 
 // Create manifest processing queue with concurrency limit
-const manifestQueue = new PQueue({ concurrency: 3 });
+const manifestQueue = new PQueue({ concurrency: 10 });
 
 // Statistics for monitoring
 let totalQueued = 0;
@@ -35,9 +35,10 @@ export const queueManifest = (manifest: string, retryCount = 0) => {
   }
 
   totalQueued++;
-  log.debug(
+  log.info(
     {
       manifest,
+      done: totalProcessed,
       queueSize: manifestQueue.size,
       queuePending: manifestQueue.pending,
       retryCount,

@@ -19,8 +19,8 @@
 **/local-data
 
 # Docker files themselves
-Dockerfile
-.dockerignore
+**/*Dockerfile
+**/*dockerignore
 
 # Other unnecessary files
 .husky
@@ -32,3 +32,4 @@ Dockerfile
 .graphqlrc
 .gitignore
 codex.png
+**/*.tsbuildinfo

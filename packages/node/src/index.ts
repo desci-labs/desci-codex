@@ -101,6 +101,16 @@ app.get("/test/:cid", async (req, res) => {
   }
 });
 
+app.post("/reprovide", async (req, res) => {
+  try {
+    res.status(200).json({ message: "Starting reprovide..." });
+    await ipfsNode.reprovide();
+  } catch (error) {
+    log.error(error, "Error reproviding");
+    res.status(500).json({ error: errWithCause(error as Error) });
+  }
+});
+
 // Pin a file
 app.post("/pin/:cid", async (req, res) => {
   try {
@@ -180,15 +190,35 @@ app.listen(port, async () => {
   }
 });
 
+async function gracefulShutdown() {
+  log.info("Shutting down gracefully...");
+  try {
+    await ceramicEventsService.stop();
+  } catch (error) {
+    log.fatal(error, "Error during event service shutdown");
+  }
+
+  try {
+    await ipfsNode.stop();
+  } catch (error) {
+    log.fatal(error, "Error during IPFS node shutdown");
+  }
+  log.info("Graceful shutdown done");
+}
+
 // Handle graceful shutdown
 process.on("SIGTERM", async () => {
   log.info("Received SIGTERM signal. Shutting down gracefully...");
-  try {
-    await ceramicEventsService.stop();
-    await ipfsNode.stop();
-    process.exit(0);
-  } catch (error) {
-    log.fatal(error, "Error during shutdown");
-    process.exit(1);
-  }
+  await gracefulShutdown();
+});
+
+process.on("SIGINT", async () => {
+  log.info("Received SIGINT signal. Shutting down gracefully...");
+  await gracefulShutdown();
+});
+
+process.on("uncaughtException", async (error) => {
+  log.fatal(error, "Uncaught exception");
+  await gracefulShutdown();
+  process.exit(1);
 });

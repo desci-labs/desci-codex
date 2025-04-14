@@ -3,63 +3,93 @@ import { tcp } from "@libp2p/tcp";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { bootstrap } from "@libp2p/bootstrap";
-import { identify } from "@libp2p/identify";
+import { identify, identifyPush } from "@libp2p/identify";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import { webSockets } from "@libp2p/websockets";
 import { mdns } from "@libp2p/mdns";
 import { kadDHT } from "@libp2p/kad-dht";
+import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import logger from "./logger.js";
+import type { FsDatastore } from "datastore-fs";
+import { keychain } from '@libp2p/keychain'
+import { dcutr } from '@libp2p/dcutr'
+import { ping } from '@libp2p/ping'
+import { mplex } from "@libp2p/mplex";
+import { tls } from "@libp2p/tls";
+import { autoNAT } from "@libp2p/autonat";
+import { autoTLS } from "@ipshipyard/libp2p-auto-tls";
+import { uPnPNAT } from "@libp2p/upnp-nat";
+import { loadOrCreateSelfKey } from "@libp2p/config";
 
 const log = logger.child({ module: "libp2p" });
 
 // IPFS bootstrap nodes
 export const BOOTSTRAP_NODES = [
-  "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
-  "/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
-  "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
-  "/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt",
-  "/dnsaddr/node0.preload.ipfs.io/tcp/443/wss/p2p/QmZMxNdpMkewWLVYC098bEsr2eQJY3z3aXSKi4m3LhpXgG",
-  "/dnsaddr/node1.preload.ipfs.io/tcp/443/wss/p2p/Qmbut9Ywz9YEDrz8ySBSgWyJk41Uvm2QJPhwDJzJyGFsD6",
-  "/dnsaddr/node2.preload.ipfs.io/tcp/443/wss/p2p/QmV7gnbW5VTcJ3oyM2Xk1rdFBJ3kTkvxc87UFGsun29STS",
-  "/dnsaddr/node3.preload.ipfs.io/tcp/443/wss/p2p/QmY7JB6MQXhxHvq7dBDh4HpbH29v2y2PJ1YYWihMpQhkW6",
+  '/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN',
+  '/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb',
+  '/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt',
+  '/dnsaddr/va1.bootstrap.libp2p.io/p2p/12D3KooWKnDdG3iXw9eTFijk3EWSunZcFi54Zka4wmtqtt6rPxc8',
+  '/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ'
 ];
 
 /**
  * Creates and configures a libp2p instance for use with Helia
  */
-export async function initLibp2p(): Promise<Libp2p> {
+export async function initLibp2p(datastore: FsDatastore): Promise<Libp2p> {
   // Create libp2p node
   const libp2p = await createLibp2p({
+    datastore,
+    privateKey: await loadOrCreateSelfKey(datastore),
     addresses: {
       listen: [
-        "/ip4/0.0.0.0/tcp/0", // Keep dynamic port for flexibility
-        "/ip4/0.0.0.0/tcp/4001", // Add standard IPFS port
+        "/ip4/0.0.0.0/tcp/0",
+        "/ip4/0.0.0.0/tcp/0/ws",
+        "/ip4/0.0.0.0/udp/0/webrtc-direct",
+        "/ip6/::/tcp/0",
+        "/ip6/::/tcp/0/ws",
+        "/ip6/::/udp/0/webrtc-direct",
+        "/p2p-circuit",
       ],
     },
     transports: [
-      tcp(),
       circuitRelayTransport(),
-      webSockets(), // Add WebSocket support for better connectivity
+      tcp(),
+      webRTC(),
+      webRTCDirect(),
+      webSockets()
     ],
-    connectionEncrypters: [noise()],
-    streamMuxers: [yamux()],
+    connectionEncrypters: [
+      noise(),
+      tls()
+    ],
+    streamMuxers: [
+      yamux(),
+      mplex()
+    ],
     peerDiscovery: [
-      bootstrap({
-        list: BOOTSTRAP_NODES,
-      }),
-      mdns(), // Enable local network discovery
+      mdns(),
+      bootstrap({ list: BOOTSTRAP_NODES }),
     ],
     services: {
-      identify: identify({
-        protocolPrefix: "ipfs",
-      }),
+      autoNAT: autoNAT(),
+      autoTLS: autoTLS(),
+      dcutr: dcutr(),
+      // delegatedRouting: () => createDelegatedRoutingV1HttpApiClient('https://delegated-ipfs.dev', delegatedHTTPRoutingDefaults()),
       dht: kadDHT({
-        clientMode: true, // Run as a DHT client instead of full node
+        clientMode: true,
         protocol: "/ipfs/kad/1.0.0",
+        // This approximates kubo's acceleratedDhtClient mode
+        kBucketSize: Infinity,
+        kBucketSplitThreshold: 20
       }),
+      identify: identify(),
+      identifyPush: identifyPush(),
+      keychain: keychain(),
+      ping: ping(),
+      upnp: uPnPNAT()
     },
     connectionManager: {
-      maxConnections: 100, // Increase connection limit
+      maxConnections: 500
     },
   });
 
@@ -69,8 +99,6 @@ export async function initLibp2p(): Promise<Libp2p> {
   // Set up connection monitoring
   setupConnectionMonitoring(libp2p);
 
-  // Log bootstrap process
-  log.info({ bootstrapNodes: BOOTSTRAP_NODES }, "Starting bootstrap process");
   log.info(
     {
       listenAddrs: libp2p.getMultiaddrs().map((addr) => addr?.toString()),

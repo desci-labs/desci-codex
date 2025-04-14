@@ -32,50 +32,36 @@ export function createCeramicEventsService(
       return;
     }
 
-    let lastEventStateOrder = 0;
-    let firstEventStateOrder;
     try {
+      const feed = await client.feedQuery(
+        `
+          select event_state_order,data::varchar->'content'->>'manifest' as manifest
+          from event_states_feed
+          where stream_id_string(arrow_cast(dimension_extract(dimensions, 'model'),'Binary')) = '${config.modelId}'
+        `,
+      );
+
       while (isRunning) {
-        const result = await client.query(
-          `
-            select event_state_order,data::varchar->'content'->>'manifest' as manifest
-            from event_states -- _feed
-            where stream_id_string(arrow_cast(dimension_extract(dimensions, 'model'),'Binary')) = '${config.modelId}'
-              and event_state_order > ${lastEventStateOrder}
-            -- order by event_state_order asc
-            limit 1
-          `,
-        );
+        log.info("Waiting for new feed data...");
+        const next = await feed.next();
 
-        const table = tableFromIPC(result);
-        logger.info(
-          { length: table.numRows, cols: table.numCols },
-          "Received query response",
-        );
-
-        if (table.numRows === 0) {
-          log.info(
-            { processed: lastEventStateOrder - firstEventStateOrder },
-            "No more events, snoozing...",
-          );
+        if (next === null) {
+          // This is probably the permanent end of the feed, i.e. a limit in the query was reached
+          log.info("No more events in feed, snoozing...");
           await sleep(5_000);
           continue;
         }
 
-        for (const record of table.toArray()) {
-          log.info({ record }, "Received event");
-          if (!firstEventStateOrder) {
-            firstEventStateOrder = record.event_state_order;
-          }
-          lastEventStateOrder = record.event_state_order;
+        const table = tableFromIPC(next);
+        log.info({ size: next?.byteLength, numRows: table.numRows }, "got data from feed");
 
+        for (const record of table.toArray()) {
           if (record.manifest) {
             queueManifest(record.manifest);
+          } else {
+            log.warn("Received event with no manifest", { record });
           }
         }
-
-        // Small delay between queries to aid while testing
-        await new Promise((resolve) => setTimeout(resolve, 2_500));
       }
     } catch (error) {
       log.error(error, "Error streaming events");

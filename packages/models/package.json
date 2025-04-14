@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc",
     "register": "tsx src/index.ts",
-    "prepare": "tsc"
+    "prepare": "tsc",
+    "clean": "tsc --build --clean"
   },
   "author": "Edvard Hübinette",
   "license": "MIT",
