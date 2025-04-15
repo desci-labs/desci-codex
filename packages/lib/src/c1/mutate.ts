@@ -8,11 +8,13 @@ export const createResearchObject = async (
   client: ModelInstanceClient,
   controller: DID,
   content: ResearchObject,
+  /** The model to use for the research object. Defaults to the research object model. */
+  model?: StreamID,
 ): Promise<NodeIDs> => {
   const commit = await client.createInstance({
     controller,
     content,
-    model: new StreamID("MID", MODEL_IDS.researchObject),
+    model: model ?? StreamID.fromString(MODEL_IDS.researchObject),
   });
 
   return {
@@ -29,7 +31,10 @@ export const updateResearchObject = async (
   const state = await client.updateDocument({
     streamID: content.id,
     controller,
-    newContent: content,
+    newContent: {
+      ...content,
+      id: undefined, // Remove the id from the content as it's not part of the model
+    },
   });
 
   return {

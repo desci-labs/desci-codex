@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { fileURLToPath } from "url";
-import { MODEL_IDS } from "./models.js";
+import { MODEL_IDS, MODEL_SCHEMAS } from "./models.js";
 import { registerModelInterests } from "./interests.js";
 
 // Only run if this is the main module (directly executed)
@@ -12,4 +12,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   await registerModelInterests(CERAMIC_ONE_RPC_URL);
 }
 
-export { MODEL_IDS, registerModelInterests };
+export { MODEL_IDS, MODEL_SCHEMAS, registerModelInterests };

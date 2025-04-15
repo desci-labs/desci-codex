@@ -18,10 +18,11 @@ type C1ResearchObject = {
 
 export const listResearchObjects = async (
   client: FlightSqlClient,
+  model?: StreamID,
 ): Promise<C1ResearchObject[]> => {
   const raw = await instantQuery<RawResearchObject>(
     client,
-    allResearchObjectsQuery,
+    allResearchObjectsQuery(model?.toString()),
   );
   return raw.map((row) => ({
     owner: row.controller,

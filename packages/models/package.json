@@ -4,7 +4,10 @@
   "description": "Model definitions and management for CODEX",
   "type": "module",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./models": "./dist/models.js"
+  },
   "scripts": {
     "build": "tsc",
     "register": "tsx src/index.ts",

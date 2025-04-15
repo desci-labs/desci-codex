@@ -1,9 +1,9 @@
-import { MODEL_STREAM_ID } from "@ceramic-sdk/model-protocol";
+import { MODEL_STREAM_ID, ModelDefinition } from "@ceramic-sdk/model-protocol";
 
 const RESEARCH_OBJECT =
   "kjzl6hvfrbw6cbe01it6hlcwopsv4cqrqysho4f1xd7rtqxew9yag3x2wxczhz0";
 
-const _RESEARCH_OBJECT_SCHEMA = {
+const RESEARCH_OBJECT_SCHEMA = {
   accountRelation: {
     type: "list",
   },
@@ -51,10 +51,15 @@ const _RESEARCH_OBJECT_SCHEMA = {
       type: "documentVersion",
     },
   },
-};
+} satisfies ModelDefinition;
 
 export const MODEL_IDS = {
   /** The model for model streams, a protocol constant */
   meta: MODEL_STREAM_ID,
   researchObject: RESEARCH_OBJECT,
+};
+
+export const MODEL_SCHEMAS = {
+  /** The schema for research objects */
+  researchObject: RESEARCH_OBJECT_SCHEMA,
 };

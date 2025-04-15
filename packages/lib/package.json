@@ -26,6 +26,7 @@
   "dependencies": {
     "@ceramic-sdk/flight-sql-client": "^0.7.0",
     "@ceramic-sdk/identifiers": "^0.9.0",
+    "@ceramic-sdk/model-client": "^0.9.0",
     "@ceramic-sdk/model-instance-client": "^0.9.0",
     "@ceramic-sdk/stream-client": "^0.9.0",
     "@ceramicnetwork/common": "^6.4.0",
@@ -40,6 +41,7 @@
     "graphql": "^16.8.0",
     "key-did-provider-ed25519": "^4.0.2",
     "key-did-resolver": "^4.0.0",
+    "pino-std-serializers": "^7.0.0",
     "uint8arrays": "^4.0.6"
   }
 }

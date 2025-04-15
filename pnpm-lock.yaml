@@ -158,6 +158,9 @@ importers:
       '@ceramic-sdk/identifiers':
         specifier: ^0.9.0
         version: 0.9.0
+      '@ceramic-sdk/model-client':
+        specifier: ^0.9.0
+        version: 0.9.0(typescript@5.8.2)
       '@ceramic-sdk/model-instance-client':
         specifier: ^0.9.0
         version: 0.9.0(typescript@5.8.2)
@@ -200,6 +203,9 @@ importers:
       key-did-resolver:
         specifier: ^4.0.0
         version: 4.0.0
+      pino-std-serializers:
+        specifier: ^7.0.0
+        version: 7.0.0
       uint8arrays:
         specifier: ^4.0.6
         version: 4.0.10
@@ -1273,6 +1279,10 @@ packages:
     resolution: {integrity: sha512-SD7kUPyJ909T8uTO62mAlT1s/GeByTkJ5MimMgYefGaZ4VDj0vqeY6sIFffc5nyzZtKhWRb+vvbZiKo4ejK0sQ==}
     engines: {node: '>=20'}
 
+  '@ceramic-sdk/model-client@0.9.0':
+    resolution: {integrity: sha512-MDynOOVQ+9ZrFAwD0dDclWkaEnWgIzCQRYN/7MEsdznKpKVxPYIvOQMaJRwweIKVigpZzkV7qZ1HY8ZaA4po8w==}
+    engines: {node: '>=20'}
+
   '@ceramic-sdk/model-instance-client@0.9.0':
     resolution: {integrity: sha512-WDcObfUFbRBxILYxhGqcWmvkvt94XhkrNK4HL2CA1c5pDESMYN0hzcFcJv3kiBV0JU97bGnRPIFfTzpVG6o2fQ==}
     engines: {node: '>=20'}
@@ -1283,6 +1293,10 @@ packages:
 
   '@ceramic-sdk/model-protocol@0.2.1':
     resolution: {integrity: sha512-eLQ3L9O18nTlHTsyKxoxvmSrYbkBd3ND82sdYcWLTrA7HayLj7Un0Cp6euYNb3/Imng6nFttTFxw+4AftJZaGw==}
+    engines: {node: '>=20'}
+
+  '@ceramic-sdk/model-protocol@0.9.0':
+    resolution: {integrity: sha512-xYDCWvc6iGGpUNgK8M9c2ziOtgcUrQ8ZO8wPOt8CX6MoROWT4jxdi1/d0dG3r/WQnYwMKeC1VyLYV9uC4OFipA==}
     engines: {node: '>=20'}
 
   '@ceramic-sdk/stream-client@0.9.0':
@@ -10575,6 +10589,20 @@ snapshots:
       uint8arrays: 5.1.0
       varint: 6.0.0
 
+  '@ceramic-sdk/model-client@0.9.0(typescript@5.8.2)':
+    dependencies:
+      '@ceramic-sdk/events': 0.9.0(typescript@5.8.2)
+      '@ceramic-sdk/identifiers': 0.9.0
+      '@ceramic-sdk/model-protocol': 0.9.0(typescript@5.8.2)
+      '@ceramic-sdk/stream-client': 0.9.0(typescript@5.8.2)
+      '@didtools/codecs': 3.0.0
+      fast-json-patch: 3.1.1
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+
   '@ceramic-sdk/model-instance-client@0.9.0(typescript@5.8.2)':
     dependencies:
       '@ceramic-sdk/events': 0.9.0(typescript@5.8.2)
@@ -10602,6 +10630,23 @@ snapshots:
     dependencies:
       '@ceramic-sdk/events': 0.2.1(typescript@5.8.2)
       '@ceramic-sdk/identifiers': 0.2.0
+      '@didtools/cacao': 3.0.1(typescript@5.8.2)
+      '@didtools/codecs': 3.0.0
+      ajv: 8.17.1
+      ajv-formats: 3.0.1(ajv@8.17.1)
+      codeco: 1.4.3
+      json-ptr: 3.1.1
+      ts-essentials: 10.0.4(typescript@5.8.2)
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+
+  '@ceramic-sdk/model-protocol@0.9.0(typescript@5.8.2)':
+    dependencies:
+      '@ceramic-sdk/events': 0.9.0(typescript@5.8.2)
+      '@ceramic-sdk/identifiers': 0.9.0
       '@didtools/cacao': 3.0.1(typescript@5.8.2)
       '@didtools/codecs': 3.0.0
       ajv: 8.17.1
