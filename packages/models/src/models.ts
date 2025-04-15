@@ -3,7 +3,7 @@ import { MODEL_STREAM_ID } from "@ceramic-sdk/model-protocol";
 const RESEARCH_OBJECT =
   "kjzl6hvfrbw6cbe01it6hlcwopsv4cqrqysho4f1xd7rtqxew9yag3x2wxczhz0";
 
-const RESEARCH_OBJECT_SCHEMA = {
+const _RESEARCH_OBJECT_SCHEMA = {
   accountRelation: {
     type: "list",
   },
