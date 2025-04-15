@@ -746,7 +746,7 @@ describe("ComposeDB nodes", () => {
               id
             }
           }
-        } 
+        }
         `,
       );
       const expectedContribution = { node: { id: contribution.streamID } };
@@ -770,7 +770,7 @@ describe("ComposeDB nodes", () => {
               id
             }
           }
-        } 
+        }
         `,
       );
       const expectedContribution = { node: { id: contribution.streamID } };
@@ -849,7 +849,7 @@ describe("ComposeDB nodes", () => {
               id
             }
           }
-        } 
+        }
         `,
       );
       const expectedReference = { node: { id: reference.streamID } };
@@ -873,7 +873,7 @@ describe("ComposeDB nodes", () => {
               id
             }
           }
-        } 
+        }
         `,
       );
       const expectedReference = { node: { id: reference.streamID } };

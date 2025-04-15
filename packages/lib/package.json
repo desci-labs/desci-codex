@@ -9,7 +9,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rm -rf ./dist && tsc --project tsconfig.build.json",
-    "test": "export ADMIN_SEED=$(<../composedb/admin_seed.txt) && vitest --run --config vitest.config.ts",
+    "test:c1": "vitest --run --config vitest.config.ts test/c1.spec.ts",
+    "test:root": "export ADMIN_SEED=$(<../composedb/admin_seed.txt) && vitest --run --config vitest.config.ts test/root.spec.t",
     "doPublish": "npm run build && cd ../.. && npm publish --workspace packages/lib --access public"
   },
   "exports": {
