@@ -4,9 +4,13 @@ import { ModelInstanceClient } from "@ceramic-sdk/model-instance-client";
 import { newFlightSqlClient, DEFAULT_LOCAL_FLIGHT } from "../src/c1/clients.js";
 import {
   listResearchObjects,
-  getStreamHistory,
   listResearchObjectsWithHistory,
 } from "../src/c1/explore.js";
+import {
+  getCommitState,
+  getStreamHistory,
+  getStreamStateAtHeight,
+} from "../src/c1/resolve.js";
 import {
   createResearchObject,
   updateResearchObject,
@@ -19,7 +23,7 @@ import {
 } from "@desci-labs/desci-codex-models";
 import { ModelClient } from "@ceramic-sdk/model-client";
 import { errWithCause } from "pino-std-serializers";
-import { randomCID, StreamID } from "@ceramic-sdk/identifiers";
+import { CommitID, randomCID, StreamID } from "@ceramic-sdk/identifiers";
 
 describe("C1 module", async () => {
   let flightClient: FlightSqlClient;
@@ -206,13 +210,24 @@ describe("C1 module", async () => {
   });
 
   describe("Historical state tracking", () => {
-    test("should track initial state of a research object", async () => {
-      const testObject = {
-        title: "History Test Object",
-        manifest: "QmHistoryTestManifestCID",
+    let testStreamId: string;
+    let testCommitId: string;
+    let testEventHeight: number;
+    let testObject: {
+      title: string;
+      manifest: string;
+      license: string;
+    };
+
+    beforeAll(async () => {
+      // Create a test object that will be used by all tests in this group
+      testObject = {
+        title: "Shared History Test Object",
+        manifest: "QmSharedHistoryTestManifestCID",
         license: "CC-BY",
       };
 
+      // Create the research object
       const createResult = await createResearchObject(
         midClient,
         testDID,
@@ -220,12 +235,21 @@ describe("C1 module", async () => {
         testModel,
       );
 
+      testStreamId = createResult.streamID;
+      testCommitId = createResult.commitID;
+
+      // Wait for stream to be properly initialized
       await new Promise((resolve) => setTimeout(resolve, 1_000));
 
-      const history = await getStreamHistory(
-        flightClient,
-        createResult.streamID,
-      );
+      // Get the history to find the event height
+      const history = await getStreamHistory(flightClient, testStreamId);
+
+      expect(history.length).toBeGreaterThan(0);
+      testEventHeight = history[0].event_height;
+    });
+
+    test("should track initial state of a research object", async () => {
+      const history = await getStreamHistory(flightClient, testStreamId);
 
       expect(history.length).toBeGreaterThan(0);
       expect(history[0].state).toBeDefined();
@@ -236,23 +260,8 @@ describe("C1 module", async () => {
     });
 
     test("should track updates to a research object", async () => {
-      const testObject = {
-        title: "Update History Test Object",
-        manifest: "QmUpdateHistoryTestManifestCID",
-        license: "CC-BY",
-      };
-
-      const createResult = await createResearchObject(
-        midClient,
-        testDID,
-        testObject,
-        testModel,
-      );
-
-      await new Promise((resolve) => setTimeout(resolve, 1_000));
-
       const updateContent = {
-        id: createResult.streamID,
+        id: testStreamId,
         title: "Updated History Test Object",
         manifest: "QmUpdatedHistoryTestManifestCID",
         license: "CC-BY",
@@ -262,10 +271,7 @@ describe("C1 module", async () => {
 
       await new Promise((resolve) => setTimeout(resolve, 1_000));
 
-      const history = await getStreamHistory(
-        flightClient,
-        createResult.streamID,
-      );
+      const history = await getStreamHistory(flightClient, testStreamId);
 
       expect(history.length).toBe(2);
 
@@ -362,6 +368,47 @@ describe("C1 module", async () => {
         manifest: "QmTestManifestCID2",
         license: "MIT",
       });
+    });
+
+    test("should get state of a specific commit", async () => {
+      const commitState = await getCommitState(flightClient, testCommitId);
+
+      expect(commitState).toBeDefined();
+      expect(commitState.state).toMatchObject(testObject);
+      expect(commitState.streamId).toBe(testStreamId);
+      expect(commitState.event_height).toBeDefined();
+    });
+
+    test("should get state of a stream at a specific event height", async () => {
+      const stateAtHeight = await getStreamStateAtHeight(
+        flightClient,
+        testStreamId,
+        testEventHeight,
+      );
+
+      expect(stateAtHeight).toBeDefined();
+      expect(stateAtHeight.state).toMatchObject(testObject);
+      expect(stateAtHeight.streamId).toBe(testStreamId);
+      expect(stateAtHeight.event_height).toBe(testEventHeight);
+    });
+
+    test("should throw error for non-existent commit", async () => {
+      const randomCid = randomCID().toString();
+      const nonExistentCommitId = new CommitID("MID", randomCid);
+
+      await expect(
+        getCommitState(flightClient, nonExistentCommitId.toString()),
+      ).rejects.toThrow(`No state found for commit ${nonExistentCommitId}`);
+    });
+
+    test("should throw error for non-existent event height", async () => {
+      const nonExistentHeight = 999999;
+
+      await expect(
+        getStreamStateAtHeight(flightClient, testStreamId, nonExistentHeight),
+      ).rejects.toThrow(
+        `No state found for stream ${testStreamId} at event height ${nonExistentHeight}`,
+      );
     });
   });
 });
