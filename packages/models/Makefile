@@ -4,5 +4,5 @@ clean:
 	rm -rf node_modules
 
 install:
-	npm ci
+	pnpm i --frozen-lockfile
 
