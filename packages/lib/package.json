@@ -1,6 +1,6 @@
 {
   "name": "@desci-labs/desci-codex-lib",
-  "version": "2.0.0-rc4",
+  "version": "2.0.0-rc5",
   "description": "Codex interaction primitives",
   "license": "MIT",
   "author": "Edvard Hübinette",
@@ -30,11 +30,11 @@
     "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
-    "@ceramic-sdk/flight-sql-client": "^0.9.0",
-    "@ceramic-sdk/identifiers": "^0.9.0",
-    "@ceramic-sdk/model-client": "^0.9.0",
-    "@ceramic-sdk/model-instance-client": "^0.9.0",
-    "@ceramic-sdk/stream-client": "^0.9.0",
+    "@ceramic-sdk/flight-sql-client": "^0.11.0",
+    "@ceramic-sdk/identifiers": "^0.11.0",
+    "@ceramic-sdk/model-client": "^0.11.0",
+    "@ceramic-sdk/model-instance-client": "^0.11.0",
+    "@ceramic-sdk/stream-client": "^0.11.0",
     "@ceramicnetwork/common": "^5.15.0",
     "@ceramicnetwork/http-client": "^5.16.0",
     "@ceramicnetwork/streamid": "^5.6.0",
