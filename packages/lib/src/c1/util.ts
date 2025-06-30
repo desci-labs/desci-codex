@@ -12,7 +12,8 @@ export function propagateAnchorTimeToRows<
   for (let i = rows.length - 1; i >= 0; i--) {
     // if this has a timestamp, set it as the current anchor
     if (rows[i].before !== null) {
-      lastAnchor = rows[i].before;
+      // postgres returns a BigNumber
+      lastAnchor = Number(rows[i].before);
     }
     // set the last anchor for all events, until the previous anchor is found
     result[i] = { ...rows[i], before: lastAnchor };
