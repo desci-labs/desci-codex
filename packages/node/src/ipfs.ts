@@ -113,6 +113,10 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
     },
 
     async pinFile(cid: string) {
+      if (!helia) {
+        throw new Error("IPFS node not started");
+      }
+
       try {
         const cidObj = CID.parse(cid);
         if (await helia.pins.isPinned(cidObj)) {

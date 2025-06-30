@@ -18,16 +18,25 @@ export const createResearchObject = async (
   /** Optionally specify a custom model to use for the research object. */
   model?: StreamID,
 ): Promise<NodeIDs> => {
-  const commit = await client.createInstance({
-    controller,
-    content,
-    model: model ?? StreamID.fromString(MODEL_IDS.researchObject),
-  });
+  try {
+    const commit = await client.createInstance({
+      controller,
+      content,
+      model: model ?? StreamID.fromString(MODEL_IDS.researchObject),
+    });
 
-  return {
-    streamID: commit.baseID.toString(),
-    commitID: commit.toString(),
-  };
+    return {
+      streamID: commit.baseID.toString(),
+      commitID: commit.toString(),
+    };
+  } catch (error) {
+    throw new Error(
+      `Failed to create research object: ${error instanceof Error ? error.message : String(error)}`,
+      {
+        cause: error,
+      },
+    );
+  }
 };
 
 export const updateResearchObject = async (
@@ -35,17 +44,26 @@ export const updateResearchObject = async (
   controller: DID,
   content: PartialWithID<ResearchObject>,
 ): Promise<NodeIDs> => {
-  const state = await client.updateDocument({
-    streamID: content.id,
-    controller,
-    newContent: {
-      ...content,
-      id: undefined, // Remove the id from the content as it's not part of the model
-    },
-  });
+  try {
+    const state = await client.updateDocument({
+      streamID: content.id,
+      controller,
+      newContent: {
+        ...content,
+        id: undefined, // Remove the id from the content as it's not part of the model
+      },
+    });
 
-  return {
-    streamID: state.commitID.baseID.toString(),
-    commitID: state.commitID.toString(),
-  };
+    return {
+      streamID: state.commitID.baseID.toString(),
+      commitID: state.commitID.toString(),
+    };
+  } catch (error) {
+    throw new Error(
+      `Failed to update research object: ${error instanceof Error ? error.message : String(error)}`,
+      {
+        cause: error,
+      },
+    );
+  }
 };

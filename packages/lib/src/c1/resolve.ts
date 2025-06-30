@@ -135,13 +135,13 @@ export const getCommitState = async (
 };
 
 /**
- * Get the state of a stream at a specific event height.
+ * Get the state of a stream at a specific version.
  *
  * @param client - The FlightSQL client.
  * @param streamId - The ID of the stream.
- * @param eventHeight - Version index to get state for.
- * @returns The state of the stream at the specified event height.
- * @throws Error if the state at the specified event height cannot be found.
+ * @param version - Version index to get state for.
+ * @returns The state of the stream at the specified version.
+ * @throws Error if the state at the specified version cannot be found.
  */
 export const getStreamStateAtVersion = async (
   client: FlightSqlClient,

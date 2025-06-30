@@ -210,11 +210,13 @@ async function gracefulShutdown() {
 process.on("SIGTERM", async () => {
   log.info("Received SIGTERM signal. Shutting down gracefully...");
   await gracefulShutdown();
+  process.exit(1);
 });
 
 process.on("SIGINT", async () => {
   log.info("Received SIGINT signal. Shutting down gracefully...");
   await gracefulShutdown();
+  process.exit(1);
 });
 
 process.on("uncaughtException", async (error) => {
