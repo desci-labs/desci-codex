@@ -4,11 +4,18 @@ import type { NodeIDs, PartialWithID, ResearchObject } from "../types.js";
 import { MODEL_IDS } from "@desci-labs/desci-codex-models";
 import type { DID } from "dids";
 
+/**
+ * Create a new research object.
+ *
+ * @param client - The ModelInstanceClient to use.
+ * @param controller - The DID of the controller.
+ * @param content - The content of the research object.
+ */
 export const createResearchObject = async (
   client: ModelInstanceClient,
   controller: DID,
   content: ResearchObject,
-  /** The model to use for the research object. Defaults to the research object model. */
+  /** Optionally specify a custom model to use for the research object. */
   model?: StreamID,
 ): Promise<NodeIDs> => {
   const commit = await client.createInstance({

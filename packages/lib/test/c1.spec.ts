@@ -9,7 +9,7 @@ import {
 import {
   getCommitState,
   getStreamHistory,
-  getStreamStateAtHeight,
+  getStreamStateAtVersion,
 } from "../src/c1/resolve.js";
 import {
   createResearchObject,
@@ -95,10 +95,10 @@ describe("C1 module", async () => {
 
       const fetchedObjects = await listResearchObjects(flightClient, testModel);
       const createdObject = fetchedObjects.find(
-        (ro) => ro.streamId === result.streamID,
+        (ro) => ro.id === result.streamID,
       );
       expect(createdObject).toBeDefined();
-      expect(createdObject?.state).toMatchObject(testObject);
+      expect(createdObject).toMatchObject(testObject);
     });
 
     test("should update a research object", async () => {
@@ -141,14 +141,16 @@ describe("C1 module", async () => {
 
       await new Promise((resolve) => setTimeout(resolve, 1_000));
 
-      const fetchedObjects = await listResearchObjects(flightClient, testModel);
-      const updatedObject = fetchedObjects.find(
-        (ro) => ro.streamId === createResult.streamID,
+      const history = await getStreamHistory(
+        flightClient,
+        updateResult.streamID,
       );
-      expect(updatedObject).toBeDefined();
-      expect(updatedObject?.state.title).toBe(updateContent.title);
-      expect(updatedObject?.state.manifest).toBe(testObject.manifest);
-      expect(updatedObject?.state.license).toBe(testObject.license);
+
+      const newVersion = history.versions.at(-1);
+      expect(newVersion).toBeDefined();
+      expect(newVersion?.title).toBe(updateContent.title);
+      expect(newVersion?.manifest).toBe(testObject.manifest);
+      expect(newVersion?.license).toBe(testObject.license);
     });
 
     test("should fetch research objects", async () => {
@@ -171,24 +173,17 @@ describe("C1 module", async () => {
 
       expect(Array.isArray(fetchedObjects)).toBe(true);
       expect(fetchedObjects.length).toBeGreaterThan(0);
-      expect(fetchedObjects.map((ro) => ro.streamId)).toContain(
+      expect(fetchedObjects.map((ro) => ro.id)).toContain(
         createResult.streamID,
       );
 
       fetchedObjects.forEach((ro) => {
-        expect(ro).toHaveProperty("streamId");
+        expect(ro).toHaveProperty("id");
         expect(ro).toHaveProperty("owner");
-        expect(ro).toHaveProperty("state");
 
-        expect(ro.state).toHaveProperty("title");
-        expect(typeof ro.state.title).toBe("string");
-
-        if (ro.state.manifest) {
-          expect(typeof ro.state.manifest).toBe("string");
-        }
-        if (ro.state.license) {
-          expect(typeof ro.state.license).toBe("string");
-        }
+        expect(typeof ro.title).toBe("string");
+        expect(typeof ro.manifest).toBe("string");
+        expect(typeof ro.license).toBe("string");
       });
     });
 
@@ -208,7 +203,7 @@ describe("C1 module", async () => {
   describe("Historical state tracking", () => {
     let testStreamId: string;
     let testCommitId: string;
-    let testEventHeight: number;
+    let updateCommitId: string;
     let testObject: {
       title: string;
       manifest: string;
@@ -240,18 +235,17 @@ describe("C1 module", async () => {
       // Get the history to find the event height
       const history = await getStreamHistory(flightClient, testStreamId);
 
-      expect(history.length).toBeGreaterThan(0);
-      testEventHeight = history[0].event_height;
+      expect(history.versions.length).toBeGreaterThan(0);
     });
 
     test("should track initial state of a research object", async () => {
       const history = await getStreamHistory(flightClient, testStreamId);
 
-      expect(history.length).toBeGreaterThan(0);
-      expect(history[0].state).toBeDefined();
-      expect(history[0].state).toMatchObject(testObject);
+      expect(history.versions.length).toBeGreaterThan(0);
+      expect(history.versions[0]).toBeDefined();
+      expect(history.versions[0]).toMatchObject(testObject);
 
-      const initialState = history[0].state;
+      const initialState = history.versions[0];
       expect(initialState).toMatchObject(testObject);
     });
 
@@ -263,18 +257,23 @@ describe("C1 module", async () => {
         license: "CC-BY",
       };
 
-      await updateResearchObject(midClient, testDID, updateContent);
+      const updateIDs = await updateResearchObject(
+        midClient,
+        testDID,
+        updateContent,
+      );
+      updateCommitId = updateIDs.commitID;
 
       await new Promise((resolve) => setTimeout(resolve, 1_000));
 
       const history = await getStreamHistory(flightClient, testStreamId);
 
-      expect(history.length).toBe(2);
+      expect(history.versions.length).toBe(2);
 
-      expect(history[0].state).toMatchObject(testObject);
+      expect(history.versions[0]).toMatchObject(testObject);
 
       const { id: _, ...expectedState } = updateContent;
-      expect(history[1].state).toMatchObject(expectedState);
+      expect(history.versions[1]).toMatchObject(expectedState);
     });
 
     test("should track all streams implementing a model", async () => {
@@ -333,33 +332,40 @@ describe("C1 module", async () => {
 
       expect(Object.keys(allHistories).length).toBe(2);
 
-      const streamIds = Object.keys(allHistories);
-      expect(streamIds).toContain(streamOne.streamID);
-      expect(streamIds).toContain(streamTwo.streamID);
+      expect(allHistories).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: streamOne.streamID }),
+          expect.objectContaining({ id: streamTwo.streamID }),
+        ]),
+      );
 
-      const firstStreamVersions = allHistories[streamOne.streamID];
-      const secondStreamVersions = allHistories[streamTwo.streamID];
+      const firstStreamVersions = allHistories.find(
+        (h) => h.id === streamOne.streamID,
+      )?.versions;
+      const secondStreamVersions = allHistories.find(
+        (h) => h.id === streamTwo.streamID,
+      )?.versions;
 
-      expect(firstStreamVersions.length).toBe(2);
-      expect(secondStreamVersions.length).toBe(2);
+      expect(firstStreamVersions?.length).toBe(2);
+      expect(secondStreamVersions?.length).toBe(2);
 
-      expect(firstStreamVersions[0].state).toMatchObject({
+      expect(firstStreamVersions?.[0]).toMatchObject({
         title: "Test Research Object 1",
         manifest: "QmTestManifestCID1",
         license: "MIT",
       });
-      expect(firstStreamVersions[1].state).toMatchObject({
+      expect(firstStreamVersions?.[1]).toMatchObject({
         title: "Updated Test Research Object 1",
         manifest: "QmTestManifestCID1",
         license: "MIT",
       });
 
-      expect(secondStreamVersions[0].state).toMatchObject({
+      expect(secondStreamVersions?.[0]).toMatchObject({
         title: "Test Research Object 2",
         manifest: "QmTestManifestCID2",
         license: "MIT",
       });
-      expect(secondStreamVersions[1].state).toMatchObject({
+      expect(secondStreamVersions?.[1]).toMatchObject({
         title: "Updated Test Research Object 2",
         manifest: "QmTestManifestCID2",
         license: "MIT",
@@ -371,21 +377,28 @@ describe("C1 module", async () => {
 
       expect(commitState).toBeDefined();
       expect(commitState.state).toMatchObject(testObject);
-      expect(commitState.streamId).toBe(testStreamId);
-      expect(commitState.event_height).toBeDefined();
+      expect(commitState.id).toBe(testStreamId);
+      expect(commitState.version).toBe(testCommitId);
     });
 
     test("should get state of a stream at a specific event height", async () => {
-      const stateAtHeight = await getStreamStateAtHeight(
+      const updatedContent = {
+        version: updateCommitId,
+        title: "Updated History Test Object",
+        manifest: "QmUpdatedHistoryTestManifestCID",
+        license: "CC-BY",
+      };
+
+      const stateAtVersion = await getStreamStateAtVersion(
         flightClient,
         testStreamId,
-        testEventHeight,
+        1,
       );
 
-      expect(stateAtHeight).toBeDefined();
-      expect(stateAtHeight.state).toMatchObject(testObject);
-      expect(stateAtHeight.streamId).toBe(testStreamId);
-      expect(stateAtHeight.event_height).toBe(testEventHeight);
+      expect(stateAtVersion).toBeDefined();
+      expect(stateAtVersion.state).toMatchObject(updatedContent);
+      expect(stateAtVersion.id).toBe(testStreamId);
+      expect(stateAtVersion.version).not.toBe(testCommitId);
     });
 
     test("should throw error for non-existent commit", async () => {
@@ -394,16 +407,18 @@ describe("C1 module", async () => {
 
       await expect(
         getCommitState(flightClient, nonExistentCommitId.toString()),
-      ).rejects.toThrow(`No state found for commit ${nonExistentCommitId}`);
+      ).rejects.toThrow(
+        `No state found for stream ${nonExistentCommitId.baseID.toString()}`,
+      );
     });
 
     test("should throw error for non-existent event height", async () => {
       const nonExistentHeight = 999999;
 
       await expect(
-        getStreamStateAtHeight(flightClient, testStreamId, nonExistentHeight),
+        getStreamStateAtVersion(flightClient, testStreamId, nonExistentHeight),
       ).rejects.toThrow(
-        `No state found for stream ${testStreamId} at event height ${nonExistentHeight}`,
+        `No state found for stream ${testStreamId} at version ${nonExistentHeight}`,
       );
     });
   });

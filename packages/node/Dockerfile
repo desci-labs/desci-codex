@@ -48,7 +48,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:$PORT/health || exit 1
 
 LABEL org.opencontainers.image.source="https://github.com/desci-labs/desci-codex" \
-      org.opencontainers.image.description="DeSci CODEX Node" \
-      org.opencontainers.image.licenses="MIT"
+    org.opencontainers.image.description="DeSci CODEX Node" \
+    org.opencontainers.image.licenses="MIT"
 
 CMD ["pnpm", "start"]

@@ -1,6 +1,6 @@
 services:
   ceramic:
-    image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.54.2
+    image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.55.1
     container_name: ceramic-one-local
     restart: on-failure
     # entrypoint: ["/bin/sh", "-c", "sleep infinity"]
@@ -27,8 +27,8 @@ services:
 
   codex-node:
     build:
-      context: .
-      dockerfile: packages/node/Dockerfile
+      context: ..
+      dockerfile: ./packages/node/Dockerfile
     container_name: codex-node-local
     restart: on-failure
     ports:
