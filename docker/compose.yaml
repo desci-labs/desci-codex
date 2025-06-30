@@ -24,6 +24,18 @@ services:
       CERAMIC_ONE_LOG_FORMAT: "multi-line"
     volumes:
       - ../local-data/local/ceramic-one:/data/ceramic-one
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "ceramic-one",
+          "query",
+          "statement-query",
+          "select null from event_states limit 1",
+        ]
+      interval: 1s
+      timeout: 1s
+      retries: 5
 
   codex-node:
     build:
