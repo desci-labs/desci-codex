@@ -15,7 +15,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
-          cache-dependency-path: "pnpm-lock.json"
+          cache-dependency-path: "pnpm-lock.yaml"
           check-latest: false
       - run: pnpm i --frozen-lockfile
       - run: |
