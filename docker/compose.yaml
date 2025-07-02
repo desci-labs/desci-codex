@@ -24,6 +24,8 @@ services:
       CERAMIC_ONE_LOG_FORMAT: "multi-line"
     volumes:
       - ../local-data/local/ceramic-one:/data/ceramic-one
+    extra_hosts:
+      host.docker.internal: host-gateway
     healthcheck:
       test:
         [
@@ -33,8 +35,8 @@ services:
           "statement-query",
           "select null from event_states limit 1",
         ]
-      interval: 1s
-      timeout: 1s
+      interval: 5s
+      timeout: 5s
       retries: 5
 
   codex-node:
@@ -58,6 +60,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    extra_hosts:
+      host.docker.internal: host-gateway
     depends_on:
       ceramic:
         condition: service_started

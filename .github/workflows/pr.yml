@@ -10,8 +10,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version-file: ".nvmrc"
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.json"
           check-latest: false
-      - run: npm ci
-      - run: make test
+      - run: pnpm i --frozen-lockfile
+      - run: |
+          docker compose -f docker/compose.yaml up -d ceramic
+          sleep 5
+          pnpm --filter @desci-labs/desci-codex-lib run test:c1
