@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "register": "tsx src/index.ts",
+    "register": "tsx src/bin/index.ts register",
     "prepare": "tsc",
     "clean": "tsc --build --clean"
   },
