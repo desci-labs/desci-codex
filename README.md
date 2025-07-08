@@ -3,12 +3,17 @@
 This repo contains a reference implementation for the next generation of the protocol, built on [Ceramic](https://ceramic.network/) and [ComposeDB](https://composedb.js.org/docs/0.5.x/introduction). It includes data models and an extensive test suite to ensure correct functionality, but also example data population and a GraphiQL interface to explore the protocol structure.
 
 The repo consists of several packages:
+- [model management tooling](./packages/models/README.md)
+- [codex node for P2P data replication](./packages/node/README.md)
 - [the codex integration library](./packages/lib/README.md)
-- [composedb models and test env](./packages/composedb/README.md)
+- [composedb models and test env](./packages/composedb/README.md) (deprecated)
 
 
-By default, the tests and scripts run against a local Ceramic/ComposeDB node with the bundled IPFS server, uses the `inmemory` network for anchoring, and writes all data and logs to `local-data`.
 
+# Running a node
+For documentation on how to run your own Codex node, see the docs [here](./packages/node/README.md)
+
+# Protocol documentation
 The protocol documentation can be found [here](https://codex.desci.com)!
 
 ## State of models
@@ -20,7 +25,7 @@ There is still iteration on the design of the models as we are starting with bac
 
 | Model                 | Status | ID (Clay)                                                       | ID (Mainnet) |
 |-----------------------|--------|-----------------------------------------------------------------|--------------|
-| ResearchObject        | beta   | kjzl6hvfrbw6cbe01it6hlcwopsv4cqrqysho4f1xd7rtqxew9yag3x2wxczhz0 | N/A          |
+| ResearchObject        | beta   | kjzl6hvfrbw6cbe01it6hlcwopsv4cqrqysho4f1xd7rtqxew9yag3x2wxczhz0 | Same         |
 | Profile               | alpha  | kjzl6hvfrbw6cba0l4xuvi4ll36h3s21kcau1wpq51ha6k8ttc8yw5kzx2g40in | N/A          |
 | Claim                 | alpha  | kjzl6hvfrbw6c6hz18jqthpsvvjvixg8xkvrec10l5nbwqc67vi6lvhgkc7j0ti | N/A          |
 | Attestation           | alpha  | kjzl6hvfrbw6c9gw5pagxy4ig2f9lqpexycdl5lq9jfy11itm38f3nco4ud8699 | N/A          |
@@ -43,6 +48,8 @@ npm ci # install deps
 ```
 
 > At this point, `make test` can be run to automatically setup a local environment and run the test suite.
+> By default, the tests and scripts run against a local Ceramic/ComposeDB node with the bundled IPFS server,
+> uses the `inmemory` network for anchoring, and writes all data and logs to `local-data`.
 
 2. Generate your own seed, admin DID, and ComposeDB configuration file:
 

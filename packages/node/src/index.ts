@@ -34,7 +34,6 @@ const ipfsNode = createIPFSNode({ dataDir: IPFS_DATA_DIR });
 
 // Then initialize the queue with the processor using the now-defined ipfsNode
 initializeQueue(async (manifest: string) => {
-  // Simply perform the pinning operation
   // All retry logic is handled in the queue module
   await ipfsNode.pinFile(manifest);
 });
@@ -47,7 +46,7 @@ const ceramicEventsService = createCeramicEventsService({
 });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 

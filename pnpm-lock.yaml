@@ -263,11 +263,11 @@ importers:
   packages/node:
     dependencies:
       '@ceramic-sdk/flight-sql-client':
-        specifier: ^0.7.0
-        version: 0.7.0
+        specifier: ^0.11.0
+        version: 0.11.0
       '@ceramic-sdk/http-client':
-        specifier: ^0.2.1
-        version: 0.2.1(typescript@5.8.2)
+        specifier: ^0.11.0
+        version: 0.11.0(typescript@5.8.2)
       '@chainsafe/libp2p-noise':
         specifier: ^16.1.0
         version: 16.1.0
@@ -1271,20 +1271,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@ceramic-sdk/flight-sql-client-darwin-arm64@0.7.0':
-    resolution: {integrity: sha512-BImNBMqBnBBfOyfzz3YYpnwcj3+3dMnI8gXN8V0xYyWNy6L5JrevvPEsPm0OYuodj+jPwExeCedika63nYyAEw==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-
   '@ceramic-sdk/flight-sql-client-darwin-x64@0.11.0':
     resolution: {integrity: sha512-FJ2wXoo7Zr9AJGSvgx0y10LOD0MZKiko5v3cRsNBZS/8jN+7XhGBNhT5wLve1t+/DWxiYhbF2Nd+d8EhaInwzQ==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@ceramic-sdk/flight-sql-client-darwin-x64@0.7.0':
-    resolution: {integrity: sha512-NbETAFUnCf8u8CcSf2HmxDb/o72q5Z1mojYBIfbRFPDlZ5AO/i4CtyVYsyJovl7Ea38aUkO/fOwApQaq+I6mJw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
@@ -1295,18 +1283,8 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@ceramic-sdk/flight-sql-client-linux-x64-gnu@0.7.0':
-    resolution: {integrity: sha512-UwAbVJQtSb6CuHX4BPHob/zG8NaIg4NtEOl8FqfmwysfMOfx5iGLVyDCvsvLO+RHo6eFBQLZh6W9UfReSSUWwg==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-
   '@ceramic-sdk/flight-sql-client@0.11.0':
     resolution: {integrity: sha512-7sa+xCgc07Biu0x0NRw5QWcBKw41OiUNsfS2Tfioco1q0L8tZT70yxZVw+zdgXmURoVql7bhuALZdcp2h9A1ow==}
-    engines: {node: '>= 10'}
-
-  '@ceramic-sdk/flight-sql-client@0.7.0':
-    resolution: {integrity: sha512-YGkyw1coV9ohxSrZr1Fd19Mk3Ab503hTnJ82VHFIaPumc+oK3FqumuzkmJe/zc2oi8RR/Ku6FK8xEBr2DHo/uQ==}
     engines: {node: '>= 10'}
 
   '@ceramic-sdk/http-client@0.11.0':
@@ -10632,19 +10610,10 @@ snapshots:
   '@ceramic-sdk/flight-sql-client-darwin-arm64@0.11.0':
     optional: true
 
-  '@ceramic-sdk/flight-sql-client-darwin-arm64@0.7.0':
-    optional: true
-
   '@ceramic-sdk/flight-sql-client-darwin-x64@0.11.0':
     optional: true
 
-  '@ceramic-sdk/flight-sql-client-darwin-x64@0.7.0':
-    optional: true
-
   '@ceramic-sdk/flight-sql-client-linux-x64-gnu@0.11.0':
-    optional: true
-
-  '@ceramic-sdk/flight-sql-client-linux-x64-gnu@0.7.0':
     optional: true
 
   '@ceramic-sdk/flight-sql-client@0.11.0':
@@ -10652,12 +10621,6 @@ snapshots:
       '@ceramic-sdk/flight-sql-client-darwin-arm64': 0.11.0
       '@ceramic-sdk/flight-sql-client-darwin-x64': 0.11.0
       '@ceramic-sdk/flight-sql-client-linux-x64-gnu': 0.11.0
-
-  '@ceramic-sdk/flight-sql-client@0.7.0':
-    optionalDependencies:
-      '@ceramic-sdk/flight-sql-client-darwin-arm64': 0.7.0
-      '@ceramic-sdk/flight-sql-client-darwin-x64': 0.7.0
-      '@ceramic-sdk/flight-sql-client-linux-x64-gnu': 0.7.0
 
   '@ceramic-sdk/http-client@0.11.0(typescript@5.8.2)':
     dependencies:
