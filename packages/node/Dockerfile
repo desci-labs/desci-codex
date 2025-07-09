@@ -1,7 +1,7 @@
 ###################
 ### Build stage ###
 ###################
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 
 # Install pnpm
 RUN corepack enable && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack prepare pnpm@10.8.0 --activate
@@ -25,7 +25,7 @@ RUN pnpm deploy --prod --filter @desci-labs/desci-codex-node /prod
 ########################
 ### Production stage ###
 ########################
-FROM node:20-slim AS final
+FROM node:22-slim AS final
 
 # Install utils
 RUN apt-get update && apt-get install -y curl jq socat less vim

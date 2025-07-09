@@ -36,7 +36,6 @@ export const BOOTSTRAP_NODES = [
  * Creates and configures a libp2p instance for use with Helia
  */
 export async function initLibp2p(datastore: FsDatastore): Promise<Libp2p> {
-  // Create libp2p node
   const libp2p = await createLibp2p({
     datastore,
     privateKey: await loadOrCreateSelfKey(datastore),
@@ -126,7 +125,6 @@ function setupEventListeners(libp2p: Libp2p): void {
         multiplexer: evt.detail.multiplexer,
         encryption: evt.detail.encryption,
         remoteAddr: evt.detail.remoteAddr?.toString(),
-        localAddr: evt.detail.localAddr?.toString(),
       },
       "Connected to peer",
     );
@@ -138,43 +136,8 @@ function setupEventListeners(libp2p: Libp2p): void {
         peerId: evt.detail.remotePeer.toString(),
         direction: evt.detail.direction,
         remoteAddr: evt.detail.remoteAddr?.toString(),
-        localAddr: evt.detail.localAddr?.toString(),
       },
       "Connection closed",
-    );
-  });
-
-  // Add more event listeners for better connection monitoring
-  libp2p.addEventListener("peer:connect", (evt) => {
-    log.debug(
-      {
-        peerId: evt.detail.remotePeer?.toString(),
-        direction: evt.detail.direction,
-        remoteAddr: evt.detail.remoteAddr?.toString(),
-      },
-      "Peer connected",
-    );
-  });
-
-  libp2p.addEventListener("peer:disconnect", (evt) => {
-    log.debug(
-      {
-        peerId: evt.detail.remotePeer?.toString(),
-        direction: evt.detail.direction,
-        remoteAddr: evt.detail.remoteAddr?.toString(),
-      },
-      "Peer disconnected",
-    );
-  });
-
-  libp2p.addEventListener("connection:prune", (evt) => {
-    log.debug(
-      {
-        peerId: evt.detail.remotePeer?.toString(),
-        direction: evt.detail.direction,
-        remoteAddr: evt.detail.remoteAddr?.toString(),
-      },
-      "Connection pruned",
     );
   });
 }
