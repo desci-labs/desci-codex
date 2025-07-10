@@ -72,7 +72,7 @@ export const listResearchObjects = async (
  */
 export const listResearchObjectsWithHistory = async (
   client: FlightSqlClient,
-  model: StreamID,
+  model?: StreamID,
 ): Promise<ResearchObjectHistory[]> => {
   const raw = await instantQuery<RawResearchObject>(
     client,

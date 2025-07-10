@@ -19,7 +19,7 @@ services:
       CERAMIC_ONE_FLIGHT_SQL_BIND_ADDRESS: "0.0.0.0:5102"
       # CERAMIC_ONE_LOCAL_NETWORK_ID: "0"
       CERAMIC_ONE_NETWORK: "inmemory"
-      RUST_LOG: "info,ceramic_one=debug,multipart=error,ceramic_pipeline=trace"
+      RUST_LOG: "info,ceramic_one=debug,multipart=error,datafusion_flight_sql_server=warn"
       CERAMIC_ONE_LOG_FORMAT: "multi-line"
     volumes:
       - ../local-data/local/ceramic-one:/data/ceramic-one

@@ -75,7 +75,7 @@ export const streamHistoryQueryMultiple = (streamIds: StreamID[]) => `
  * @param modelId - The ID of the model to get stream histories for.
  * @returns The history of all streams implementing the model.
  */
-export const modelHistoryQuery = (modelId: StreamID) => `
+export const modelHistoryQuery = (modelId?: StreamID) => `
   SELECT
     controller,
     cid_string(stream_cid) as stream_cid,

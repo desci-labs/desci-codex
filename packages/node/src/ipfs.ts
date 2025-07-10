@@ -46,7 +46,6 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
 
         libp2p = await initLibp2p(datastore);
 
-        // Create Helia instance
         helia = await createHelia({
           datastore,
           blockstore,
@@ -55,13 +54,14 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
           routers: [
             httpGatewayRouting({
               gateways: ["https://ipfs.desci.com", "https://pub.desci.com"],
+              // Prevents randomizing the order of gateways at every resolution
+              shuffle: false,
             }),
             libp2pRouting(libp2p),
           ],
           start: true,
         });
 
-        // Create UnixFS instance
         fs = unixfs(helia);
 
         log.info(
@@ -125,7 +125,8 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
         }
 
         const startTime = Date.now();
-        for await (const pinnedCid of helia.pins.add(cidObj)) {
+        const pinProgress = helia.pins.add(cidObj);
+        for await (const pinnedCid of pinProgress) {
           log.debug(
             { cid, block: pinnedCid.toString(), time: Date.now() },
             "Pinned block",

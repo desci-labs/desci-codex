@@ -6,12 +6,23 @@ import { tableFromIPC } from "apache-arrow";
 import logger from "./logger.js";
 import { sleep } from "./util.js";
 import { queueManifest } from "./queue.js";
+import { listResearchObjectsWithHistory } from "@desci-labs/desci-codex-lib/c1/explore";
+import type { ResearchObjectHistory } from "@desci-labs/desci-codex-lib";
 
 const log = logger.child({ module: "ceramic-events" });
+
+export interface CeramicNodeStats {
+  peerId: string;
+  streams: {
+    id: string;
+    versions: string[];
+  }[];
+}
 
 export interface CeramicEventsService {
   start: () => Promise<void>;
   stop: () => Promise<void>;
+  stats: () => Promise<CeramicNodeStats>;
 }
 
 export interface CeramicEventsConfig {
@@ -29,7 +40,7 @@ export function createCeramicEventsService(
   async function streamEvents(): Promise<void> {
     if (!client || !isRunning) {
       log.error({ client, isRunning }, "Events service not ready");
-      return;
+      throw new Error("Events service not ready");
     }
 
     try {
@@ -115,6 +126,36 @@ export function createCeramicEventsService(
         log.error(error, "Error stopping events service");
         throw error;
       }
+    },
+
+    async stats() {
+      if (!client || !isRunning) {
+        log.error({ client, isRunning }, "Events service not ready");
+        throw new Error("Events service not ready");
+      }
+
+      const peerId = await fetch(config.rpcUrl + "/api/v0/id", {
+        method: "POST",
+      });
+      if (!peerId.ok) {
+        log.error({ peerId }, "Error getting peerId from Ceramic node");
+        throw new Error("Error getting peerId from Ceramic node");
+      }
+
+      const peerIdJson = (await peerId.json()) as { ID: string };
+
+      const fullState = await listResearchObjectsWithHistory(client);
+      const knownStreams = fullState.map((ro: ResearchObjectHistory) => ({
+        id: ro.id,
+        versions: ro.versions.map(
+          (v: ResearchObjectHistory["versions"][number]) => v.version,
+        ),
+      }));
+
+      return {
+        peerId: peerIdJson.ID,
+        streams: knownStreams,
+      };
     },
   };
 }

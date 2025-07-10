@@ -9,6 +9,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rm -rf ./dist && tsc --project tsconfig.build.json",
+    "prepare": "rm -rf ./dist && tsc --project tsconfig.build.json",
     "test:c1": "vitest --run --config vitest.config.ts test/c1.spec.ts",
     "test:root": "export ADMIN_SEED=$(<../composedb/admin_seed.txt) && vitest --run --config vitest.config.ts test/root.spec.ts",
     "doPublish": "pnpm run build && cd ../.. && pnpm publish --access public --filter @desci-labs/desci-codex-lib --no-git-checks"

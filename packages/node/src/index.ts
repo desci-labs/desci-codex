@@ -1,6 +1,7 @@
 import express from "express";
 import { createIPFSNode } from "./ipfs.js";
 import { createCeramicEventsService } from "./events.js";
+import { createMetricsService } from "./metrics.js";
 import logger from "./logger.js";
 import { CID } from "multiformats";
 import { fileTypeFromBuffer } from "file-type";
@@ -43,6 +44,12 @@ const ceramicEventsService = createCeramicEventsService({
   rpcUrl: CERAMIC_ONE_RPC_URL,
   flightUrl: CERAMIC_ONE_FLIGHT_URL,
   modelId: MODEL_IDS.researchObject,
+});
+
+// Create the metrics service with references to other services
+const metricsService = createMetricsService({
+  eventsService: ceramicEventsService,
+  ipfsNode: ipfsNode,
 });
 
 // Health check endpoint
@@ -158,9 +165,19 @@ app.get("/libp2pinfo", async (req, res) => {
   }
 });
 
-// Add a stats endpoint instead of direct queue management
-app.get("/queue/stats", (req, res) => {
+app.get("/queue", (req, res) => {
   res.json(getQueueStats());
+});
+
+// Metrics endpoint
+app.get("/metrics", async (req, res) => {
+  try {
+    const metrics = await metricsService.getMetrics();
+    res.status(200).json(metrics);
+  } catch (error) {
+    log.error(error, "Error getting metrics");
+    res.status(500).json({ error: errWithCause(error as Error) });
+  }
 });
 
 // Start the server
