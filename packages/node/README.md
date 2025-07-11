@@ -1,65 +1,53 @@
 # CODEX Node
-The CODEX Node is a P2P application that subscribes to and replicates data published on CODEX.
-The goal of the service is to increase network resiliency, improve data availability, and
-decentralise the storage of CODEX information.
 
-It has a built-in IPFS client built with [Helia](https://github.com/ipfs/helia), which is used to
-persist and announce publication manifests.
+A decentralized storage node for the CODEX network that pins and serves research objects.
 
-The node consists of two services: a ceramic node, and the codex node. The ceramic node is
-responsible for continually listening to network gossip about new events on CODEX streams.
-The CODEX node subscribes to new states of these streams, and picks out the metadata manifests
-to pin and reprovide them to the wider network.
+## Environment Variables
 
-## Prerequisites
-- Docker
+### Required
 
-## Configuration
-Both the `codex-node` and `ceramic-one` services are configured by envvars, which are pre-set per environment in the compose files.
+- `CODEX_ENVIRONMENT`: Must be set to either `testnet`, `mainnet`, or `local`
+  ```bash
+  export CODEX_ENVIRONMENT=testnet  # or mainnet, or local
+  ```
 
-## Running
-When the services are first started, `ceramic-one` will connect to network bootstrap nodes and start syncing all known Codex streams.
-This can take a little while, after which `codex-node` will start fetching metadata manifests for each of the streams.
+  **Note**: When set to `local`, metrics pushing is automatically disabled since local nodes run in isolated environments.
 
-### Starting the services
-To start both the `ceramic-one` and `codex-node` containers running locally (isolated from the rest of the network, useful for testing):
-```bash
-docker compose -f ../../docker/compose.yaml up
-```
+### Optional
 
-To start both the `ceramic-one` and `codex-node` containers for the public Clay testnet (dev dPID namespace):
-```bash
-docker compose -f ../../docker/compose.dev.yaml up
-```
+- `IPFS_DATA_DIR`: Directory to store IPFS data (default: `./local-data/codex-node`)
+- `CERAMIC_ONE_RPC_URL`: Ceramic RPC endpoint (default: `http://localhost:5101`)
+- `CERAMIC_ONE_FLIGHT_URL`: Ceramic Flight SQL endpoint (default: `http://localhost:5102`)
+- `METRICS_BACKEND_URL`: Metrics server URL (default: `http://localhost:3001`)
+- `METRICS_PUSH_INTERVAL_MS`: Metrics push interval in milliseconds (default: `60000`)
+- `PORT`: HTTP server port (default: `3000`)
 
-### Persistence
-Both services will create their own subdirectory in the `local-data` directory. This contains both the blocks/events for `ceramic-one`, and the block- and datastore for the IPFS client in `codex-node`.
-When running against other networks, both `ceramic-one` and `codex-node` will use separate subdirectories under `local-data`.
+## Quick Start
 
+1. Set the environment:
+   ```bash
+   export CODEX_ENVIRONMENT=testnet
+   ```
 
-## Development
-Follow these instructions to run ceramic and the codex node in local development mode.
+2. Start the node:
+   ```bash
+   npm start
+   ```
 
-Install dependencies:
-```bash
-pnpm i
-```
+## Environment Types
 
-Start the ceramic-one service (in local/disconnected mode):
-```bash
-docker compose -f ../../docker/compose.yaml up
-```
+- **`testnet`**: Connects to the testnet network and pushes metrics to the metrics server
+- **`mainnet`**: Connects to the mainnet network and pushes metrics to the metrics server
+- **`local`**: Runs in isolated local mode, metrics pushing is disabled
 
-Run the codex node in dev mode:
-```bash
-pnpm run dev
-```
+## API Endpoints
 
-## Reset the services
-To start from a clean slate, delete the corresponding subdirectory under `local-data`.
-
-
-## TODO
-- Figure out libp2p connectivity issues (https://check.ipfs.network/?cid=bafkreiamccqck7of3qpzkxvzb4zkzqy2xoqmxjhpg5pwuw7aa4obuhfv2y&multiaddr=%2Fp2p%2F12D3KooWHhKaH7EqndPVQ2Nut8bircy8xZQAX9fEgxokdLBAYNix&ipniIndexer=https%3A%2F%2Fcid.contact&timeoutSeconds=61)
-- Ensure announce/provide is working properly
-- Add remote statistics reporting
+- `GET /health` - Health check
+- `GET /metrics` - Node metrics
+- `GET /pins` - List pinned CIDs
+- `POST /pin/:cid` - Pin a CID
+- `DELETE /pin/:cid` - Unpin a CID
+- `GET /test/:cid` - Fetch and serve a CID
+- `POST /reprovide` - Reprovide all pinned CIDs
+- `GET /libp2pinfo` - Libp2p node information
+- `GET /queue` - Queue statistics

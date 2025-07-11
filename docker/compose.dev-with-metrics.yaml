@@ -1,0 +1,37 @@
+services:
+  # Include all services from compose.dev.yaml
+  ceramic:
+    extends:
+      file: compose.dev.yaml
+      service: ceramic
+
+  codex-node:
+    extends:
+      file: compose.dev.yaml
+      service: codex-node
+    environment:
+      - CODEX_ENVIRONMENT=testnet
+      - METRICS_BACKEND_URL=http://metrics-server:3001
+    depends_on:
+      - ceramic
+      - metrics-server
+
+  # Include metrics services from compose.metrics.yml
+  postgres:
+    extends:
+      file: compose.metrics.yml
+      service: postgres
+
+  metrics-server:
+    extends:
+      file: compose.metrics.yml
+      service: metrics-server
+
+  grafana:
+    extends:
+      file: compose.metrics.yml
+      service: grafana
+
+volumes:
+  postgres-data:
+  grafana-data:

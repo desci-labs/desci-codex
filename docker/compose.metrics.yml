@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: codex_metrics
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d codex_metrics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  metrics-server:
+    build:
+      context: ..
+      dockerfile: packages/metrics_server/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - LOG_LEVEL=info
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=codex_metrics
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_SSL=false
+    volumes:
+      - ./src:/app/src
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  grafana:
+    build:
+      context: ../packages/metrics_server
+      dockerfile: Dockerfile.grafana
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=codex_metrics
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_SSL=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - metrics-server
+      - postgres
+
+volumes:
+  postgres-data:
+  grafana-data:

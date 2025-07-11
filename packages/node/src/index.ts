@@ -2,6 +2,7 @@ import express from "express";
 import { createIPFSNode } from "./ipfs.js";
 import { createCeramicEventsService } from "./events.js";
 import { createMetricsService } from "./metrics.js";
+import { createMetricsPusher } from "./metrics-pusher.js";
 import logger from "./logger.js";
 import { CID } from "multiformats";
 import { fileTypeFromBuffer } from "file-type";
@@ -28,7 +29,33 @@ const CERAMIC_ONE_RPC_URL =
 const CERAMIC_ONE_FLIGHT_URL =
   process.env.CERAMIC_ONE_FLIGHT_URL || "http://localhost:5102";
 
-log.info({ dataDir: IPFS_DATA_DIR }, "Using IPFS data directory");
+// Metrics backend configuration
+const METRICS_BACKEND_URL =
+  process.env.METRICS_BACKEND_URL ?? "http://localhost:3001";
+const METRICS_PUSH_INTERVAL_MS = process.env.METRICS_PUSH_INTERVAL_MS
+  ? parseInt(process.env.METRICS_PUSH_INTERVAL_MS)
+  : 1 * 60 * 1000; // 1 minute
+
+// Environment configuration
+const CODEX_ENVIRONMENT = process.env.CODEX_ENVIRONMENT as
+  | "testnet"
+  | "mainnet"
+  | "local"
+  | undefined;
+if (
+  !CODEX_ENVIRONMENT ||
+  !["testnet", "mainnet", "local"].includes(CODEX_ENVIRONMENT)
+) {
+  log.fatal(
+    "CODEX_ENVIRONMENT must be set to either 'testnet', 'mainnet', or 'local'",
+  );
+  process.exit(1);
+}
+
+log.info(
+  { dataDir: IPFS_DATA_DIR, environment: CODEX_ENVIRONMENT },
+  "Using IPFS data directory",
+);
 
 // First, create the IPFS node
 const ipfsNode = createIPFSNode({ dataDir: IPFS_DATA_DIR });
@@ -50,7 +77,23 @@ const ceramicEventsService = createCeramicEventsService({
 const metricsService = createMetricsService({
   eventsService: ceramicEventsService,
   ipfsNode: ipfsNode,
+  environment: CODEX_ENVIRONMENT,
 });
+
+// Create metrics pusher if backend URL is configured and not in local environment
+let metricsPusher: ReturnType<typeof createMetricsPusher> | null = null;
+if (METRICS_BACKEND_URL && CODEX_ENVIRONMENT !== "local") {
+  metricsPusher = createMetricsPusher({
+    metricsService,
+    backendUrl: METRICS_BACKEND_URL,
+    pushIntervalMs: METRICS_PUSH_INTERVAL_MS,
+  });
+  log.info({ backendUrl: METRICS_BACKEND_URL }, "Metrics pusher configured");
+} else if (CODEX_ENVIRONMENT === "local") {
+  log.info("Local environment detected, metrics pusher disabled");
+} else {
+  log.info("No metrics backend URL configured, metrics pusher disabled");
+}
 
 // Health check endpoint
 app.get("/health", (_req, res) => {
@@ -196,10 +239,15 @@ app.listen(port, async () => {
       );
     }
 
+    // This is blocking, so it has to be started before metrics pusher
     log.info("Starting Ceramic events service...");
     await ceramicEventsService.start();
 
-    log.info({ port }, "Server is running");
+    // Now start metrics pusher after events service is ready
+    if (metricsPusher) {
+      log.info("Starting metrics pusher...");
+      await metricsPusher.start();
+    }
   } catch (error) {
     log.fatal(error, "Failed to start server");
     process.exit(1);
@@ -208,6 +256,17 @@ app.listen(port, async () => {
 
 async function gracefulShutdown() {
   log.info("Shutting down gracefully...");
+
+  // Stop metrics pusher first
+  if (metricsPusher) {
+    try {
+      log.info("Stopping metrics pusher...");
+      await metricsPusher.stop();
+    } catch (error) {
+      log.error(error, "Error during metrics pusher shutdown");
+    }
+  }
+
   try {
     await ceramicEventsService.stop();
   } catch (error) {

@@ -49,6 +49,7 @@ services:
       - 4001:4001 # IPFS TCP swarm
     environment:
       - PORT=3000
+      - CODEX_ENVIRONMENT=local
       - IPFS_DATA_DIR=/app/local-data/codex-node
       - CERAMIC_ONE_RPC_URL=http://ceramic:5101
       - CERAMIC_ONE_FLIGHT_URL=http://ceramic:5102
@@ -59,8 +60,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    # extra_hosts:
-    #   host.docker.internal: host-gateway
     depends_on:
       ceramic:
         condition: service_healthy

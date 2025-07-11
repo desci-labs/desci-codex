@@ -8,5 +8,7 @@ services:
       - ../local-data/mainnet/ceramic-one:/data/ceramic-one
   codex-node:
     container_name: codex-node-mainnet
+    environment:
+      - CODEX_ENVIRONMENT=mainnet
     volumes:
       - ../local-data/mainnet/codex-node:/app/local-data/codex-node

@@ -106,7 +106,13 @@ export function createCeramicEventsService(
 
         isRunning = true;
 
-        await streamEvents();
+        // Start streaming events in the background without blocking
+        setImmediate(() => {
+          streamEvents().catch((error) => {
+            log.error(error, "Error in events streaming loop");
+            isRunning = false;
+          });
+        });
       } catch (error) {
         log.error(error, "Error starting events service");
         throw error;

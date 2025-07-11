@@ -10,11 +10,7 @@ export interface MetricsService {
       ipfs: string;
       ceramic: string;
     };
-    streams: {
-      id: string;
-      versions: string[];
-    }[];
-    pinnedCids: string[];
+    environment: "testnet" | "mainnet" | "local";
     summary: {
       totalStreams: number;
       totalPinnedCids: number;
@@ -26,6 +22,7 @@ export interface MetricsService {
 export interface MetricsServiceConfig {
   eventsService: CeramicEventsService;
   ipfsNode: IPFSNode;
+  environment: "testnet" | "mainnet" | "local";
 }
 
 export function createMetricsService(
@@ -55,8 +52,7 @@ export function createMetricsService(
             ipfs: ipfsPeerId,
             ceramic: ceramicStats.peerId,
           },
-          streams: ceramicStats.streams,
-          pinnedCids,
+          environment: config.environment,
           summary,
         };
       } catch (error) {

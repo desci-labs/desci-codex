@@ -48,7 +48,7 @@ importers:
     devDependencies:
       '@ceramicnetwork/cli':
         specifier: ^5.2.0
-        version: 5.16.0(@polkadot/util@7.9.2)(@types/express@4.17.23)(encoding@0.1.13)(pg@8.16.3)(typescript@5.8.3)
+        version: 5.16.0(@polkadot/util@7.9.2)(@types/express@4.17.23)(encoding@0.1.13)(typescript@5.8.3)
       '@ceramicnetwork/http-client':
         specifier: ^5.2.0
         version: 5.16.0(encoding@0.1.13)(typescript@5.8.3)
@@ -164,6 +164,52 @@ importers:
       vitest-github-actions-reporter:
         specifier: ^0.10.0
         version: 0.10.0(vitest@0.34.6(terser@5.43.1))
+
+  packages/metrics_server:
+    dependencies:
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.6.1
+      express:
+        specifier: ^4.18.2
+        version: 4.21.2
+      helmet:
+        specifier: ^8.0.0
+        version: 8.1.0
+      pg:
+        specifier: ^8.11.3
+        version: 8.16.3
+      pino:
+        specifier: ^8.19.0
+        version: 8.21.0
+      pino-pretty:
+        specifier: ^10.3.1
+        version: 10.3.1
+      pino-std-serializers:
+        specifier: ^7.0.0
+        version: 7.0.0
+    devDependencies:
+      '@types/cors':
+        specifier: ^2.8.19
+        version: 2.8.19
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.23
+      '@types/node':
+        specifier: ^20.11.24
+        version: 20.19.6
+      '@types/pg':
+        specifier: ^8.11.0
+        version: 8.15.4
+      tsx:
+        specifier: ^4.7.1
+        version: 4.20.3
+      typescript:
+        specifier: ^5.2.2
+        version: 5.8.3
 
   packages/models:
     dependencies:
@@ -2344,6 +2390,9 @@ packages:
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
+  '@types/cors@2.8.19':
+    resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
+
   '@types/dns-packet@5.6.5':
     resolution: {integrity: sha512-qXOC7XLOEe43ehtWJCMnQXvgcIpv6rPmQ1jXT98Ad8A3TB1Ue50jsCbSSSyuazScEuZ/Q026vHbrOTVkmwA+7Q==}
 
@@ -2403,6 +2452,9 @@ packages:
 
   '@types/node@20.19.6':
     resolution: {integrity: sha512-uYssdp9z5zH5GQ0L4zEJ2ZuavYsJwkozjiUzCRfGtaaQcyjAMJ34aP8idv61QlqTozu6kudyr6JMq9Chf09dfA==}
+
+  '@types/pg@8.15.4':
+    resolution: {integrity: sha512-I6UNVBAoYbvuWkkU3oosC8yxqH21f4/Jc4DK71JLG3dT2mdlGe1z+ep/LQGXaKaOgcvUrsQoPRqfgtMcvZiJhg==}
 
   '@types/qs@6.14.0':
     resolution: {integrity: sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ==}
@@ -3953,6 +4005,10 @@ packages:
 
   helia@5.4.2:
     resolution: {integrity: sha512-4jFBFE+dn+1UClCDbJBP+dA6OT9TrD+f8m5VIle7TCTAYTkDfR4mi0VtaWM4CWvrbDYwBk26xR9roYtXlG9oHw==}
+
+  helmet@8.1.0:
+    resolution: {integrity: sha512-jOiHyAZsmnr8LqoPGmCjYAaiuWwjAPLgY8ZX2XrmHawt99/u1y6RgrZMTeoPfpUbV96HOalYgz1qzkRbw54Pmg==}
+    engines: {node: '>=18.0.0'}
 
   help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
@@ -7262,7 +7318,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@ceramicnetwork/cli@5.16.0(@polkadot/util@7.9.2)(@types/express@4.17.23)(encoding@0.1.13)(pg@8.16.3)(typescript@5.8.3)':
+  '@ceramicnetwork/cli@5.16.0(@polkadot/util@7.9.2)(@types/express@4.17.23)(encoding@0.1.13)(typescript@5.8.3)':
     dependencies:
       '@awaitjs/express': 0.9.0(@types/express@4.17.23)(express@4.21.2)
       '@ceramicnetwork/3id-did-resolver': 5.16.0(encoding@0.1.13)(typescript@5.8.3)
@@ -10575,6 +10631,10 @@ snapshots:
     dependencies:
       '@types/node': 20.19.6
 
+  '@types/cors@2.8.19':
+    dependencies:
+      '@types/node': 20.19.6
+
   '@types/dns-packet@5.6.5':
     dependencies:
       '@types/node': 20.19.6
@@ -10641,6 +10701,12 @@ snapshots:
   '@types/node@20.19.6':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/pg@8.15.4':
+    dependencies:
+      '@types/node': 20.19.6
+      pg-protocol: 1.10.3
+      pg-types: 2.2.0
 
   '@types/qs@6.14.0': {}
 
@@ -12608,6 +12674,8 @@ snapshots:
       - react-native
       - supports-color
       - utf-8-validate
+
+  helmet@8.1.0: {}
 
   help-me@5.0.0: {}
 

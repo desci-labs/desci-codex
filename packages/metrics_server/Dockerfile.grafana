@@ -1,0 +1,5 @@
+FROM grafana/grafana:latest
+
+# Copy provisioning files
+COPY grafana/provisioning /etc/grafana/provisioning
+COPY grafana/dashboards /etc/grafana/dashboards

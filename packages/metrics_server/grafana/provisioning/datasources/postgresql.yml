@@ -1,0 +1,21 @@
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL
+    type: postgres
+    uid: postgresql
+    access: proxy
+    url: ${DB_HOST}:${DB_PORT}
+    database: ${DB_NAME}
+    user: ${DB_USER}
+    secureJsonData:
+      password: ${DB_PASSWORD}
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 100
+      maxIdleConns: 100
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400
+      postgresVersion: 1500
+      timescaledb: false
+    editable: true

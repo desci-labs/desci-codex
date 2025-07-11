@@ -19,8 +19,12 @@
 **/local-data
 
 # Docker files themselves
-**/*Dockerfile
+**/*Dockerfile*
 **/*dockerignore
+docker/
+
+# Deployments
+**/k8s
 
 # Other unnecessary files
 .husky

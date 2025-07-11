@@ -16,5 +16,8 @@ services:
       file: compose.yaml
       service: codex-node
     container_name: codex-node-testnet
+    environment:
+      - CODEX_ENVIRONMENT=testnet
+      - METRICS_BACKEND_URL=${METRICS_BACKEND_URL:-}
     volumes:
       - ../local-data/testnet/codex-node:/app/local-data/codex-node
