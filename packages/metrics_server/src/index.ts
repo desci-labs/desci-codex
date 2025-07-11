@@ -73,11 +73,30 @@ apiV1.post("/metrics/node", async (req, res) => {
 
 app.use("/api/v1", apiV1);
 
-// Error handling middleware
-app.use((error: Error, req: express.Request, res: express.Response) => {
-  log.error(error, "Unhandled error");
-  res.status(500).json({ error: "Internal server error" });
+// Root route handler
+app.get("/", (req, res) => {
+  res.status(200).json({
+    message: "Codex Metrics Server",
+    version: "1.0.0",
+    endpoints: {
+      health: "/health",
+      metrics: "/api/v1/metrics/node",
+    },
+  });
 });
+
+// Error handling middleware
+app.use(
+  (
+    error: Error,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    log.error(error, "Unhandled error");
+    res.status(500).json({ error: "Internal server error" });
+  },
+);
 
 // Graceful shutdown
 process.on("SIGINT", async () => {

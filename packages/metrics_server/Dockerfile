@@ -1,5 +1,5 @@
 # Multi-stage build for production
-FROM node:22-alpine AS builder
+FROM node:22-slim AS builder
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -25,17 +25,16 @@ WORKDIR /app/packages/metrics_server
 RUN pnpm build
 
 # Production stage
-FROM node:22-alpine AS production
+FROM node:22-slim AS production
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 -G nodejs
+RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
 
 # Set working directory
 WORKDIR /app
 
 # Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+RUN apt-get update && apt-get install -y dumb-init jq vim socat && rm -rf /var/lib/apt/lists/*
 
 # Install pnpm
 RUN npm install -g pnpm
