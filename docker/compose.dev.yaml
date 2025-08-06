@@ -18,6 +18,6 @@ services:
     container_name: codex-node-testnet
     environment:
       - CODEX_ENVIRONMENT=testnet
-      - METRICS_BACKEND_URL=${METRICS_BACKEND_URL:-}
+      - METRICS_BACKEND_URL=https://codex-metrics.desci.com
     volumes:
       - ../local-data/testnet/codex-node:/app/local-data/codex-node

@@ -56,7 +56,8 @@ Use the convenience script for easy management. Note it detaches, so you need to
 ## Environment Variables
 
 ### Metrics Configuration
-The codex-node service can be configured to use metrics via environment variables:
+The codex-node service can be configured to use metrics via environment variables.
+By default, `compose.dev.yaml` connects to the remote metrics service automatically.
 
 ```bash
 # Enable metrics (when running with metrics stack)
