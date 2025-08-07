@@ -73,26 +73,15 @@ const ceramicEventsService = createCeramicEventsService({
   modelId: MODEL_IDS.researchObject,
 });
 
-// Create the metrics service with references to other services
-const metricsService = createMetricsService({
-  eventsService: ceramicEventsService,
-  ipfsNode: ipfsNode,
-  environment: CODEX_ENVIRONMENT,
-});
-
 // Create metrics pusher if backend URL is configured and not in local environment
 let metricsPusher: ReturnType<typeof createMetricsPusher> | null = null;
+let metricsService: ReturnType<typeof createMetricsService> | null = null;
 if (METRICS_BACKEND_URL && CODEX_ENVIRONMENT !== "local") {
-  metricsPusher = createMetricsPusher({
-    metricsService,
-    backendUrl: METRICS_BACKEND_URL,
-    pushIntervalMs: METRICS_PUSH_INTERVAL_MS,
-  });
-  log.info({ backendUrl: METRICS_BACKEND_URL }, "Metrics pusher configured");
+  log.info({ backendUrl: METRICS_BACKEND_URL }, "Metrics service configured");
 } else if (CODEX_ENVIRONMENT === "local") {
-  log.info("Local environment detected, metrics pusher disabled");
+  log.info("Local environment detected, metrics service disabled");
 } else {
-  log.info("No metrics backend URL configured, metrics pusher disabled");
+  log.info("No metrics backend URL configured, metrics service disabled");
 }
 
 // Health check endpoint
@@ -215,6 +204,10 @@ app.get("/queue", (req, res) => {
 // Metrics endpoint
 app.get("/metrics", async (req, res) => {
   try {
+    if (!metricsService) {
+      res.status(503).json({ error: "Metrics service not initialized" });
+      return;
+    }
     const metrics = await metricsService.getMetrics();
     res.status(200).json(metrics);
   } catch (error) {
@@ -229,6 +222,9 @@ app.listen(port, async () => {
     log.info("Starting IPFS node...");
     await ipfsNode.start();
 
+    // Get the private key after IPFS node is started
+    const privateKey = await ipfsNode.getPrivateKey();
+
     log.info("Registering model interests...");
     try {
       await registerModelInterests(CERAMIC_ONE_RPC_URL);
@@ -242,6 +238,23 @@ app.listen(port, async () => {
     // This is blocking, so it has to be started before metrics pusher
     log.info("Starting Ceramic events service...");
     await ceramicEventsService.start();
+
+    // Create the metrics service with private key
+    metricsService = createMetricsService({
+      eventsService: ceramicEventsService,
+      ipfsNode: ipfsNode,
+      environment: CODEX_ENVIRONMENT,
+      privateKey,
+    });
+
+    // Create metrics pusher if backend URL is configured and not in local environment
+    if (METRICS_BACKEND_URL && CODEX_ENVIRONMENT !== "local") {
+      metricsPusher = createMetricsPusher({
+        metricsService,
+        backendUrl: METRICS_BACKEND_URL,
+        pushIntervalMs: METRICS_PUSH_INTERVAL_MS,
+      });
+    }
 
     // Now start metrics pusher after events service is ready
     if (metricsPusher) {

@@ -17,6 +17,20 @@ export interface MetricsPusher {
   pushMetrics: () => Promise<void>;
 }
 
+export const metricsToPayload = (
+  metrics: Awaited<ReturnType<MetricsService["getMetrics"]>>,
+) => {
+  return {
+    ipfsPeerId: metrics.identity.ipfs,
+    ceramicPeerId: metrics.identity.ceramic,
+    environment: metrics.environment,
+    totalStreams: metrics.summary.totalStreams,
+    totalPinnedCids: metrics.summary.totalPinnedCids,
+    collectedAt: metrics.summary.collectedAt,
+    signature: metrics.signature,
+  };
+};
+
 export function createMetricsPusher(
   config: MetricsPusherConfig,
 ): MetricsPusher {
@@ -35,15 +49,7 @@ export function createMetricsPusher(
     try {
       const metrics = await metricsService.getMetrics();
 
-      // Transform metrics to backend format (simplified)
-      const backendMetrics = {
-        ipfsPeerId: metrics.identity.ipfs,
-        ceramicPeerId: metrics.identity.ceramic,
-        environment: metrics.environment,
-        totalStreams: metrics.summary.totalStreams,
-        totalPinnedCids: metrics.summary.totalPinnedCids,
-        collectedAt: metrics.summary.collectedAt,
-      };
+      const payload = metricsToPayload(metrics);
 
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -52,7 +58,7 @@ export function createMetricsPusher(
       const response = await fetch(`${backendUrl}/api/v1/metrics/node`, {
         method: "POST",
         headers,
-        body: JSON.stringify(backendMetrics),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

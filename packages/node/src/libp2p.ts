@@ -35,10 +35,13 @@ export const BOOTSTRAP_NODES = [
 /**
  * Creates and configures a libp2p instance for use with Helia
  */
-export async function initLibp2p(datastore: FsDatastore): Promise<Libp2p> {
+export async function initLibp2p(
+  datastore: FsDatastore,
+  privateKey: Awaited<ReturnType<typeof loadOrCreateSelfKey>>,
+): Promise<Libp2p> {
   const libp2p = await createLibp2p({
     datastore,
-    privateKey: await loadOrCreateSelfKey(datastore),
+    privateKey,
     addresses: {
       listen: [
         "/ip4/0.0.0.0/tcp/0",

@@ -10,6 +10,7 @@ import { httpGatewayRouting, libp2pRouting } from "@helia/routers";
 import { errWithCause } from "pino-std-serializers";
 import { initLibp2p } from "./libp2p.js";
 import type { Libp2p } from "libp2p";
+import { loadOrCreateSelfKey } from "@libp2p/config";
 
 const log = logger.child({ module: "ipfs" });
 
@@ -22,6 +23,7 @@ export interface IPFSNode {
   listPins: () => Promise<string[]>;
   reprovide: () => Promise<void>;
   libp2pInfo: () => Promise<{ peerId: string; multiaddrs: string[] }>;
+  getPrivateKey: () => Promise<Awaited<ReturnType<typeof loadOrCreateSelfKey>>>;
 }
 
 export interface IPFSNodeConfig {
@@ -32,6 +34,7 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
   let libp2p: Libp2p;
   let helia: Helia;
   let fs: UnixFS;
+  let privateKey: Awaited<ReturnType<typeof loadOrCreateSelfKey>>;
 
   return {
     async start() {
@@ -44,7 +47,9 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
           createIfMissing: true,
         });
 
-        libp2p = await initLibp2p(datastore);
+        privateKey = await loadOrCreateSelfKey(datastore);
+
+        libp2p = await initLibp2p(datastore, privateKey);
 
         helia = await createHelia({
           datastore,
@@ -210,6 +215,13 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
         // connections: libp2p.getConnections(),
         protocols: libp2p.getProtocols(),
       };
+    },
+
+    async getPrivateKey() {
+      if (!privateKey) {
+        throw new Error("IPFS node not started");
+      }
+      return privateKey;
     },
   };
 }

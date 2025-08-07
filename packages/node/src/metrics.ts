@@ -1,6 +1,7 @@
 import logger from "./logger.js";
 import type { CeramicEventsService } from "./events.js";
 import type { IPFSNode } from "./ipfs.js";
+import { loadOrCreateSelfKey } from "@libp2p/config";
 
 const log = logger.child({ module: "metrics" });
 
@@ -16,6 +17,7 @@ export interface MetricsService {
       totalPinnedCids: number;
       collectedAt: string;
     };
+    signature: number[];
   }>;
 }
 
@@ -23,12 +25,12 @@ export interface MetricsServiceConfig {
   eventsService: CeramicEventsService;
   ipfsNode: IPFSNode;
   environment: "testnet" | "mainnet" | "local";
+  privateKey: Awaited<ReturnType<typeof loadOrCreateSelfKey>>;
 }
 
 export function createMetricsService(
   config: MetricsServiceConfig,
 ): MetricsService {
-  // TODO: sign with private key for peerId
   return {
     async getMetrics() {
       try {
@@ -47,6 +49,25 @@ export function createMetricsService(
         };
 
         const ipfsPeerId = (await config.ipfsNode.libp2pInfo()).peerId;
+
+        // Create the metrics data that will be sent to backend (without signature)
+        const metricsForBackend = {
+          ipfsPeerId: ipfsPeerId,
+          ceramicPeerId: ceramicStats.peerId,
+          environment: config.environment,
+          totalStreams: summary.totalStreams,
+          totalPinnedCids: summary.totalPinnedCids,
+          collectedAt: summary.collectedAt,
+        };
+
+        // Sign the exact data that will be sent to backend
+        // This ensures the backend can verify the signature by signing the same data
+        const metricsBytes = new TextEncoder().encode(
+          JSON.stringify(metricsForBackend),
+        );
+        const signature = await config.privateKey.sign(metricsBytes);
+
+        // Return the original metrics structure with signature
         return {
           identity: {
             ipfs: ipfsPeerId,
@@ -54,6 +75,7 @@ export function createMetricsService(
           },
           environment: config.environment,
           summary,
+          signature: Array.from(signature), // Convert to array for JSON serialization
         };
       } catch (error) {
         log.error(error, "Error collecting metrics");
