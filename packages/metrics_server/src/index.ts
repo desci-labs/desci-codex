@@ -91,6 +91,7 @@ app.use(
     error: Error,
     req: express.Request,
     res: express.Response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     next: express.NextFunction,
   ) => {
     log.error(error, "Unhandled error");
