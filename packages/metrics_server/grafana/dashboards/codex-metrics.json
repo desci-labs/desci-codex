@@ -355,7 +355,7 @@
           },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, ipfs_peer_id, MAX(total_pinned_cids) as total_cids FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'mainnet' GROUP BY ipfs_peer_id ORDER BY total_cids DESC LIMIT 20",
+          "rawSql": "SELECT NOW() as time, ipfs_peer_id, total_pinned_cids as total_cids FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_pinned_cids FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'mainnet' ORDER BY ipfs_peer_id, time DESC) as latest ORDER BY total_cids DESC",
           "refId": "A"
         }
       ],
@@ -449,7 +449,7 @@
           },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, ipfs_peer_id, MAX(total_streams) as total_streams FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'mainnet' GROUP BY ipfs_peer_id ORDER BY total_streams DESC LIMIT 20",
+          "rawSql": "SELECT NOW() as time, ipfs_peer_id, total_streams FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_streams FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'mainnet' ORDER BY ipfs_peer_id, time DESC) as latest ORDER BY total_streams DESC",
           "refId": "A"
         }
       ],
@@ -543,7 +543,7 @@
           },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, ipfs_peer_id, MAX(total_pinned_cids) as total_cids FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'testnet' GROUP BY ipfs_peer_id ORDER BY total_cids DESC LIMIT 20",
+          "rawSql": "SELECT NOW() as time, ipfs_peer_id, total_pinned_cids as total_cids FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_pinned_cids FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'testnet' ORDER BY ipfs_peer_id, time DESC) as latest ORDER BY total_cids DESC",
           "refId": "A"
         }
       ],
@@ -637,7 +637,7 @@
           },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, ipfs_peer_id, MAX(total_streams) as total_streams FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'testnet' GROUP BY ipfs_peer_id ORDER BY total_streams DESC LIMIT 20",
+          "rawSql": "SELECT NOW() as time, ipfs_peer_id, total_streams FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_streams FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'testnet' ORDER BY ipfs_peer_id, time DESC) as latest ORDER BY total_streams DESC",
           "refId": "A"
         }
       ],
