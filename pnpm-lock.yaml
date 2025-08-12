@@ -48,7 +48,7 @@ importers:
     devDependencies:
       '@ceramicnetwork/cli':
         specifier: ^5.2.0
-        version: 5.16.0(@polkadot/util@7.9.2)(@types/express@4.17.23)(encoding@0.1.13)(typescript@5.8.3)
+        version: 5.16.0(@polkadot/util@7.9.2)(@types/express@4.17.23)(encoding@0.1.13)(pg@8.16.3)(typescript@5.8.3)
       '@ceramicnetwork/http-client':
         specifier: ^5.2.0
         version: 5.16.0(encoding@0.1.13)(typescript@5.8.3)
@@ -167,6 +167,15 @@ importers:
 
   packages/metrics_server:
     dependencies:
+      '@libp2p/crypto':
+        specifier: ^5.1.7
+        version: 5.1.7
+      '@libp2p/interface':
+        specifier: ^2.10.5
+        version: 2.10.5
+      '@libp2p/peer-id':
+        specifier: ^5.0.0
+        version: 5.1.8
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -210,6 +219,9 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.8.3
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.1(@types/node@20.19.6)(terser@5.43.1)
 
   packages/models:
     dependencies:
@@ -364,9 +376,6 @@ importers:
       helia:
         specifier: ^5.4.2
         version: 5.4.2(react-native@0.80.1(@babel/core@7.28.0)(react@19.1.0))
-      keys:
-        specifier: link:@libp2p/crypto/keys
-        version: link:@libp2p/crypto/keys
       libp2p:
         specifier: ^2.9.0
         version: 2.9.0
@@ -7415,7 +7424,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@ceramicnetwork/cli@5.16.0(@polkadot/util@7.9.2)(@types/express@4.17.23)(encoding@0.1.13)(typescript@5.8.3)':
+  '@ceramicnetwork/cli@5.16.0(@polkadot/util@7.9.2)(@types/express@4.17.23)(encoding@0.1.13)(pg@8.16.3)(typescript@5.8.3)':
     dependencies:
       '@awaitjs/express': 0.9.0(@types/express@4.17.23)(express@4.21.2)
       '@ceramicnetwork/3id-did-resolver': 5.16.0(encoding@0.1.13)(typescript@5.8.3)

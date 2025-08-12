@@ -1,7 +1,11 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import { DatabaseService, type NodeMetrics } from "./database.js";
+import { DatabaseService } from "./database.js";
+import {
+  validateMetricsSignature,
+  type SignedNodeMetrics,
+} from "./validation.js";
 import logger from "./logger.js";
 
 const app = express();
@@ -35,18 +39,29 @@ const apiV1 = express.Router();
 // POST /api/v1/metrics/node - Node health metrics
 apiV1.post("/metrics/node", async (req, res) => {
   try {
-    const metrics: NodeMetrics = req.body;
+    const signedMetrics: SignedNodeMetrics = req.body;
 
     // Validate required fields
-    if (!metrics.ipfsPeerId || !metrics.ceramicPeerId || !metrics.environment) {
+    if (
+      !signedMetrics.ipfsPeerId ||
+      !signedMetrics.ceramicPeerId ||
+      !signedMetrics.environment
+    ) {
       return res.status(400).json({
         error:
           "Missing required fields: ipfsPeerId, ceramicPeerId, environment",
       });
     }
 
+    // Validate signature is present
+    if (!signedMetrics.signature || !Array.isArray(signedMetrics.signature)) {
+      return res.status(400).json({
+        error: "Missing or invalid signature",
+      });
+    }
+
     // Validate environment value
-    if (!["testnet", "mainnet", "local"].includes(metrics.environment)) {
+    if (!["testnet", "mainnet", "local"].includes(signedMetrics.environment)) {
       return res.status(400).json({
         error:
           "Invalid environment value. Must be 'testnet', 'mainnet', or 'local'",
@@ -54,15 +69,33 @@ apiV1.post("/metrics/node", async (req, res) => {
     }
 
     // Set collectedAt if not provided
-    if (!metrics.collectedAt) {
-      metrics.collectedAt = new Date().toISOString();
+    if (!signedMetrics.collectedAt) {
+      signedMetrics.collectedAt = new Date().toISOString();
     }
 
+    // Validate cryptographic signature
+    const validationResult = await validateMetricsSignature(signedMetrics);
+    if (!validationResult.isValid) {
+      log.warn(
+        {
+          ipfsPeerId: signedMetrics.ipfsPeerId,
+          error: validationResult.error,
+        },
+        "Rejected metrics submission due to invalid signature",
+      );
+      return res.status(401).json({
+        error: "Invalid signature",
+        details: validationResult.error,
+      });
+    }
+
+    // Extract metrics without signature for database storage
+    const { signature: _, ...metrics } = signedMetrics;
     await databaseService.writeNodeMetrics(metrics);
 
     log.info(
       { ipfsPeerId: metrics.ipfsPeerId, environment: metrics.environment },
-      "Successfully processed node metrics",
+      "Successfully processed and validated node metrics",
     );
     return res.status(200).json({ success: true });
   } catch (error) {
