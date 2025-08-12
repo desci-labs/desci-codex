@@ -23,37 +23,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: prepor/action-aws-iam-authenticator@master
-      - run: aws-iam-authenticator version
+      - name: Setup AWS and Kubernetes
+        uses: ./.github/actions/setup-aws-k8s
+        with:
+          kube-config-data: ${{ secrets.KUBE_CONFIG_DATA }}
 
-      - name: Install Kubectl
-        run: |
-          #$(curl -Ls https://dl.k8s.io/release/stable.txt)
-          version=v1.23.6
-          echo "using kubectl@$version"
-          curl -sLO "https://dl.k8s.io/release/$version/bin/linux/amd64/kubectl" -o kubectl
-          chmod +x kubectl
-          mv kubectl /usr/local/bin
-          mkdir $HOME/.kube
-          sudo apt-get update
-          sudo apt-get install less
-          echo ${{ secrets.KUBE_CONFIG_DATA }} | base64 --decode > $HOME/.kube/config
-          aws sts get-caller-identity
-
-      - name: Build and tag codex-node
-        run: |
-          docker build \
-            -t codex-node:${{ github.sha }} \
-            -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-node \
-            -f packages/node/Dockerfile \
-            .
-
-      - name: Push image
-        run: |
-          aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-
-          docker tag codex-node:${{ github.sha }} $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-node:${{ github.sha }}
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-node:${{ github.sha }}
+      - name: Build and push codex-node image
+        uses: ./.github/actions/docker-build-push
+        with:
+          image-name: codex-node
+          dockerfile-path: packages/node/Dockerfile
+          build-context: .
 
   deploy:
     runs-on: ubuntu-latest
@@ -63,34 +43,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: prepor/action-aws-iam-authenticator@master
-      - run: aws-iam-authenticator version
+      - name: Setup AWS and Kubernetes
+        uses: ./.github/actions/setup-aws-k8s
+        with:
+          kube-config-data: ${{ secrets.KUBE_CONFIG_DATA }}
 
-      - name: Install Kubectl
-        run: |
-          #$(curl -Ls https://dl.k8s.io/release/stable.txt)
-          version=v1.23.6
-          echo "using kubectl@$version"
-          curl -sLO "https://dl.k8s.io/release/$version/bin/linux/amd64/kubectl" -o kubectl
-          chmod +x kubectl
-          mv kubectl /usr/local/bin
-          mkdir $HOME/.kube
-          sudo apt-get update
-          sudo apt-get install less
-          echo ${{ secrets.KUBE_CONFIG_DATA }} | base64 --decode > $HOME/.kube/config
-          aws sts get-caller-identity
-
-      - name: Deploy to EKS
-        run: |
-          kubectl apply -f packages/node/k8s/dev/deployment.yaml
-          kubectl set image statefulset/codex-node-dev codex-node=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-node:${{ github.sha }} --record
-
-          aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-
-          docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-node:${{ github.sha }}
-          docker tag $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-node:${{ github.sha }} $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-node:latest
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-node:latest
-
-      - name: Verify EKS Deployment
-        run: |
-          kubectl rollout status statefulset/codex-node-dev --timeout=300s
+      - name: Deploy codex-node to EKS
+        uses: ./.github/actions/k8s-deploy
+        with:
+          manifest-path: packages/node/k8s/dev/deployment.yaml
+          deployment-type: statefulset
+          deployment-name: codex-node-dev
+          container-name: codex-node
+          image-name: codex-node

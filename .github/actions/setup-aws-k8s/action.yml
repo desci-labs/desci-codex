@@ -1,0 +1,33 @@
+name: 'Setup AWS and Kubernetes'
+description: 'Configure AWS credentials and kubectl for EKS deployment'
+inputs:
+  kube-config-data:
+    description: 'Base64 encoded kubeconfig data'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup AWS IAM Authenticator
+      uses: prepor/action-aws-iam-authenticator@master
+      
+    - name: Verify IAM Authenticator
+      shell: bash
+      run: aws-iam-authenticator version
+
+    - name: Install and configure kubectl
+      shell: bash
+      run: |
+        # Install kubectl
+        version=v1.23.6
+        echo "Installing kubectl@$version"
+        curl -sLO "https://dl.k8s.io/release/$version/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin
+        
+        # Setup kubeconfig
+        mkdir -p $HOME/.kube
+        echo "${{ inputs.kube-config-data }}" | base64 --decode > $HOME/.kube/config
+        
+        # Install dependencies and verify AWS connection
+        sudo apt-get update && sudo apt-get install -y less
+        aws sts get-caller-identity

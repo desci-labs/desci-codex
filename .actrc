@@ -1,0 +1,6 @@
+# Default configuration for act
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+--container-daemon-socket -
+--secret-file .secrets.act
+--artifact-server-path /tmp/artifacts
+--bind
