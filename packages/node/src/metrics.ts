@@ -50,7 +50,7 @@ export function createMetricsService(
 
         const ipfsPeerId = (await config.ipfsNode.libp2pInfo()).peerId;
 
-        // Create the metrics data that will be sent to backend (without signature)
+        // Create the metrics data that will be sent to backend
         const metricsForBackend = {
           ipfsPeerId: ipfsPeerId,
           ceramicPeerId: ceramicStats.peerId,
@@ -61,13 +61,11 @@ export function createMetricsService(
         };
 
         // Sign the exact data that will be sent to backend
-        // This ensures the backend can verify the signature by signing the same data
         const metricsBytes = new TextEncoder().encode(
           JSON.stringify(metricsForBackend),
         );
         const signature = await config.privateKey.sign(metricsBytes);
 
-        // Return the original metrics structure with signature
         return {
           identity: {
             ipfs: ipfsPeerId,

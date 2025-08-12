@@ -67,7 +67,6 @@
     "express": "^4.18.2",
     "file-type": "^18.7.0",
     "helia": "^5.4.2",
-    "keys": "link:@libp2p/crypto/keys",
     "libp2p": "^2.9.0",
     "multiformats": "^13.3.2",
     "p-queue": "^8.1.0",

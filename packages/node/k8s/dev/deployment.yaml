@@ -308,6 +308,7 @@ spec:
       protocol: TCP
       port: 4001
       targetPort: 4001
+---
 ## Replica 1
 apiVersion: v1
 kind: Service
