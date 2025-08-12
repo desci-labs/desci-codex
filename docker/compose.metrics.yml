@@ -31,7 +31,7 @@ services:
       - DB_NAME=codex_metrics
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_SSL=false
+      - DB_SSL=disable
     volumes:
       - ./src:/app/src
     restart: unless-stopped
@@ -52,7 +52,7 @@ services:
       - DB_NAME=codex_metrics
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_SSL=false
+      - DB_SSL=disable
     volumes:
       - grafana-data:/var/lib/grafana
     restart: unless-stopped

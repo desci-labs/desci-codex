@@ -11,7 +11,7 @@ datasources:
     secureJsonData:
       password: ${DB_PASSWORD}
     jsonData:
-      sslmode: ${DB_SSL:disable}
+      sslmode: disable
       maxOpenConns: 100
       maxIdleConns: 100
       maxIdleConnsAuto: true
