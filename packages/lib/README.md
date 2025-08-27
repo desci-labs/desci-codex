@@ -43,16 +43,19 @@ import { Ed25519Provider } from 'key-did-provider-ed25519';
 // Initialize FlightSQL client for queries
 const flightClient = newFlightSqlClient('http://localhost:5102');
 // or use the local default: newFlightSqlClient(DEFAULT_LOCAL_FLIGHT);
-// or use our public testnet node: newFlightSqlClient('ceramic-one-dev-rpc.desci.com');
+// or use our public testnet node: newFlightSqlClient('https://ceramic-one-dev.desci.com:5102');
 
 // Initialize stream client for mutations
 const streamClient = newStreamClient({ 
   ceramic: 'http://localhost:5101' 
 });
-// or use our public testnet node: newStreamClient('ceramic-one-dev-rpc.desci.com');
+// or use our public testnet node: newStreamClient('https://ceramic-one-dev-rpc.desci.com:5101');
 
 // Setup DID for authenticated operations
-const seed = new Uint8Array(32); // Your 32-byte seed
+// Generate a secure 32-byte seed. Persist it securely; never commit to VCS.
+import { randomBytes } from 'crypto';
+const seed = randomBytes(32);
+
 const provider = new Ed25519Provider(seed);
 const did = new DID({ provider });
 await did.authenticate();
@@ -264,4 +267,4 @@ make test
 
 ## Development
 
-This library is part of the Codex monorepo and uses pnpm for package management. See the [root README(../../README.md)] for development setup instructions.
+This library is part of the Codex monorepo and uses pnpm for package management. See the [root README](../../README.md) for development setup instructions.

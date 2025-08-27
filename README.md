@@ -23,7 +23,7 @@ There is still iteration on the design of the models as we are starting with bac
 
 **Alpha** means that the model, and hence the ID, will likely change.
 **Beta** means that the model is somewhat stable, but there may be an upgrade requiring a migration.
-**Stable** means the model is stable, and if any change is necessary we are commited in solving for backward compatibility.
+**Stable** means the model is stable, and if any change is necessary we are committed in solving for backward compatibility.
 
 | Model                 | Status | ID (Clay)                                                       | ID (Mainnet) |
 |-----------------------|--------|-----------------------------------------------------------------|--------------|
