@@ -4,33 +4,21 @@ on:
     branches: [main]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v4
         with:
-          node-version-file: '.nvmrc'
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
+          version: 10
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
           check-latest: false
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
+      - run: pnpm install
       - run: |
-          if ! npm --workspace packages/composedb view .@${npm_package_version} > /dev/null; then
-            echo "New version of composedb package; running publish..."
-            npm --workspace packages/composedb publish --access public
-          else
-            echo "This version of the composedb package already exists on npm; doing nothing."
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: npm --workspace packages/lib run build
-      - run: |
-          if ! npm --workspace packages/lib view .@${npm_package_version} > /dev/null; then
-            echo "New version of lib package; running publish..."
-            npm --workspace packages/lib publish --access public
-          else
-            echo "This version of the lib package already exists on npm; doing nothing."
-          fi
+          pnpm --filter @desci-labs/desci-codex-lib doPublish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

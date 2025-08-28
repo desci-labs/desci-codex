@@ -1,13 +1,15 @@
 ![DeSci Codex logotype](./codex.png)
 
-This repo contains a reference implementation for the next generation of the protocol, built on [Ceramic](https://ceramic.network/) and [ComposeDB](https://composedb.js.org/docs/0.5.x/introduction). It includes data models and an extensive test suite to ensure correct functionality, but also example data population and a GraphiQL interface to explore the protocol structure.
+This repo contains an implementation for the next generation of the DeSci protocol, built on [Ceramic](https://ceramic.network/). The system uses the high-performance [Ceramic-one](https://github.com/ceramicnetwork/rust-ceramic) node, with legacy ComposeDB support being phased out. It includes data models, P2P networking for content replication, and a test suite to ensure adherence to the spec.
 
-The repo consists of several packages:
-- [model management tooling](./packages/models/README.md)
-- [codex node for P2P data replication](./packages/node/README.md)
-- [the codex integration library](./packages/lib/README.md)
-- [codex node metrics backend](./packages/metrics_server/README.md)
-- [composedb models and test env](./packages/composedb/README.md) (deprecated)
+## Packages
+
+The monorepo consists of several packages:
+- [**models**](./packages/models/README.md) - Ceramic model definitions and deployment tooling
+- [**node**](./packages/node/README.md) - Codex node for P2P data replication and IPFS pinning
+- [**lib**](./packages/lib/README.md) - Integration library with typed APIs for Codex interaction
+- [**metrics_server**](./packages/metrics_server/README.md) - Backend for collecting and serving node metrics
+- [**composedb**](./packages/composedb/README.md) - ComposeDB models and test environment (deprecated)
 
 
 # Running a node
@@ -40,15 +42,48 @@ There is still iteration on the design of the models as we are starting with bac
 
 ## Getting started
 
-1. Install dependencies:
+### Prerequisites
+
+- Node.js v22+ (use `nvm use`)
+- pnpm v10+
+- Docker & Docker Compose
+
+### Installation
 
 ```bash
-nvm use # or otherwise ensure the use of node v22
-pnpm i
+nvm use # or otherwise ensure Node v22
+pnpm install
 ```
 
-2. Run services
-Refer to instructions in the [docker](docker/README.md) for starting nodes.
+### Running Services
+
+To run your own Codex node, you can use these commands.
+
+#### Quick Start with Docker
+
+```bash
+# Start Ceramic-one + Codex node (clay testnet)
+./docker/run-dev.sh dev
+
+# Start with metrics collection (clay testnet)
+./docker/run-dev.sh dev-metrics
+
+# View logs
+./docker/run-dev.sh logs
+
+# Stop all services
+./docker/run-dev.sh stop
+```
+
+#### Default service URLs
+
+- **Ceramic-one RPC**: http://localhost:5101
+- **Ceramic-one FlightSQL**: http://localhost:5102
+- **Codex Node API**: http://localhost:3000
+- **Metrics Server**: http://localhost:3001 (when enabled)
+- **Grafana**: http://localhost:3002 (when enabled)
+
+For detailed Docker configurations, see the [docker documentation](docker/README.md).
 
 ## Feedback
 
