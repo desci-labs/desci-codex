@@ -43,14 +43,20 @@ data:
     TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
     NAMESPACE=default
 
-    LB_DOMAIN=$(curl --fail -s --header "Authorization: Bearer $TOKEN" \
-        --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
-        "https://kubernetes.default.svc/api/v1/namespaces/$NAMESPACE/services/codex-node-dev-$MY_POD_INDEX-swarm" \
-      | jq -r '.status.loadBalancer.ingress[0].hostname // empty')
+    LB_DOMAIN=""
+    for i in $(seq 1 30); do
+      LB_DOMAIN=$(curl --connect-timeout 5 --fail --silent --header "Authorization: Bearer $TOKEN" \
+          --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+          "https://kubernetes.default.svc/api/v1/namespaces/$NAMESPACE/services/codex-node-dev-$MY_POD_INDEX-swarm" \
+        | jq -r '.status.loadBalancer.ingress[0].hostname // empty')
+      [ -n "$LB_DOMAIN" ] && break
+      echo "Waiting for LB hostname (attempt $i/30)..."
+      sleep 10
+    done
 
     echo "LB_DOMAIN: $LB_DOMAIN"
     if [ -z "$LB_DOMAIN" ]; then
-      echo "Failed to query for LB_DOMAIN"
+      echo "Timed out waiting for LB_DOMAIN"
       exit 1
     fi
 
