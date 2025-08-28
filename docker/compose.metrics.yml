@@ -32,8 +32,6 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_SSL=disable
-    volumes:
-      - ./src:/app/src
     restart: unless-stopped
     depends_on:
       postgres:

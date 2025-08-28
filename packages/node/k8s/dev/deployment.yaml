@@ -43,10 +43,10 @@ data:
     TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
     NAMESPACE=default
 
-    LB_DOMAIN=$(curl -s --header "Authorization: Bearer $TOKEN" \
+    LB_DOMAIN=$(curl --fail -s --header "Authorization: Bearer $TOKEN" \
         --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
         "https://kubernetes.default.svc/api/v1/namespaces/$NAMESPACE/services/codex-node-dev-$MY_POD_INDEX-swarm" \
-      | grep -oE "k8s-.*.elb.*.amazonaws.com")
+      | jq -r '.status.loadBalancer.ingress[0].hostname // empty')
 
     echo "LB_DOMAIN: $LB_DOMAIN"
     if [ -z "$LB_DOMAIN" ]; then
@@ -167,7 +167,7 @@ spec:
           imagePullPolicy: Always
           command: ["sh", "-c"]
           args:
-            - apk add --no-cache bash curl &&
+            - apk add --no-cache bash curl jq &&
               bash /ceramic-init/get-external-multiaddr.sh
           env:
             - name: BASH_ENV
@@ -235,7 +235,7 @@ spec:
     - port: 5101
       name: rpc
     - port: 9465
-      name: one-metrics
+      name: metrics
 ---
 # individual services (add/remove when scaling)
 ## Replica 0
@@ -258,8 +258,8 @@ spec:
       name: flight-sql
       targetPort: flight-sql
     - port: 9465
-      name: one-metrics
-      targetPort: one-metrics
+      name: metrics
+      targetPort: metrics
     - port: 3000
       name: codex-http
       targetPort: http
@@ -329,8 +329,8 @@ spec:
       name: flight-sql
       targetPort: flight-sql
     - port: 9465
-      name: one-metrics
-      targetPort: one-metrics
+      name: metrics
+      targetPort: metrics
     - port: 3000
       name: codex-http
       targetPort: http

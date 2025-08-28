@@ -80,7 +80,7 @@
           },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, AVG(total_pinned_cids) as avg_cids FROM (SELECT DISTINCT ipfs_peer_id, total_pinned_cids FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'mainnet') as latest_metrics",
+          "rawSql": "SELECT MAX(time) AS time, AVG(total_pinned_cids) AS avg_cids FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_pinned_cids, time FROM node_metrics WHERE $__timeFilter(time) AND environment = 'mainnet' ORDER BY ipfs_peer_id, time DESC) AS latest",
           "refId": "A"
         }
       ],
@@ -146,7 +146,7 @@
           },
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, AVG(total_pinned_cids) as avg_cids FROM (SELECT DISTINCT ipfs_peer_id, total_pinned_cids FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'testnet') as latest_metrics",
+          "rawSql": "SELECT MAX(time) AS time, AVG(total_pinned_cids) AS avg_cids FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_pinned_cids, time FROM node_metrics WHERE $__timeFilter(time) AND environment = 'testnet' ORDER BY ipfs_peer_id, time DESC) AS latest",
           "refId": "A"
         }
       ],
@@ -244,7 +244,7 @@
           "editorMode": "code",
           "format": "time_series",
           "rawQuery": true,
-          "rawSql": "SELECT date_trunc('hour', time) as time, environment, COUNT(DISTINCT ipfs_peer_id) as active_nodes FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' GROUP BY date_trunc('hour', time), environment ORDER BY time",
+          "rawSql": "SELECT $__timeGroupAlias(time, '1h'), environment, COUNT(DISTINCT ipfs_peer_id) AS active_nodes FROM node_metrics WHERE $__timeFilter(time) GROUP BY 1, environment ORDER BY 1",
           "refId": "A",
           "sql": {
             "columns": [
@@ -353,9 +353,9 @@
             "type": "postgres",
             "uid": "postgresql"
           },
-          "format": "time_series",
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, ipfs_peer_id, total_pinned_cids as total_cids FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_pinned_cids FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'mainnet' ORDER BY ipfs_peer_id, time DESC) as latest ORDER BY total_cids DESC",
+          "rawSql": "SELECT ipfs_peer_id AS node, total_pinned_cids AS total_cids FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_pinned_cids, time FROM node_metrics WHERE $__timeFilter(time) AND environment = 'mainnet' ORDER BY ipfs_peer_id, time DESC) AS latest ORDER BY total_cids DESC LIMIT 50",
           "refId": "A"
         }
       ],
@@ -447,9 +447,9 @@
             "type": "postgres",
             "uid": "postgresql"
           },
-          "format": "time_series",
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, ipfs_peer_id, total_streams FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_streams FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'mainnet' ORDER BY ipfs_peer_id, time DESC) as latest ORDER BY total_streams DESC",
+          "rawSql": "SELECT ipfs_peer_id AS node, total_pinned_cids AS total_cids FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_pinned_cids, time FROM node_metrics WHERE $__timeFilter(time) AND environment = 'mainnet' ORDER BY ipfs_peer_id, time DESC) AS latest ORDER BY total_cids DESC LIMIT 50",
           "refId": "A"
         }
       ],
@@ -541,9 +541,9 @@
             "type": "postgres",
             "uid": "postgresql"
           },
-          "format": "time_series",
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, ipfs_peer_id, total_pinned_cids as total_cids FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_pinned_cids FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'testnet' ORDER BY ipfs_peer_id, time DESC) as latest ORDER BY total_cids DESC",
+          "rawSql": "SELECT ipfs_peer_id AS node, total_pinned_cids AS total_cids FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_pinned_cids, time FROM node_metrics WHERE $__timeFilter(time) AND environment = 'testnet' ORDER BY ipfs_peer_id, time DESC) AS latest ORDER BY total_cids DESC LIMIT 50",
           "refId": "A"
         }
       ],
@@ -635,9 +635,9 @@
             "type": "postgres",
             "uid": "postgresql"
           },
-          "format": "time_series",
+          "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT NOW() as time, ipfs_peer_id, total_streams FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_streams FROM node_metrics WHERE time > NOW() - INTERVAL '24 hours' AND environment = 'testnet' ORDER BY ipfs_peer_id, time DESC) as latest ORDER BY total_streams DESC",
+          "rawSql": "SELECT ipfs_peer_id AS node, total_streams FROM (SELECT DISTINCT ON (ipfs_peer_id) ipfs_peer_id, total_streams, time FROM node_metrics WHERE $__timeFilter(time) AND environment = 'testnet' ORDER BY ipfs_peer_id, time DESC) AS latest ORDER BY total_streams DESC LIMIT 50",
           "refId": "A"
         }
       ],
