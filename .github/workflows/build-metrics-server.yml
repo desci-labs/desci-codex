@@ -56,8 +56,8 @@ jobs:
       - name: Deploy metrics service to EKS
         run: |
           kubectl apply -f packages/metrics_server/k8s/deployment.yaml
-          kubectl set image deployment/codex-metrics codex-metrics-server=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-metrics-server:${{ github.sha }} --record
-          kubectl set image deployment/codex-metrics codex-metrics-grafana=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-metrics-grafana:${{ github.sha }} --record
+          kubectl set image deployment/codex-metrics metrics-server=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-metrics-server:${{ github.sha }}
+          kubectl set image deployment/codex-metrics grafana=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-metrics-grafana:${{ github.sha }}
 
       - name: Verify deployment rollout
         run: |
