@@ -13,6 +13,7 @@ data:
   CERAMIC_ONE_NETWORK: "testnet-clay"
   CERAMIC_ONE_ETHEREUM_RPC_URLS: "https://reverse-proxy-dev.desci.com/rpc_gnosis_mainnet"
   CERAMIC_ONE_EXTRA_CERAMIC_PEER_ADDRESSES: "/dns4/ceramic-one-dev.desci.com/tcp/4101/p2p/12D3KooWPL8CgPzyeuY14Lv6EQhTkdLEEBRAtfzksYhiTE3zeBEo"
+  CERAMIC_ONE_EXTRA_INTERESTS: "kh4q0ozorrgaq2mezktnrmdwleo1d,kjzl6hvfrbw6cbe01it6hlcwopsv4cqrqysho4f1xd7rtqxew9yag3x2wxczhz0"
   RUST_LOG: "info,ceramic_one=debug,multipart=error"
   CERAMIC_ONE_LOG_FORMAT: "json"
 ---
@@ -364,7 +365,7 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: preserve_client_ip.enabled=true
 spec:
   type: LoadBalancer
-  externalTrafficPolicy: Local
+  # externalTrafficPolicy: Local
   selector:
     App: CodexNodeDev
     statefulset.kubernetes.io/pod-name: codex-node-dev-1
