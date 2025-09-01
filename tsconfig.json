@@ -5,7 +5,10 @@
       "path": "packages/lib/tsconfig.ref.json"
     },
     {
-      "path": "packages/cli/tsconfig.ref.json"
+      "path": "packages/models/tsconfig.json"
+    },
+    {
+      "path": "packages/node/tsconfig.json"
     },
     {
       "path": "packages/composedb/tsconfig.ref.json"

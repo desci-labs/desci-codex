@@ -1,0 +1,37 @@
+{
+  "name": "@desci-labs/desci-codex-models",
+  "version": "1.0.0-rc3",
+  "description": "Model definitions and management for CODEX",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "desci-codex-models": "./dist/bin/index.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./models": "./dist/models.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "register": "tsx src/bin/index.ts register",
+    "prepare": "tsc",
+    "clean": "tsc --build --clean"
+  },
+  "author": "Edvard Hübinette",
+  "license": "MIT",
+  "dependencies": {
+    "@ceramic-sdk/http-client": "^0.2.1",
+    "@ceramic-sdk/model-client": "^0.9.0",
+    "@ceramic-sdk/model-protocol": "^0.2.1",
+    "dids": "^5.0.3",
+    "dotenv": "^16.4.7",
+    "key-did-provider-ed25519": "^4.0.2",
+    "key-did-resolver": "^4.0.0",
+    "pino-std-serializers": "^7.0.0",
+    "uint8arrays": "^4.0.10"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.3",
+    "typescript": "^5.2.2"
+  }
+}

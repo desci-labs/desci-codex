@@ -1,0 +1,6 @@
+tsconfig*
+*.tsbuildinfo
+node_modules
+.npmignore
+Makefile
+src/

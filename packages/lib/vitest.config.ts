@@ -8,4 +8,9 @@ export default defineConfig({
       ? ["verbose", new GithubActionsReporter()]
       : "verbose",
   },
+  resolve: {
+    alias: {
+      "@desci-labs/desci-codex-models": "../models/src",
+    },
+  },
 });

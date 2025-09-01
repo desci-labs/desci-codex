@@ -1,0 +1,43 @@
+name: 'Deploy to Kubernetes'
+description: 'Apply K8s manifests and update container images'
+inputs:
+  manifest-path:
+    description: 'Path to the Kubernetes manifest file'
+    required: true
+  deployment-type:
+    description: 'Type of Kubernetes deployment (deployment or statefulset)'
+    required: true
+  deployment-name:
+    description: 'Name of the deployment/statefulset'
+    required: true
+  container-name:
+    description: 'Name of the container to update'
+    required: true
+  image-name:
+    description: 'Name of the Docker image (without registry prefix)'
+    required: true
+  timeout:
+    description: 'Timeout for rollout status check'
+    default: '300s'
+runs:
+  using: 'composite'
+  steps:
+    - name: Apply Kubernetes manifests
+      shell: bash
+      run: |
+        echo "Applying manifests from ${{ inputs.manifest-path }}"
+        kubectl apply -f ${{ inputs.manifest-path }}
+
+    - name: Update container image
+      shell: bash
+      run: |
+        echo "Updating ${{ inputs.deployment-type }}/${{ inputs.deployment-name }} container ${{ inputs.container-name }}"
+        kubectl set image ${{ inputs.deployment-type }}/${{ inputs.deployment-name }} \
+          ${{ inputs.container-name }}=${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ inputs.image-name }}:${{ github.sha }} \
+          --record
+
+    - name: Wait for rollout to complete
+      shell: bash
+      run: |
+        echo "Waiting for ${{ inputs.deployment-type }}/${{ inputs.deployment-name }} rollout to complete"
+        kubectl rollout status ${{ inputs.deployment-type }}/${{ inputs.deployment-name }} --timeout=${{ inputs.timeout }}

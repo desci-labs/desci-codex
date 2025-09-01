@@ -1,0 +1,20 @@
+{
+  // https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html
+  "compilerOptions": {
+    "module": "node16",
+    "target": "es2020",
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "composite": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist/**/*"]
+}

@@ -1,0 +1,14 @@
+services:
+  ceramic:
+    container_name: ceramic-one-mainnet
+    environment:
+      CERAMIC_ONE_NETWORK: "mainnet"
+      CERAMIC_ONE_ETHEREUM_RPC_URLS: "https://reverse-proxy-prod.desci.com/rpc_mainnet"
+    volumes:
+      - ../local-data/mainnet/ceramic-one:/data/ceramic-one
+  codex-node:
+    container_name: codex-node-mainnet
+    environment:
+      - CODEX_ENVIRONMENT=mainnet
+    volumes:
+      - ../local-data/mainnet/codex-node:/app/local-data/codex-node

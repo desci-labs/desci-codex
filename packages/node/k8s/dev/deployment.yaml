@@ -1,0 +1,388 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codex-node-dev-ceramic-env
+data:
+  CERAMIC_ONE_STORE_DIR: "/data/ceramic-one"
+  CERAMIC_ONE_P2P_KEY_DIR: "/data/ceramic-one"
+  CERAMIC_ONE_BIND_ADDRESS: "0.0.0.0:5101"
+  CERAMIC_ONE_SWARM_ADDRESSES: "/ip4/0.0.0.0/tcp/4101,/ip4/0.0.0.0/udp/4102/quic-v1"
+  CERAMIC_ONE_FLIGHT_SQL_BIND_ADDRESS: "0.0.0.0:5102"
+  CERAMIC_ONE_METRICS_BIND_ADDRESS: "0.0.0.0:9465"
+  CERAMIC_ONE_LOCAL_NETWORK_ID: "0"
+  CERAMIC_ONE_NETWORK: "testnet-clay"
+  CERAMIC_ONE_ETHEREUM_RPC_URLS: "https://reverse-proxy-dev.desci.com/rpc_gnosis_mainnet"
+  CERAMIC_ONE_EXTRA_CERAMIC_PEER_ADDRESSES: "/dns4/ceramic-one-dev.desci.com/tcp/4101/p2p/12D3KooWPL8CgPzyeuY14Lv6EQhTkdLEEBRAtfzksYhiTE3zeBEo"
+  CERAMIC_ONE_EXTRA_INTERESTS: "kh4q0ozorrgaq2mezktnrmdwleo1d,kjzl6hvfrbw6cbe01it6hlcwopsv4cqrqysho4f1xd7rtqxew9yag3x2wxczhz0"
+  RUST_LOG: "info,ceramic_one=debug,multipart=error"
+  CERAMIC_ONE_LOG_FORMAT: "json"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codex-node-dev-env
+data:
+  PORT: "3000"
+  CODEX_ENVIRONMENT: "testnet"
+  IPFS_DATA_DIR: "/app/local-data/codex-node"
+  CERAMIC_ONE_RPC_URL: "http://localhost:5101"
+  CERAMIC_ONE_FLIGHT_URL: "http://localhost:5102"
+  METRICS_BACKEND_URL: "https://codex-metrics.desci.com"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codex-node-dev-ceramic-init
+data:
+  get-external-multiaddr.sh: |
+    #!/bin/bash
+
+    set -exo pipefail
+
+    MY_POD_INDEX=$(echo "$HOSTNAME" | grep -o '[0-9]\+$')
+    echo "MY_POD_INDEX: $MY_POD_INDEX"
+    TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    NAMESPACE=default
+
+    LB_DOMAIN=""
+    for i in $(seq 1 30); do
+      LB_DOMAIN=$(curl --connect-timeout 5 --fail --silent --header "Authorization: Bearer $TOKEN" \
+          --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+          "https://kubernetes.default.svc/api/v1/namespaces/$NAMESPACE/services/codex-node-dev-$MY_POD_INDEX-swarm" \
+        | jq -r '.status.loadBalancer.ingress[0].hostname // empty')
+      [ -n "$LB_DOMAIN" ] && break
+      echo "Waiting for LB hostname (attempt $i/30)..."
+      sleep 10
+    done
+
+    echo "LB_DOMAIN: $LB_DOMAIN"
+    if [ -z "$LB_DOMAIN" ]; then
+      echo "Timed out waiting for LB_DOMAIN"
+      exit 1
+    fi
+
+    EXTERNAL_MULTIADDR="/dns4/${LB_DOMAIN}/tcp/4101,/dns4/${LB_DOMAIN}/udp/4102/quic-v1"
+    echo -n "$EXTERNAL_MULTIADDR" > /config/external-multiaddr
+    echo "Wrote $EXTERNAL_MULTIADDR to /config/external-multiaddr"
+---
+# Stateful set to manage containers and volumes in pairs
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: codex-node-dev
+  labels:
+    App: CodexNodeDev
+spec:
+  serviceName: codex-node-dev
+  replicas: 2
+  selector:
+    matchLabels:
+      App: CodexNodeDev
+  template:
+    metadata:
+      labels:
+        App: CodexNodeDev
+    spec:
+      serviceAccountName: "vault-auth"
+      containers:
+        - name: ceramic-one
+          image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.56.0
+          command: ["bash", "-c"]
+          args:
+            # - echo "Container idling..."; tail --follow /dev/null
+            - ceramic-one daemon
+              --external-swarm-addresses="$(< /config/external-multiaddr)"
+          env:
+            - name: BASH_ENV
+              value: /vault/secrets/config
+          envFrom:
+            - configMapRef:
+                name: codex-node-dev-ceramic-env
+          ports:
+            - containerPort: 5101
+              name: rpc
+              protocol: TCP
+            - containerPort: 5102
+              name: flight-sql
+              protocol: TCP
+            - containerPort: 4101
+              name: swarm-tcp
+              protocol: TCP
+            - containerPort: 4102
+              name: swarm-udp
+              protocol: UDP
+            - containerPort: 9465
+              name: metrics
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 4
+              memory: 4Gi
+            requests:
+              cpu: 1
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /ceramic/liveness
+              port: rpc
+              scheme: HTTP
+          readinessProbe:
+            httpGet:
+              path: /ceramic/liveness
+              port: rpc
+              scheme: HTTP
+          volumeMounts:
+            - name: ceramic-one-data
+              mountPath: /data/ceramic-one
+            - name: config-volume
+              mountPath: /config
+        - name: codex-node
+          image: 523044037273.dkr.ecr.us-east-2.amazonaws.com/codex-node:latest
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+            - containerPort: 4001
+              name: ipfs-swarm
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: codex-node-dev-env
+          resources:
+            limits:
+              cpu: 2
+              memory: 4Gi
+            requests:
+              cpu: 1
+              memory: 2Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+          volumeMounts:
+            - name: codex-node-data
+              mountPath: /app/local-data/codex-node
+      initContainers:
+        - name: init-ceramic-config
+          image: alpine:3
+          imagePullPolicy: Always
+          command: ["sh", "-c"]
+          args:
+            - apk add --no-cache bash curl jq &&
+              bash /ceramic-init/get-external-multiaddr.sh
+          env:
+            - name: BASH_ENV
+              value: /vault/secrets/config
+          volumeMounts:
+            - mountPath: /config
+              name: config-volume
+            - mountPath: /ceramic-init
+              name: ceramic-init
+
+      volumes:
+        # holds the config file during the lifetime of the pod
+        - emptyDir: {}
+          name: config-volume
+          # set 755 on files to allow executing init script
+        - configMap:
+            defaultMode: 493
+            name: codex-node-dev-ceramic-init
+          name: ceramic-init
+
+  volumeClaimTemplates:
+    - metadata:
+        name: ceramic-one-data
+        labels:
+          App: CodexNodeDev
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: retained-standard-csi
+        resources:
+          requests:
+            storage: 100Gi
+    - metadata:
+        name: codex-node-data
+        labels:
+          App: CodexNodeDev
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: retained-standard-csi
+        resources:
+          requests:
+            storage: 100Gi
+---
+# headless service for StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: codex-node-dev
+  labels:
+    App: CodexNodeDev
+spec:
+  clusterIP: None
+  selector:
+    App: CodexNodeDev
+  ports:
+    - port: 5102
+      name: flight-sql
+    - port: 4101
+      name: swarm-tcp
+      protocol: TCP
+    - port: 4102
+      name: swarm-udp
+      protocol: UDP
+    - port: 5101
+      name: rpc
+    - port: 9465
+      name: metrics
+---
+# individual services (add/remove when scaling)
+## Replica 0
+apiVersion: v1
+kind: Service
+metadata:
+  name: codex-node-dev-0-internal
+  labels:
+    App: CodexNodeDev
+spec:
+  type: ClusterIP
+  selector:
+    App: CodexNodeDev
+    statefulset.kubernetes.io/pod-name: codex-node-dev-0
+  ports:
+    - port: 5101
+      name: rpc
+      targetPort: rpc
+    - port: 5102
+      name: flight-sql
+      targetPort: flight-sql
+    - port: 9465
+      name: metrics
+      targetPort: metrics
+    - port: 3000
+      name: codex-http
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: codex-node-dev-0-swarm
+  labels:
+    App: CodexNodeDev
+  annotations:
+    # NLB is preferred for libp2p/Kubo due to connection handling and UDP use
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    # Required for mixed protocol support
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    # AWS targetgroups doesn't support UDP checks, but defaults to creating one on the UDP port
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "4101"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: TCP
+    # Enable cross-AZ load balancing for better availability
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    # External access required for IPFS network participation
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    # Long timeout for libp2p connections
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
+    service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: preserve_client_ip.enabled=true
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    App: CodexNodeDev
+    statefulset.kubernetes.io/pod-name: codex-node-dev-0
+  ports:
+    - name: swarm-tcp
+      protocol: TCP
+      port: 4101
+      targetPort: 4101
+    - name: swarm-udp
+      protocol: UDP
+      port: 4102
+      targetPort: 4102
+    - name: flight-sql
+      protocol: TCP
+      port: 5102
+      targetPort: 5102
+    - name: ipfs-swarm
+      protocol: TCP
+      port: 4001
+      targetPort: 4001
+---
+## Replica 1
+apiVersion: v1
+kind: Service
+metadata:
+  name: codex-node-dev-1-internal
+  labels:
+    App: CodexNodeDev
+spec:
+  type: ClusterIP
+  selector:
+    App: CodexNodeDev
+    statefulset.kubernetes.io/pod-name: codex-node-dev-1
+  ports:
+    - port: 5101
+      name: rpc
+      targetPort: rpc
+    - port: 5102
+      name: flight-sql
+      targetPort: flight-sql
+    - port: 9465
+      name: metrics
+      targetPort: metrics
+    - port: 3000
+      name: codex-http
+      targetPort: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: codex-node-dev-1-swarm
+  labels:
+    App: CodexNodeDev
+  annotations:
+    # NLB is preferred for libp2p/Kubo due to connection handling and UDP use
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    # Required for mixed protocol support
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    # AWS targetgroups doesn't support UDP checks, but defaults to creating one on the UDP port
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "4101"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: TCP
+    # Enable cross-AZ load balancing for better availability
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    # External access required for IPFS network participation
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    # Long timeout for libp2p connections
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
+    service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: preserve_client_ip.enabled=true
+spec:
+  type: LoadBalancer
+  # externalTrafficPolicy: Local
+  selector:
+    App: CodexNodeDev
+    statefulset.kubernetes.io/pod-name: codex-node-dev-1
+  ports:
+    - name: swarm-tcp
+      protocol: TCP
+      port: 4101
+      targetPort: 4101
+    - name: swarm-udp
+      protocol: UDP
+      port: 4102
+      targetPort: 4102
+    - name: flight-sql
+      protocol: TCP
+      port: 5102
+      targetPort: 5102
+    - name: ipfs-swarm
+      protocol: TCP
+      port: 4001
+      targetPort: 4001

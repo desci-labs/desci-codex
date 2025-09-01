@@ -1,0 +1,39 @@
+**/node_modules
+.pnpm-store
+
+# Build outputs
+**/dist
+**/build
+**/out
+
+# Development files
+.git
+.github
+**/.vscode
+**/.idea
+**/*.log
+**/*.md
+**/.env*
+
+# Local data
+**/local-data
+
+# Docker files themselves
+**/*Dockerfile*
+**/*dockerignore
+docker/
+
+# Deployments
+**/k8s
+
+# Other unnecessary files
+.husky
+.eslintrc*
+.eslintignore
+.prettierrc*
+*.config.js
+*.config.ts
+.graphqlrc
+.gitignore
+codex.png
+**/*.tsbuildinfo

@@ -3,7 +3,7 @@
   "compilerOptions": {
     /** Maximise compatibility with ESM/cjs and importer `moduleResolution: bundler` setting */
     "module": "node16",
-    "target": "es2020",
+    "target": "es2022",
     /** Without strict, we'd error when imported into a project with `strict` */
     "strict": true,
     /** Prevent misbehaving import/export statements */
@@ -24,5 +24,8 @@
   },
   "exclude": [
     "dist"
+  ],
+  "references": [
+    { "path": "../models" }
   ]
 }

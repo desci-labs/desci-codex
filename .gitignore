@@ -6,3 +6,7 @@ test.config.json
 *.tsbuildinfo
 .vscode
 dist
+**/.env
+.env
+CLAUDE.md
+.secrets.act

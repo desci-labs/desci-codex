@@ -1,6 +1,6 @@
 {
   "name": "@desci-labs/desci-codex-lib",
-  "version": "1.1.7",
+  "version": "2.0.0-rc5",
   "description": "Codex interaction primitives",
   "license": "MIT",
   "author": "Edvard Hübinette",
@@ -9,8 +9,20 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rm -rf ./dist && tsc --project tsconfig.build.json",
-    "test": "export ADMIN_SEED=$(<../composedb/admin_seed.txt) && vitest --run --config vitest.config.ts",
-    "doPublish": "npm run build && cd ../.. && npm publish --workspace packages/lib --access public"
+    "prepare": "rm -rf ./dist && tsc --project tsconfig.build.json",
+    "test:c1": "vitest --run --config vitest.config.ts test/c1.spec.ts",
+    "test:root": "export ADMIN_SEED=$(<../composedb/admin_seed.txt) && vitest --run --config vitest.config.ts test/root.spec.ts",
+    "doPublish": "pnpm run build && cd ../.. && pnpm publish --access public --filter @desci-labs/desci-codex-lib --no-git-checks"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./c1/*": {
+      "types": "./dist/c1/*.d.ts",
+      "default": "./dist/c1/*.js"
+    }
   },
   "devDependencies": {
     "tsx": "^4.7.1",
@@ -19,13 +31,24 @@
     "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
+    "@ceramic-sdk/flight-sql-client": "^0.11.0",
+    "@ceramic-sdk/identifiers": "^0.11.0",
+    "@ceramic-sdk/model-client": "^0.11.0",
+    "@ceramic-sdk/model-instance-client": "^0.11.0",
+    "@ceramic-sdk/stream-client": "^0.11.0",
+    "@ceramicnetwork/common": "^5.15.0",
+    "@ceramicnetwork/http-client": "^5.16.0",
+    "@ceramicnetwork/streamid": "^5.6.0",
     "@composedb/client": "^0.7.1",
     "@desci-labs/desci-codex-composedb": "^2.0.1",
-    "dids": "^5.0.2",
+    "@desci-labs/desci-codex-models": "workspace:*",
+    "apache-arrow": "^19.0.1",
+    "dids": "5.0.3",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.8.0",
     "key-did-provider-ed25519": "^4.0.2",
     "key-did-resolver": "^4.0.0",
+    "pino-std-serializers": "^7.0.0",
     "uint8arrays": "^4.0.6"
   }
 }

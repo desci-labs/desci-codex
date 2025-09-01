@@ -55,10 +55,32 @@ export type DID = {
 };
 
 export type ResearchObject = {
-  title: string;
   manifest: string;
+  title: string;
   license: string;
   metadata?: string; // CID
+};
+
+export type WithMeta<T> = T & {
+  id: string;
+  version: string;
+  owner: string;
+};
+
+export type ResearchObjectHistory = {
+  id: string;
+  owner: string;
+  /**
+   * The latest manifest CID of the research object.
+   */
+  manifest: string;
+  /**
+   * All historical versions of the research object.
+   */
+  versions: ({
+    version: string;
+    time: number | undefined;
+  } & ResearchObject)[];
 };
 
 export type ResearchObjectViews = {

@@ -1,11 +1,8 @@
 node_modules
-admin_seed.txt
-local-data
-composedb.config.json
-test.config.json
+tsconfig*
 *.tsbuildinfo
 .vscode
 dist/test/
-dist/scripts/
 test/
 vitest.config.ts
+src/

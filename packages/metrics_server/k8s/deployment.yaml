@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codex-metrics
+  labels:
+    app: codex-metrics
+    project: codex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codex-metrics
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: codex-metrics
+        project: codex
+        component: metrics
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: app-vault-reader
+        vault.hashicorp.com/agent-inject-secret-config: "secrets/codex-metrics"
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{- with secret "secrets/codex-metrics" -}}
+          {{- range $k, $v := .Data }}
+          export {{ $k }}={{ $v }}
+          {{- end }}
+          {{- end }}
+    spec:
+      serviceAccountName: vault-auth
+      containers:
+        - name: metrics-server
+          image: 523044037273.dkr.ecr.us-east-2.amazonaws.com/codex-metrics-server:latest
+          imagePullPolicy: Always
+          command: ["bash", "-c"]
+          args:
+            - source /vault/secrets/config; dumb-init -- node dist/index.js
+          ports:
+            - containerPort: 3001
+              name: http
+          resources:
+            requests:
+              memory: "1G"
+              cpu: "1"
+            limits:
+              memory: "1G"
+              cpu: "1"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+        - name: grafana
+          image: 523044037273.dkr.ecr.us-east-2.amazonaws.com/codex-metrics-grafana:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: webui
+          env:
+            # Instance is not exposed outside of the cluster
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: "admin"
+            - name: BASH_ENV
+              value: /vault/secrets/config
+            - name: DB_SSL
+              value: "require"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "1"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 472
+            capabilities:
+              drop:
+                - ALL
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: codex-metrics
+  labels:
+    app: codex-metrics
+    project: codex
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3001
+      protocol: TCP
+      name: http
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: webui
+  selector:
+    app: codex-metrics
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: codex-metrics-ingress
+  labels:
+    app: codex-metrics
+    project: codex
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: "ip"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: codex-metrics
+                port:
+                  number: 3001

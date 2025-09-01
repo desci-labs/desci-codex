@@ -1,15 +1,21 @@
 ![DeSci Codex logotype](./codex.png)
 
-This repo contains a reference implementation for the next generation of the protocol, built on [Ceramic](https://ceramic.network/) and [ComposeDB](https://composedb.js.org/docs/0.5.x/introduction). It includes data models and an extensive test suite to ensure correct functionality, but also example data population and a GraphiQL interface to explore the protocol structure.
+This repo contains an implementation for the next generation of the DeSci protocol, built on [Ceramic](https://ceramic.network/). The system uses the high-performance [Ceramic-one](https://github.com/ceramicnetwork/rust-ceramic) node, with legacy ComposeDB support being phased out. It includes data models, P2P networking for content replication, and a test suite to ensure adherence to the spec.
 
-The repo consists of several packages:
-- [the codex integration library](./packages/lib/README.md)
-- [composedb models and test env](./packages/composedb/README.md)
-- [a codex CLI](./packages/cli/README.md)
+## Packages
+
+The monorepo consists of several packages:
+- [**models**](./packages/models/README.md) - Ceramic model definitions and deployment tooling
+- [**node**](./packages/node/README.md) - Codex node for P2P data replication and IPFS pinning
+- [**lib**](./packages/lib/README.md) - Integration library with typed APIs for Codex interaction
+- [**metrics_server**](./packages/metrics_server/README.md) - Backend for collecting and serving node metrics
+- [**composedb**](./packages/composedb/README.md) - ComposeDB models and test environment (deprecated)
 
 
-By default, the tests and scripts run against a local Ceramic/ComposeDB node with the bundled IPFS server, uses the `inmemory` network for anchoring, and writes all data and logs to `local-data`.
+# Running a node
+For documentation on how to run your own Codex node, see the docs [here](./packages/node/README.md)
 
+# Protocol documentation
 The protocol documentation can be found [here](https://codex.desci.com)!
 
 ## State of models
@@ -17,11 +23,11 @@ There is still iteration on the design of the models as we are starting with bac
 
 **Alpha** means that the model, and hence the ID, will likely change.
 **Beta** means that the model is somewhat stable, but there may be an upgrade requiring a migration.
-**Stable** means the model is stable, and if any change is necessary we are commited in solving for backward compatibility.
+**Stable** means the model is stable, and if any change is necessary we are committed in solving for backward compatibility.
 
 | Model                 | Status | ID (Clay)                                                       | ID (Mainnet) |
 |-----------------------|--------|-----------------------------------------------------------------|--------------|
-| ResearchObject        | beta   | kjzl6hvfrbw6cbe01it6hlcwopsv4cqrqysho4f1xd7rtqxew9yag3x2wxczhz0 | N/A          |
+| ResearchObject        | beta   | kjzl6hvfrbw6cbe01it6hlcwopsv4cqrqysho4f1xd7rtqxew9yag3x2wxczhz0 | Same         |
 | Profile               | alpha  | kjzl6hvfrbw6cba0l4xuvi4ll36h3s21kcau1wpq51ha6k8ttc8yw5kzx2g40in | N/A          |
 | Claim                 | alpha  | kjzl6hvfrbw6c6hz18jqthpsvvjvixg8xkvrec10l5nbwqc67vi6lvhgkc7j0ti | N/A          |
 | Attestation           | alpha  | kjzl6hvfrbw6c9gw5pagxy4ig2f9lqpexycdl5lq9jfy11itm38f3nco4ud8699 | N/A          |
@@ -36,64 +42,48 @@ There is still iteration on the design of the models as we are starting with bac
 
 ## Getting started
 
-1. Install dependencies:
+### Prerequisites
+
+- Node.js v22+ (use `nvm use`)
+- pnpm v10+
+- Docker & Docker Compose
+
+### Installation
 
 ```bash
-nvm use # or otherwise ensure the use of node v20
-npm ci # install deps
+nvm use # or otherwise ensure Node v22
+pnpm install
 ```
 
-> At this point, `make test` can be run to automatically setup a local environment and run the test suite.
+### Running Services
 
-2. Generate your own seed, admin DID, and ComposeDB configuration file:
+To run your own Codex node, you can use these commands.
+
+#### Quick Start with Docker
 
 ```bash
-npm run -w packages/composedb generate
+# Start Ceramic-one + Codex node (clay testnet)
+./docker/run-dev.sh dev
+
+# Start with metrics collection (clay testnet)
+./docker/run-dev.sh dev-metrics
+
+# View logs
+./docker/run-dev.sh logs
+
+# Stop all services
+./docker/run-dev.sh stop
 ```
 
-3. Finally, start the services:
+#### Default service URLs
 
-```bash
-npm run -w packages/composedb dev
-```
+- **Ceramic-one RPC**: http://localhost:5101
+- **Ceramic-one FlightSQL**: http://localhost:5102
+- **Codex Node API**: http://localhost:3000
+- **Metrics Server**: http://localhost:3001 (when enabled)
+- **Grafana**: http://localhost:3002 (when enabled)
 
-This will start a composeDB node, compile the models into composites, and deploy the composites to a local network. Now, you can open [http://localhost:5001](http://localhost:5001) for the GraphiQL interface and explore the data models. This environment is what is being used in the tests.
-
-> Without running this step, the composite runtime definitions will not be available and hence typescript may be temporarily sad
-
-4. If you want to experiment with some actual queries, you can run this command to publish a bit of data from a couple of random DID's:
-
-```bash
-npm run -w packages/lib populate
-```
-
-After this is done, your GraphQL queries should return some actual data!
-
-
-## Test suite
-
-There is a test suite running through API operations demonstrating the functional protocol requirements, by generating random DID's and performing create and mutation operations. Before each run, it will remove the remains of the last test execution.
-
-The test setup clones your user configuration, but changes storage to `local-data/ceramic-test` not to interfere with prepopulated data. It will refuse to run if `npm run dev` is already active.
-
-```bash
-make test
-```
-
-### Stop hung services
-If the test doesn't exit nicely, there may be IPFS and Ceramic daemons still hanging around. When restarting the tests, it may nag about not wanting to clobber those services. If this happens, run:
-
-```bash
-make test-stop
-```
-
-## Reset
-
-To reset to a clean state, deleting everything except generated seed and user config:
-
-```bash
-make clean
-```
+For detailed Docker configurations, see the [docker documentation](docker/README.md).
 
 ## Feedback
 
