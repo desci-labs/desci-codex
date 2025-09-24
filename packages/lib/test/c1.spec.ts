@@ -1,7 +1,6 @@
 import { test, describe, beforeAll, expect } from "vitest";
 import { FlightSqlClient } from "@ceramic-sdk/flight-sql-client";
 import { ModelInstanceClient } from "@ceramic-sdk/model-instance-client";
-import { newFlightSqlClient, DEFAULT_LOCAL_FLIGHT } from "../src/c1/clients.js";
 import {
   listResearchObjects,
   listResearchObjectsWithHistory,
@@ -24,6 +23,10 @@ import { ModelClient } from "@ceramic-sdk/model-client";
 import { errWithCause } from "pino-std-serializers";
 import { CommitID, randomCID, StreamID } from "@ceramic-sdk/identifiers";
 import { randomDID } from "./util.js";
+import {
+  DEFAULT_LOCAL_FLIGHT,
+  newFlightSqlClient,
+} from "../src/c1/flightclient.js";
 
 describe("C1 module", async () => {
   const testDID = await randomDID();
