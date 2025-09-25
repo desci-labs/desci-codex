@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: codex-node-dev-ceramic-env
+  name: codex-node-prod-ceramic-env
 data:
   CERAMIC_ONE_STORE_DIR: "/data/ceramic-one"
   CERAMIC_ONE_P2P_KEY_DIR: "/data/ceramic-one"
@@ -10,9 +10,9 @@ data:
   CERAMIC_ONE_FLIGHT_SQL_BIND_ADDRESS: "0.0.0.0:5102"
   CERAMIC_ONE_METRICS_BIND_ADDRESS: "0.0.0.0:9465"
   CERAMIC_ONE_LOCAL_NETWORK_ID: "0"
-  CERAMIC_ONE_NETWORK: "testnet-clay"
-  CERAMIC_ONE_ETHEREUM_RPC_URLS: "https://reverse-proxy-dev.desci.com/rpc_gnosis_mainnet"
-  CERAMIC_ONE_EXTRA_CERAMIC_PEER_ADDRESSES: "/dns4/ceramic-one-dev.desci.com/tcp/4101/p2p/12D3KooWA7rnYfXSv8B3LDHNuDrEAw7dHR9AGM2iRYJETc9Uk3hY"
+  CERAMIC_ONE_NETWORK: "mainnet"
+  CERAMIC_ONE_ETHEREUM_RPC_URLS: "https://reverse-proxy-prod.desci.com/rpc_mainnet"
+  CERAMIC_ONE_EXTRA_CERAMIC_PEER_ADDRESSES: "/dns4/ceramic-one-prod.desci.com/tcp/4101/p2p/12D3KooWJx4BiKHSMXmJMvhdkhmKA8yG4jBC46ocWZGThsbXnx4C"
   CERAMIC_ONE_EXTRA_INTERESTS: "kh4q0ozorrgaq2mezktnrmdwleo1d,kjzl6hvfrbw6cbe01it6hlcwopsv4cqrqysho4f1xd7rtqxew9yag3x2wxczhz0"
   RUST_LOG: "info,ceramic_one=debug,multipart=error"
   CERAMIC_ONE_LOG_FORMAT: "json"
@@ -20,10 +20,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: codex-node-dev-env
+  name: codex-node-prod-env
 data:
   PORT: "3000"
-  CODEX_ENVIRONMENT: "testnet"
+  CODEX_ENVIRONMENT: "mainnet"
   IPFS_DATA_DIR: "/app/local-data/codex-node"
   CERAMIC_ONE_RPC_URL: "http://localhost:5101"
   CERAMIC_ONE_FLIGHT_URL: "http://localhost:5102"
@@ -32,7 +32,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: codex-node-dev-ceramic-init
+  name: codex-node-prod-ceramic-init
 data:
   get-external-multiaddr.sh: |
     #!/bin/bash
@@ -48,7 +48,7 @@ data:
     for i in $(seq 1 30); do
       LB_DOMAIN=$(curl --connect-timeout 5 --fail --silent --header "Authorization: Bearer $TOKEN" \
           --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
-          "https://kubernetes.default.svc/api/v1/namespaces/$NAMESPACE/services/codex-node-dev-$MY_POD_INDEX-swarm" \
+          "https://kubernetes.default.svc/api/v1/namespaces/$NAMESPACE/services/codex-node-prod-$MY_POD_INDEX-swarm" \
         | jq -r '.status.loadBalancer.ingress[0].hostname // empty')
       [ -n "$LB_DOMAIN" ] && break
       echo "Waiting for LB hostname (attempt $i/30)..."
@@ -69,19 +69,19 @@ data:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: codex-node-dev
+  name: codex-node-prod
   labels:
-    App: CodexNodeDev
+    App: CodexNodeProd
 spec:
-  serviceName: codex-node-dev
+  serviceName: codex-node-prod
   replicas: 2
   selector:
     matchLabels:
-      App: CodexNodeDev
+      App: CodexNodeProd
   template:
     metadata:
       labels:
-        App: CodexNodeDev
+        App: CodexNodeProd
     spec:
       serviceAccountName: "vault-auth"
       containers:
@@ -90,7 +90,6 @@ spec:
           image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:08eada97d67d654049adb03ff0c42fa262023f87
           command: ["bash", "-c"]
           args:
-            # - echo "Container idling..."; tail --follow /dev/null
             - ceramic-one daemon
               --external-swarm-addresses="$(< /config/external-multiaddr)"
           env:
@@ -98,7 +97,7 @@ spec:
               value: /vault/secrets/config
           envFrom:
             - configMapRef:
-                name: codex-node-dev-ceramic-env
+                name: codex-node-prod-ceramic-env
           ports:
             - containerPort: 5101
               name: rpc
@@ -127,11 +126,17 @@ spec:
               path: /ceramic/liveness
               port: rpc
               scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
           readinessProbe:
             httpGet:
               path: /ceramic/liveness
               port: rpc
               scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
           volumeMounts:
             - name: ceramic-one-data
               mountPath: /data/ceramic-one
@@ -148,7 +153,7 @@ spec:
               protocol: TCP
           envFrom:
             - configMapRef:
-                name: codex-node-dev-env
+                name: codex-node-prod-env
           resources:
             limits:
               cpu: 2
@@ -161,11 +166,17 @@ spec:
               path: /health
               port: http
               scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
           readinessProbe:
             httpGet:
               path: /health
               port: http
               scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
           volumeMounts:
             - name: codex-node-data
               mountPath: /app/local-data/codex-node
@@ -193,25 +204,25 @@ spec:
           # set 755 on files to allow executing init script
         - configMap:
             defaultMode: 493
-            name: codex-node-dev-ceramic-init
+            name: codex-node-prod-ceramic-init
           name: ceramic-init
 
   volumeClaimTemplates:
     - metadata:
         name: ceramic-one-data
         labels:
-          App: CodexNodeDev
+          App: CodexNodeProd
       spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: retained-standard-csi
         resources:
           requests:
-            storage: 100Gi
+            storage: 500Gi
     - metadata:
         name: codex-node-data
         labels:
-          App: CodexNodeDev
+          App: CodexNodeProd
       spec:
         accessModes:
           - ReadWriteOnce
@@ -224,13 +235,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: codex-node-dev
+  name: codex-node-prod
   labels:
-    App: CodexNodeDev
+    App: CodexNodeProd
 spec:
   clusterIP: None
   selector:
-    App: CodexNodeDev
+    App: CodexNodeProd
   ports:
     - port: 5102
       name: flight-sql
@@ -250,14 +261,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: codex-node-dev-0-internal
+  name: codex-node-prod-0-internal
   labels:
-    App: CodexNodeDev
+    App: CodexNodeProd
 spec:
   type: ClusterIP
   selector:
-    App: CodexNodeDev
-    statefulset.kubernetes.io/pod-name: codex-node-dev-0
+    App: CodexNodeProd
+    statefulset.kubernetes.io/pod-name: codex-node-prod-0
   ports:
     - port: 5101
       name: rpc
@@ -275,9 +286,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: codex-node-dev-0-swarm
+  name: codex-node-prod-0-swarm
   labels:
-    App: CodexNodeDev
+    App: CodexNodeProd
   annotations:
     # NLB is preferred for libp2p/Kubo due to connection handling and UDP use
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
@@ -297,8 +308,8 @@ spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
   selector:
-    App: CodexNodeDev
-    statefulset.kubernetes.io/pod-name: codex-node-dev-0
+    App: CodexNodeProd
+    statefulset.kubernetes.io/pod-name: codex-node-prod-0
   ports:
     - name: swarm-tcp
       protocol: TCP
@@ -321,14 +332,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: codex-node-dev-1-internal
+  name: codex-node-prod-1-internal
   labels:
-    App: CodexNodeDev
+    App: CodexNodeProd
 spec:
   type: ClusterIP
   selector:
-    App: CodexNodeDev
-    statefulset.kubernetes.io/pod-name: codex-node-dev-1
+    App: CodexNodeProd
+    statefulset.kubernetes.io/pod-name: codex-node-prod-1
   ports:
     - port: 5101
       name: rpc
@@ -346,9 +357,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: codex-node-dev-1-swarm
+  name: codex-node-prod-1-swarm
   labels:
-    App: CodexNodeDev
+    App: CodexNodeProd
   annotations:
     # NLB is preferred for libp2p/Kubo due to connection handling and UDP use
     service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
@@ -368,8 +379,8 @@ spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
   selector:
-    App: CodexNodeDev
-    statefulset.kubernetes.io/pod-name: codex-node-dev-1
+    App: CodexNodeProd
+    statefulset.kubernetes.io/pod-name: codex-node-prod-1
   ports:
     - name: swarm-tcp
       protocol: TCP
@@ -387,3 +398,4 @@ spec:
       protocol: TCP
       port: 4001
       targetPort: 4001
+---
