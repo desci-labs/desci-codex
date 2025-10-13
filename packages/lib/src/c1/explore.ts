@@ -9,6 +9,7 @@ import type {
 import { allResearchObjectsQuery, modelHistoryQuery } from "./sql.js";
 import { cleanupEip155Address } from "../util.js";
 import { rawRowsToResearchObjectHistory } from "./resolve.js";
+import { propagateAnchorTimeToRows } from "./util.js";
 
 export type RawResearchObject = {
   stream_cid: string;
@@ -46,10 +47,9 @@ export const listResearchObjects = async (
   return raw.map((row) => {
     const state = row.state ? JSON.parse(row.state) : undefined;
     if (!state) {
-      console.warn("Stream state is null!", {
+      console.warn("[codex-lib::listResearchObjects] stream state is null", {
         stream_cid: row.stream_cid,
-        state: JSON.stringify(row.state),
-        parsed: state,
+        stream_id: new StreamID("MID", row.stream_cid),
       });
     }
     return {
@@ -79,8 +79,10 @@ export const listResearchObjectsWithHistory = async (
     modelHistoryQuery(model),
   );
 
+  const withTime = propagateAnchorTimeToRows(raw);
+
   const groupedRows: Record<string, RawResearchObject[]> = {};
-  for (const row of raw) {
+  for (const row of withTime) {
     const streamId = new StreamID("MID", row.stream_cid).toString();
 
     if (!groupedRows[streamId]) {

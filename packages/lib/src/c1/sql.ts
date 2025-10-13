@@ -26,6 +26,7 @@ export const allResearchObjectsQuery = (modelId?: StreamID) => `
     before
   FROM event_states
   WHERE ${modelFilter(modelId)}
+    AND event_type = 0
   ORDER BY stream_cid, event_height DESC;
 `;
 
