@@ -47,13 +47,10 @@ export const listResearchObjects = async (
   return raw.map((row) => {
     const state = row.state ? JSON.parse(row.state) : undefined;
     if (!state) {
-      console.warn(
-        "[codex-lib::listResearchObjectsstream] stream state is null",
-        {
-          stream_cid: row.stream_cid,
-          stream_id: new StreamID("MID", row.stream_cid),
-        },
-      );
+      console.warn("[codex-lib::listResearchObjects] stream state is null", {
+        stream_cid: row.stream_cid,
+        stream_id: new StreamID("MID", row.stream_cid),
+      });
     }
     return {
       id: new StreamID("MID", row.stream_cid).toString(),
