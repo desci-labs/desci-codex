@@ -28,19 +28,19 @@ Ready to publish your manuscript, data, and code?
 - Programmatic publishing with typescript/javascript library [nodes-lib](https://www.npmjs.com/package/@desci-labs/nodes-lib) ([library docs](https://desci-labs.github.io/nodes/))
 - Learn how to [self-host your publication data](TODO)
 
-## 🖥️ Running a Codex Node
+## 🖥️ Contribute to the network
 
 Want to help maintain the network?
 
 ### Node Operations
 - Run your own [Codex Node](../protocol-operation/participation/codex-node.md) to support the network
+- Run your own [dPID resolver](https://github.com/desci-labs/dpid-resolver)
 
 ## 🔧 Building Integrations
 
 Want to build on top of Codex?
 
 ### Integrations
-- Run a [dPID resolver](https://github.com/desci-labs/dpid-resolver)
 - Build a custom gateway using the [dPID resolver API](https://dpid.org/api-docs/)
 
 ## Next Steps
