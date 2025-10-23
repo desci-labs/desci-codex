@@ -7,7 +7,6 @@
 
 ## Protocol operation
 
-* [🎣 Deterministic resolution](protocol-operation/deterministic-resolution.md)
 * [🧑‍🤝‍🧑 Participation](protocol-operation/participation/README.md)
   * [🌐 Run Codex Nodes](protocol-operation/participation/codex-node.md)
   * [🗺️ Host a dPID resolver](protocol-operation/participation/dpid-resolvers.md)
@@ -32,6 +31,7 @@
     * [🤝 Contributor](data-layer-definition/entities/relational-information/contributor.md)
     * [👉 Reference](data-layer-definition/entities/relational-information/reference.md)
 * [🏷️ Metadata](data-layer-definition/metadata.md)
+* [🎣 Deterministic resolution](data-layer-definition/deterministic-resolution.md)
 
 ## Implementation
 
