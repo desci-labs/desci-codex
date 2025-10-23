@@ -42,6 +42,8 @@ Want to build on top of Codex?
 
 ### Integrations
 - Build a custom gateway using the [dPID resolver API](https://dpid.org/api-docs/)
+- Create low-level protocol integrations using [codex-lib](https://www.npmjs.com/package/@desci-labs/desci-codex-lib)
+- Build a custom DeSci Nodes integration using [nodes-lib](https://www.npmjs.com/package/@desci-labs/nodes-lib)
 
 ## Next Steps
 
