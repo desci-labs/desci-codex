@@ -4,13 +4,9 @@ description: Contribute to the maintenance of the protocol
 
 # 📚 Network operators
 
-{% hint style="info" %}
-The protocol is currently in its early stages where the entities are still being iterated on, so there isn't yet an open deployment to participate in. The practicalities of doing so will be running one or more containers and a backing database, which will be prepared for the community.
-{% endhint %}
+Being a protocol operator means taking part in the pinning and indexing publications, and therefore helping ensure the longevity of the scientific record. This entails running a node that is listening for network events, pinning the data making up the graph itself, and maintaining an index over existing content. Operators doing this work serve as the persistence backbone of the protocol, from which other nodes can sync data to participate in network operation. It does not necessarily mean serving publishing or data queries, nor pinning the publication data associated with the research object. This is because the data can be very large, and is taken care of by network actors providing [data-services.md](data-services.md "mention").
 
-Being a protocol operator means taking part in the pinning and indexing of the graph, and therefore helping ensure the longevity of the scientific record. This entails running a node that is listening for network events, pinning the data making up the graph itself, and maintaining an index over the relations. Operators doing this work serve as the persistence backbone of the protocol, from which other nodes can sync data to participate in network operation. It does not necessarily mean serving anchoring requests or data queries, nor pinning the data in research object DAG's. This is because the data can be very large, and is taken care of by network actors providing [data-services.md](data-services.md "mention").
-
-Gateways, or user-facing applications, with a need for frequent anchoring requests and complex queries will run their own nodes to support the requirements. Ideally also serving the public to some extent, fulfilling the role of simultaneously being a network operator. These incentives are aligned, because their business depends on the longevity and trustworthiness of the protocol.
+Gateways, or user-facing applications, with a need for frequent anchoring requests and complex queries run their own nodes to support these requirements. Ideally also serving the public to some extent, fulfilling the role of simultaneously being a network operator. These incentives are aligned, because their business depends on the longevity and trustworthiness of the protocol.
 
 ## Protocol data definition
 

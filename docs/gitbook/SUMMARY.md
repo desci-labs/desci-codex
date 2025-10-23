@@ -25,6 +25,7 @@
 
 * [🎣 Deterministic resolution](protocol-operation/deterministic-resolution.md)
 * [🧑‍🤝‍🧑 Participation](protocol-operation/participation/README.md)
+  * [🌐 Codex Node](protocol-operation/participation/codex-node.md)
   * [📚 Network operators](protocol-operation/participation/network-operators.md)
   * [🔮 Gateway providers](protocol-operation/participation/gateway-providers.md)
   * [📦 Data services](protocol-operation/participation/data-services.md)

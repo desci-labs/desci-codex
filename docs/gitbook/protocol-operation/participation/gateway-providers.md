@@ -4,7 +4,7 @@ description: User-facing applications for interaction with the protocol
 
 # 🔮 Gateway providers
 
-No part of the protocol is meant for direct user interaction, but to act as the underlying storage and indexing solution that enable them. A gateway is any type of application allowing end users to interact with the underlying protocol.&#x20;
+The protocol itself isn't meant for direct edn-user interaction, but to act as the underlying storage and indexing solution that enable them. A gateway is any type of application allowing end users to interact with the underlying protocol.&#x20;
 
 A gateway can freely choose what data from the protocol to surface. This means that a gateway can decide to skip supporting annotations and attestations and just support a reader experience, or go the other way and be a fully-fledged command center for protocol interaction. The same applies for attestations, does the gateway only show attestations from verified, credible institutions, or any made by unknown community members? Does it show annotations only made by researchers with a verified ORCiD account? There are no right or wrong answers; different use cases may demand different views into the data of the protocol.
 
