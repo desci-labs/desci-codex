@@ -2,7 +2,7 @@
 description: Quickly discover what Codex is and what it has to offer
 ---
 
-# Quick start
+# 🚀 Quick start
 
 Welcome to DeSci Codex! This guide will help you get started based on what you want to do.
 
@@ -22,7 +22,7 @@ Want to explore research published on Codex?
 Ready to publish your manuscript, data, and code?
 
 ### Getting Started
-- Publish your research on [DeSci Nodes](https://nodes.desci.com)
+- Publish your research to Codex using the [DeSci Nodes](https://nodes.desci.com) application
 
 ### Advanced Publishing
 - Programmatic publishing with typescript/javascript library [nodes-lib](https://www.npmjs.com/package/@desci-labs/nodes-lib) ([library docs](https://desci-labs.github.io/nodes/))
@@ -45,5 +45,5 @@ Want to build on top of Codex?
 
 ## Next Steps
 
-Choose your path above and dive deeper into the specific documentation. You are always welcome to [join our Discord](https://discord.gg/A5P9fgB5Cf) to connect with the community and get help along the way!
+Choose your path above and dive deeper into the specific documentation. You are always welcome to [join our Discord](https://discord.gg/A5P9fgB5Cf) and connect with the community. This is the place to get help along the way!
 

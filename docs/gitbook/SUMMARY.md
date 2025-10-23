@@ -1,9 +1,21 @@
 # Table of contents
 
-* [🔮 DeSci Codex](README.md)
-  * [Quick start](desci-codex/quick-start.md)
+* [🔮 DeSci Codex](./README.md)
+  * [🚀 Quick start](desci-codex/quick-start.md)
   * [🕊️ Overview](desci-codex/overview.md)
   * [🏁 Design goals](desci-codex/design-goals.md)
+
+## Protocol operation
+
+* [🎣 Deterministic resolution](protocol-operation/deterministic-resolution.md)
+* [🧑‍🤝‍🧑 Participation](protocol-operation/participation/README.md)
+  * [🌐 Run Codex Nodes](protocol-operation/participation/codex-node.md)
+  * [🗺️ Host a dPID resolver](protocol-operation/participation/dpid-resolvers.md)
+  * [🔮 Gateway providers](protocol-operation/participation/gateway-providers.md)
+  * [📦 Data services](protocol-operation/participation/data-services.md)
+  * [🧲 Advanced indexing](protocol-operation/participation/advanced-indexing.md)
+  * [🛂 Identity verifiers](protocol-operation/participation/identity-verifiers.md)
+  * [🏷️ Legacy PID mapping](protocol-operation/participation/legacy-pid-mapping.md)
 
 ## Data layer definition
 
@@ -21,25 +33,11 @@
     * [👉 Reference](data-layer-definition/entities/relational-information/reference.md)
 * [🏷️ Metadata](data-layer-definition/metadata.md)
 
-## Protocol operation
-
-* [🎣 Deterministic resolution](protocol-operation/deterministic-resolution.md)
-* [🧑‍🤝‍🧑 Participation](protocol-operation/participation/README.md)
-  * [🌐 Codex Node](protocol-operation/participation/codex-node.md)
-  * [📚 Network operators](protocol-operation/participation/network-operators.md)
-  * [🔮 Gateway providers](protocol-operation/participation/gateway-providers.md)
-  * [📦 Data services](protocol-operation/participation/data-services.md)
-  * [🧲 Advanced indexing](protocol-operation/participation/advanced-indexing.md)
-  * [🗺️ dPID resolvers](protocol-operation/participation/dpid-resolvers.md)
-  * [🛂 Identity verifiers](protocol-operation/participation/identity-verifiers.md)
-  * [🏷️ Legacy PID mapping](protocol-operation/participation/legacy-pid-mapping.md)
-
 ## Implementation
 
 * [🌊 Ceramic & ComposeDB](implementation/ceramic-and-composedb.md)
-* [🛠️ Reference implementation](implementation/reference-implementation.md)
+* [🛠️ Implementation](implementation/reference-implementation.md)
 * [⚠️ Current limitations](implementation/current-limitations/README.md)
-  * [🤞 Mutability quirks](implementation/current-limitations/mutability-quirks.md)
   * [🧐 Invalid data](implementation/current-limitations/invalid-data.md)
   * [⌛ Timestamps](implementation/current-limitations/timestamps.md)
   * [🎟️ Delegation of permissions](implementation/current-limitations/delegation-of-permissions.md)
