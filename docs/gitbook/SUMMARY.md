@@ -36,7 +36,7 @@
 ## Implementation
 
 * [🌊 Ceramic & ComposeDB](implementation/ceramic-and-composedb.md)
-* [🛠️ Implementation](implementation/reference-implementation.md)
+* [🛠️ Implementation](implementation/implementation.md)
 * [⚠️ Current limitations](implementation/current-limitations/README.md)
   * [🧐 Invalid data](implementation/current-limitations/invalid-data.md)
   * [⌛ Timestamps](implementation/current-limitations/timestamps.md)
@@ -44,5 +44,5 @@
 
 ## Future work
 
-* [🧩 Feature wishlist](future-work/feature-wishlist.md)
 * [🛣️ Roadmap](future-work/roadmap.md)
+* [🧩 Feature wishlist](future-work/feature-wishlist.md)
