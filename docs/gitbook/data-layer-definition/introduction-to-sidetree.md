@@ -10,7 +10,7 @@ This section introduces some underlying base properties necessary for practicall
 
 The protocol is a graph abstraction, but there are certain base properties that need to be supported by the implementation for the requirements laid out in the [design-goals.md](../desci-codex/design-goals.md "mention") to hold. These properties partially overlap with the definitions made in the [Sidetree Protocol](https://identity.foundation/sidetree/spec), which is practical as a common language in this specification.
 
-Sidetree is a higher order protocol, i.e., lays out shared definitions and necessary properties for an implementing protocol to achieve certain outcomes. It is originally intended for decentralized public key infrastructure, but one can generalize the concept and apply the pattern for other types of documents.&#x20;
+Sidetree is a higher order protocol, i.e., lays out shared definitions and necessary properties for an implementing protocol to achieve certain outcomes. It is originally intended for decentralized public key infrastructure, but one can generalize the concept and apply the pattern for other types of documents.
 
 The basics of Sidetree is that nodes in a network collaborate to keep track of sequential updates to documents made by end users, in a trustless fashion. An end user who wants to update their document announces this to a node in the network, which verifies that the cryptographic signature of the update corresponds to the one who created the original document. If this is the case, the node includes a persistent identifier of the update message in a tree that is posted to a decentralized anchoring layer, like a blockchain. What's important here is that each single transaction is recorded in the anchoring layer in large batches, enabling great reduction in throughput and cost.
 
@@ -22,16 +22,16 @@ In the Sidetree summary above, there are several essential properties that the D
 
 ### Verifiable authorship
 
-This means that each and every user interaction within the protocol needs to be cryptographically signed to establish provenance. Without this property, one could never be sure if an action was really taken by the assumed person or that data hasn't been tampered with.&#x20;
+This means that each and every user interaction within the protocol needs to be cryptographically signed to establish provenance. Without this property, one could never be sure if an action was really taken by the assumed person or that data hasn't been tampered with.
 
 ### Anchoring scheme
 
-Time and ordering are both difficult problems in decentralized systems, and to reach global consensus we require protocol nodes to anchor the received events in a public, immutable, append-only anchoring layer. It is not scalable for every node to hold the entire state of history, so it needs to be possible to validate inclusion in constant time and space. This is generally achieved with just posting the root hash of a Merkle tree and just announces a small [Merkle proof](https://computersciencewiki.org/index.php/Merkle_proof) of the inclusion which is easy to verify.&#x20;
+Time and ordering are both difficult problems in decentralized systems, and to reach global consensus we require protocol nodes to anchor the received events in a public, immutable, append-only anchoring layer. It is not scalable for every node to hold the entire state of history, so it needs to be possible to validate inclusion in constant time and space. This is generally achieved with just posting the root hash of a Merkle tree and just announces a small [Merkle proof](https://computersciencewiki.org/index.php/Merkle_proof) of the inclusion which is easy to verify.
 
 All in all, the main takeaways from the anchoring scheme are:
 
 1. Avoiding rampant storage swell on the anchoring layer through a minimal and efficient method of proving inclusion.
-2. Avoiding direct user interaction with the anchoring layer, which is in general much slower than any Sidetree based protocols.&#x20;
+2. Avoiding direct user interaction with the anchoring layer, which is in general much slower than any Sidetree based protocols.
 
 ### Versioning
 

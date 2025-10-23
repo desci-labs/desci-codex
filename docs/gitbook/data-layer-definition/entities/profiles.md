@@ -10,7 +10,7 @@ Before looking at the profile, which is a protocol entity representing a user's 
 
 A DID, or Decentralized Identifier, is a new type of identifier that is created, owned, and controlled by the subject of the digital identity, without the need for centralized authorities or intermediaries. DIDs are stored on distributed ledgers or other decentralized networks, ensuring their security and verifiability while giving individuals greater control over their digital identities. A DID is portable in the sense that it can be used in different places; it is not tied to a particular service like the traditional user account.
 
-DIDs come in different shapes and forms, known as providers. A DID provider is a scheme for validating and updating a DID, a common implementation of which is variants on Sidetree as discussed in [introduction-to-sidetree.md](../introduction-to-sidetree.md "mention"). Different providers may have different capabilities, like allowing the user to use multiple keys, control the identifier just using a blockchain account, perform key recovery and rotation, and similar functionality.&#x20;
+DIDs come in different shapes and forms, known as providers. A DID provider is a scheme for validating and updating a DID, a common implementation of which is variants on Sidetree as discussed in [introduction-to-sidetree.md](../introduction-to-sidetree.md "mention"). Different providers may have different capabilities, like allowing the user to use multiple keys, control the identifier just using a blockchain account, perform key recovery and rotation, and similar functionality.
 
 For the context of the protocol specification, we can think of it simply as an actor-controlled cryptographic key, because that is the basic property that's required to validate user control over entity authorship. Visually, a DID looks something like this:
 
@@ -20,7 +20,7 @@ did:pkh:0xb9c5714089478a327f09197987f16f9e5d936e8a
 
 ## Profile
 
-Since DIDs doesn't always follow a certain structure, we can't generally enter protocol specific information. Even if we could do so, creating references between other protocol entities and the profile is the main benefit of having a dedicated representation of user data in the protocol.&#x20;
+Since DIDs doesn't always follow a certain structure, we can't generally enter protocol specific information. Even if we could do so, creating references between other protocol entities and the profile is the main benefit of having a dedicated representation of user data in the protocol.
 
 The profile entity fulfills this need for linking user-specific information with a DID. As with all other entities, it is under the exclusive control of the creator DID and cannot be updated by anyone else. Perhaps the most valuable information, at least initially, is other social handles of the user.
 
@@ -40,10 +40,10 @@ The public key field can be used to validate the identity behind the DID and pro
 
 For a user to enable verification of association for a social handle listed in their profile, they cryptographically sign a message stating this with the private key corresponding to the public key in their profile. This message is then made available by the user on the platform in question.
 
-### Practical example&#x20;
+### Practical example
 
 {% hint style="info" %}
-In this example we use the well-known application [`gpg`](https://www.gnupg.org/), but it can be done in various ways.&#x20;
+In this example we use the well-known application [`gpg`](https://www.gnupg.org/), but it can be done in various ways.
 
 Additionally, this process is not expected to be done by end users but performed as a protocol service. More details on this later, in [identity-verifiers.md](../../protocol-operation/participation/identity-verifiers.md "mention").
 {% endhint %}
@@ -73,7 +73,7 @@ ibipa7gf
 -----END PGP SIGNATURE-----
 ```
 
-The resulting message is then made available on the relevant platform, for example in the user profile.&#x20;
+The resulting message is then made available on the relevant platform, for example in the user profile.
 
 As a third party that wants to verify the identity of this user, first save the user's public key to a file called `key.asc`, and the signed message as `msg.asc`. Then, decrypt the message:
 

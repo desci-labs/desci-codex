@@ -4,12 +4,12 @@ description: User-facing applications for interaction with the protocol
 
 # 🔮 Gateway providers
 
-The protocol itself isn't meant for direct edn-user interaction, but to act as the underlying storage and indexing solution that enable them. A gateway is any type of application allowing end users to interact with the underlying protocol.&#x20;
+The protocol itself isn't meant for direct edn-user interaction, but to act as the underlying storage and indexing solution that enable them. A gateway is any type of application allowing end users to interact with the underlying protocol.
 
 A gateway can freely choose what data from the protocol to surface. This means that a gateway can decide to skip supporting annotations and attestations and just support a reader experience, or go the other way and be a fully-fledged command center for protocol interaction. The same applies for attestations, does the gateway only show attestations from verified, credible institutions, or any made by unknown community members? Does it show annotations only made by researchers with a verified ORCiD account? There are no right or wrong answers; different use cases may demand different views into the data of the protocol.
 
 {% hint style="info" %}
-Access to and participation with the underlying protocol will always remain free and uncensored, gateways can be proprietary or freemium services serving high-volume use cases. This unlocks the creation an economy built around interactions with the scientific record, without leading to data silos, paywalls, or link rot.&#x20;
+Access to and participation with the underlying protocol will always remain free and uncensored, gateways can be proprietary or freemium services serving high-volume use cases. This unlocks the creation an economy built around interactions with the scientific record, without leading to data silos, paywalls, or link rot.
 {% endhint %}
 
 ## Example gateways
@@ -18,7 +18,7 @@ Here are some example gateways that would provide valuable ways of interacting w
 
 ### Authoring experience
 
-Provide a way to for a researcher to iteratively build research objects and publish their results. [DeSci Nodes](https://nodes-v2.desci.com/) is a reference implementation of such a gateway.&#x20;
+Provide a way to for a researcher to iteratively build research objects and publish their results. [DeSci Nodes](https://nodes.desci.com/) is such a gateway.
 
 ### Data stewardship portal
 
@@ -30,7 +30,7 @@ A portal for organizations to manage claims and requests for attestations and, t
 
 ### Organization manager
 
-Allow organizations to keep track of members and their contributions in the protocol, allowing sponsorship of data storage and similar institutional services.&#x20;
+Allow organizations to keep track of members and their contributions in the protocol, allowing sponsorship of data storage and similar institutional services.
 
 ### Reference manager
 

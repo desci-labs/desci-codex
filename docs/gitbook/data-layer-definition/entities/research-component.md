@@ -22,7 +22,7 @@ Since any actor can create instances of a research component, it's likely that a
 
 ### Media type
 
-To aid gateways in picking how to represent data, individual files should have information about file type attached. This information isn't otherwise available, part from the extension if that's included in the UnixFS filename field. There is a [rich variety](https://www.iana.org/assignments/media-types/media-types.xhtml) of media types to pick from, and a gateway can implement a fallback representation based on the [top-level type](https://www.rfc-editor.org/rfc/rfc2046.html#section-3) and map specific viewers depending on the subtype. An example of this would be showing `text/*` as regular text, but specialize the view of `text/csv` data as a table.&#x20;
+To aid gateways in picking how to represent data, individual files should have information about file type attached. This information isn't otherwise available, part from the extension if that's included in the UnixFS filename field. There is a [rich variety](https://www.iana.org/assignments/media-types/media-types.xhtml) of media types to pick from, and a gateway can implement a fallback representation based on the [top-level type](https://www.rfc-editor.org/rfc/rfc2046.html#section-3) and map specific viewers depending on the subtype. An example of this would be showing `text/*` as regular text, but specialize the view of `text/csv` data as a table.
 
 Since not all file types have a media type, a gateway can also draw conclusions from the file extension. A good example of this are code files in different programming languages. Conversely, not all media types have a singular corresponding file extension, so both sources of information are required to paint a rich picture of the content.
 

@@ -18,6 +18,6 @@ Since any actor can create these relations, a gateway operator may choose to onl
 
 ## Governance
 
-To avoid multiple research field instances intending to capture the same, and hence fragmenting the graph, ideally the community adhere to a standardized list. This prevents the same research field existing with different descriptions, which in the end makes indexing more difficult and is confusing to end users.&#x20;
+To avoid multiple research field instances intending to capture the same, and hence fragmenting the graph, ideally the community adhere to a standardized list. This prevents the same research field existing with different descriptions, which in the end makes indexing more difficult and is confusing to end users.
 
 The DeSci Foundation aims to maintain such a set of research field instances based on the [FAIRsharing Subject Ontology](https://www.ebi.ac.uk/ols/ontologies/srao). This is recommended to use as a whitelist for gateway operators when displaying research fields or allowing the creation of such relations.

@@ -8,7 +8,7 @@ An annotation is a localized comment on another entity, which could represent fe
 
 <figure><img src="../../.gitbook/assets/image (21).png" alt=""><figcaption><p>Annotation thread directly on a research object</p></figcaption></figure>
 
-&#x20;
+
 
 <figure><img src="../../.gitbook/assets/image (23).png" alt=""><figcaption><p>Publication author motivates the Data Available claim, and receives feedback from a reviewer</p></figcaption></figure>
 

@@ -10,7 +10,7 @@ The different protocol entities, or types of nodes in the graph, express the mai
 
 Some entities have a `metadata` field, holding the CID of a metadata file scoped over the entity. There is no technical limitation to the format of the content, nor preventing following multiple schemas within the file, separated by a delimiter. The protocol is agnostic to the shape of the data, it only knows about a generic file reference. The user who created the node can update the information in this file freely, but all historical versions are preserved as part of the protocol.
 
-A [research-object.md](entities/research-object.md "mention") have this file associated, and is under direct control of the author. The author can also create a [research-component.md](entities/research-component.md "mention") for particularly interesting files in the research object, which holds the same type of file.&#x20;
+A [research-object.md](entities/research-object.md "mention") have this file associated, and is under direct control of the author. The author can also create a [research-component.md](entities/research-component.md "mention") for particularly interesting files in the research object, which holds the same type of file.
 
 Both research objects and components can be targeted with annotations holding metadata payloads, deltas that suggest addition, update, or removal of pieces of the metadata. The author can accept these to patch target nodes, publish it in a new version together with metadata contributor relations to the annotators:
 
