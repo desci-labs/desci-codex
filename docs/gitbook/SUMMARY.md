@@ -11,8 +11,6 @@
 * [🗺️ dPID resolver](protocol-operation/dpid-resolvers.md)
 * [🔮 Gateway providers](protocol-operation/gateway-providers.md)
 * [📦 Data storage](protocol-operation/data-storage.md)
-* [🛂 Identity verifiers](protocol-operation/identity-verifiers.md)
-* [🏷️ Legacy PID mapping](protocol-operation/legacy-pid-mapping.md)
 
 ## Data layer definition
 
