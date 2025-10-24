@@ -7,13 +7,12 @@
 
 ## Protocol operation
 
-* [🧑‍🤝‍🧑 Participation](protocol-operation/participation/README.md)
-  * [🌐 Run Codex Nodes](protocol-operation/participation/codex-node.md)
-  * [🗺️ Host a dPID resolver](protocol-operation/participation/dpid-resolvers.md)
-  * [🔮 Gateway providers](protocol-operation/participation/gateway-providers.md)
-  * [📦 Data storage](protocol-operation/participation/data-storage.md)
-  * [🛂 Identity verifiers](protocol-operation/participation/identity-verifiers.md)
-  * [🏷️ Legacy PID mapping](protocol-operation/participation/legacy-pid-mapping.md)
+* [🌐 Codex Nodes](participation/codex-node.md)
+* [🗺️ dPID resolver](participation/dpid-resolvers.md)
+* [🔮 Gateway providers](participation/gateway-providers.md)
+* [📦 Data storage](participation/data-storage.md)
+* [🛂 Identity verifiers](participation/identity-verifiers.md)
+* [🏷️ Legacy PID mapping](participation/legacy-pid-mapping.md)
 
 ## Data layer definition
 
