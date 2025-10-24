@@ -26,7 +26,7 @@ Ready to publish your manuscript, data, and code?
 
 ### Advanced Publishing
 - Programmatic publishing with typescript/javascript library [nodes-lib](https://www.npmjs.com/package/@desci-labs/nodes-lib) ([library docs](https://desci-labs.github.io/nodes/))
-- Learn how to [self-host your publication data](TODO)
+- Learn how to [self-host your publication data](../protocol-operation/participation/data-storage.md)
 
 ## Contribute to the network
 
