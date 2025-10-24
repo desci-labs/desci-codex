@@ -7,12 +7,12 @@
 
 ## Protocol operation
 
-* [🌐 Codex Nodes](participation/codex-node.md)
-* [🗺️ dPID resolver](participation/dpid-resolvers.md)
-* [🔮 Gateway providers](participation/gateway-providers.md)
-* [📦 Data storage](participation/data-storage.md)
-* [🛂 Identity verifiers](participation/identity-verifiers.md)
-* [🏷️ Legacy PID mapping](participation/legacy-pid-mapping.md)
+* [🌐 Codex Nodes](protocol-operation/codex-node.md)
+* [🗺️ dPID resolver](protocol-operation/dpid-resolvers.md)
+* [🔮 Gateway providers](protocol-operation/gateway-providers.md)
+* [📦 Data storage](protocol-operation/data-storage.md)
+* [🛂 Identity verifiers](protocol-operation/identity-verifiers.md)
+* [🏷️ Legacy PID mapping](protocol-operation/legacy-pid-mapping.md)
 
 ## Data layer definition
 
