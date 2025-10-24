@@ -44,8 +44,6 @@ For a user to enable verification of association for a social handle listed in t
 
 {% hint style="info" %}
 In this example we use the well-known application [`gpg`](https://www.gnupg.org/), but it can be done in various ways.
-
-Additionally, this process is not expected to be done by end users but performed as a protocol service. More details on this later, in [identity-verifiers.md](../../protocol-operation/participation/identity-verifiers.md "mention").
 {% endhint %}
 
 A user enables verifying control of a social handle by using the private key corresponding to the public key in their profile to sign a message containing their DID fingerprint:
