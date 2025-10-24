@@ -26,14 +26,14 @@ Ready to publish your manuscript, data, and code?
 
 ### Advanced Publishing
 - Programmatic publishing with typescript/javascript library [nodes-lib](https://www.npmjs.com/package/@desci-labs/nodes-lib) ([library docs](https://desci-labs.github.io/nodes/))
-- Learn how to [self-host your publication data](protocol-operation/data-storage.md)
+- Learn how to [self-host your publication data](../protocol-operation/data-storage.md)
 
 ## Contribute to the network
 
 Want to help maintain the network?
 
 ### Node Operations
-- Run your own [Codex Node](protocol-operation/codex-node.md) to support the network
+- Run your own [Codex Node](../protocol-operation/codex-node.md) to support the network
 - Run your own [dPID resolver](https://github.com/desci-labs/dpid-resolver)
 
 ## Building Integrations
