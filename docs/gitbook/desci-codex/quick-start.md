@@ -6,7 +6,7 @@ description: Quickly discover what Codex is and what it has to offer
 
 Welcome to DeSci Codex! This guide will help you get started based on what you want to do.
 
-## 🔍 Discovering Content
+## Discovering Content
 
 Want to explore research published on Codex?
 
@@ -17,7 +17,7 @@ Want to explore research published on Codex?
 ### Direct Protocol Access
 - Programmatically explore content using the [dPID resolver API](https://dpid.org/api-docs/)
 
-## 📚 Publishing Content
+## Publishing Content
 
 Ready to publish your manuscript, data, and code?
 
@@ -28,7 +28,7 @@ Ready to publish your manuscript, data, and code?
 - Programmatic publishing with typescript/javascript library [nodes-lib](https://www.npmjs.com/package/@desci-labs/nodes-lib) ([library docs](https://desci-labs.github.io/nodes/))
 - Learn how to [self-host your publication data](TODO)
 
-## 🖥️ Contribute to the network
+## Contribute to the network
 
 Want to help maintain the network?
 
@@ -36,7 +36,7 @@ Want to help maintain the network?
 - Run your own [Codex Node](../protocol-operation/participation/codex-node.md) to support the network
 - Run your own [dPID resolver](https://github.com/desci-labs/dpid-resolver)
 
-## 🔧 Building Integrations
+## Building Integrations
 
 Want to build on top of Codex?
 

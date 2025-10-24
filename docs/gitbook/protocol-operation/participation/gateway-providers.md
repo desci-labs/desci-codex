@@ -8,17 +8,21 @@ The protocol itself isn't meant for direct end-user interaction, but to act as t
 
 A gateway can freely choose what data from the protocol to surface. This means that a gateway can decide to skip supporting annotations and attestations and just support a reader experience, or go the other way and be a fully-fledged command center for protocol interaction. The same applies for attestations, does the gateway only show attestations from verified, credible institutions, or any made by unknown community members? Does it show annotations only made by researchers with a verified ORCiD account? There are no right or wrong answers; different use cases may demand different views into the data of the protocol.
 
+The pioneering gateway is the [DeSci Nodes](https://nodes.desci.com) platform, providing an user friendly publication experience, exploration of publications, a journal system, and related functionality.
+
+Notable also is the [Insight Journal](https://insight-journal.org/), an innovative journal using Codex to publish and serve publications in an interactive format.
+
 {% hint style="info" %}
 Access to and participation with the underlying protocol will always remain free and uncensored, gateways can be proprietary or freemium services serving high-volume use cases. This unlocks the creation an economy built around interactions with the scientific record, without leading to data silos, paywalls, or link rot.
 {% endhint %}
 
-## Example gateways
+## Example future gateways
 
-Here are some example gateways that would provide valuable ways of interacting with the protocol. It's likely that several use cases are woven together into a homogenous interface, and that some gateways are specialized for large organizations.
+Here are some example gateways that would provide valuable ways of interacting with the protocol. It's likely that several use cases are woven together into a homogenous interface, and that some gateways are specialized for large organizations, but it aims to paint a picture of what rich ecosystem of supporting services would be useful and possible on the protocol.
 
 ### Authoring experience
 
-Provide a way to for a researcher to iteratively build research objects and publish their results. [DeSci Nodes](https://nodes.desci.com/) is such a gateway.
+Provide a way for a researcher to iteratively build research objects and publish their results. [DeSci Nodes](https://nodes.desci.com/) is such a gateway.
 
 ### Data stewardship portal
 
