@@ -12,7 +12,6 @@
   * [🗺️ Host a dPID resolver](protocol-operation/participation/dpid-resolvers.md)
   * [🔮 Gateway providers](protocol-operation/participation/gateway-providers.md)
   * [📦 Data storage](protocol-operation/participation/data-storage.md)
-  * [🧲 Advanced indexing](protocol-operation/participation/advanced-indexing.md)
   * [🛂 Identity verifiers](protocol-operation/participation/identity-verifiers.md)
   * [🏷️ Legacy PID mapping](protocol-operation/participation/legacy-pid-mapping.md)
 
