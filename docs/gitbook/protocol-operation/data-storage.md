@@ -6,7 +6,7 @@ description: Ensure longevity of protocol data
 
 Maintenance of the protocol itself relies on the community nodes pinning and indexing the protocol data, which include publication metadata and versioning history. The data entities in the protocol are designed to minimize the storage complexity of this participation. It is important to point out this does not include the data DAG, or file structure, associated with the publication, because it is orders of magnitude larger than the metadata and cannot be naively included simply from cost of storage.
 
-One of the core strenghts of Codex is that it has separated the problems of metadata and discoverability from storage and delivery of the much larger files included in a publication. That makes it possible for multiple solutions for data hosting to co-exist, while still being resolvable through Codex and the [dPID](https://dpid.org) persistent identifier system.
+One of the core strengths of Codex is that it has separated the problems of metadata and discoverability from storage and delivery of the much larger files included in a publication. That makes it possible for multiple solutions for data hosting to co-exist, while still being resolvable through Codex and the [dPID](https://dpid.org) persistent identifier system.
 
 Platforms like [DeSci Nodes](https://nodes.desci.com) provide a generous free tier for pinning publication data to IPFS, but it is also possible for end users or organisations to self-host that data. From the distributed nature of IPFS, and content based addressing, it does not matter where the data happens to be physically hosted for Codex resolution to work.
 
