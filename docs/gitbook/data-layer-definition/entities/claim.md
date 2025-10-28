@@ -6,7 +6,7 @@ description: A reusable badge to be earned
 
 Claims are stand-alone attributes, like a diploma without the recipient's name filled in, or a unique rubber stamp. They can be thought of as badges, where the value is dependent on who issued it. These badges are a way to incentivize and validate contributions to the scientific record, and allow building of credibility by recognition in the community.
 
-They are connected to the creator DID, which decides the rules of validation depending on the type of claim.&#x20;
+They are connected to the creator DID, which decides the rules of validation depending on the type of claim.
 
 <figure><img src="../../.gitbook/assets/image (10).png" alt=""><figcaption><p>A stand-alone claim with an associated badge for visualization</p></figcaption></figure>
 

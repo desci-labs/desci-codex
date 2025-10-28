@@ -12,7 +12,7 @@ An attestation expresses the opinion that a certain target fulfills a given clai
 * Metadata fulfilling a standard
 * Data and code available
 
-These attestations build credibility for actors in the system, not only for publishing original research but for any number of other contributions to the maintenance of the scientific record. This is a way to get verifiable certifications for contributions, which can be used in the real world for securing research funding, qualifying for programs, or securing positions based on verifiable merit.&#x20;
+These attestations build credibility for actors in the system, not only for publishing original research but for any number of other contributions to the maintenance of the scientific record. This is a way to get verifiable certifications for contributions, which can be used in the real world for securing research funding, qualifying for programs, or securing positions based on verifiable merit.
 
 Many publishers and funding agencies are starting to push hard requirements for data availability and open science practices, and the attestation system in the protocol can express the certifications to prove it.
 
@@ -24,7 +24,7 @@ Many publishers and funding agencies are starting to push hard requirements for 
 
 ### Target
 
-The attestation can target any protocol entity, including attestations themselves. This is a very flexible primitive which aims to unlock a variety of use-cases by the community that cannot be foreseen in advance.&#x20;
+The attestation can target any protocol entity, including attestations themselves. This is a very flexible primitive which aims to unlock a variety of use-cases by the community that cannot be foreseen in advance.
 
 ### Revocation
 

@@ -70,7 +70,7 @@ I[^1]t is worth pointing out that operation of the protocol is not concerned wit
 
 ## Self-sufficiency
 
-One could view this entity as the only primitive of the protocol, and all other as extensions. In fact, all other entities could have been created by the community.&#x20;
+One could view this entity as the only primitive of the protocol, and all other as extensions. In fact, all other entities could have been created by the community.
 
 Additionally, to reach functional parity with the previous generation of dPID resolution (details of which we will get into later) we only need the Research Object entity holding a manifest CID to keep track of the entire record of versions.
 

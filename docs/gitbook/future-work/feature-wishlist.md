@@ -27,11 +27,11 @@ Being able to manage organizations, its members, and delegation of power would e
 
 Ways of having multiple DID's co-author nodes, and inviting someone to edit your nodes with you. This could be considered more bound to the DID provider than the protocol, but Sidetree implementations are sensitive to [late publishing attacks](https://identity.foundation/sidetree/spec/#late-publishing). Normally this doesn't pose much of a threat since only the document owner can attack itself, but if multiple actors control the document, they need to have a large degree of trust between them.
 
-Potentially, this is resolvable by an account abstraction contract which emits events for the operations, which can be picked up by network nodes and applied automatically and hence limiting the window of attack.&#x20;
+Potentially, this is resolvable by an account abstraction contract which emits events for the operations, which can be picked up by network nodes and applied automatically and hence limiting the window of attack.
 
 ## Retroactive public goods funding
 
-Standardized way to reward contributions to the scientific record, creating a new way to incentivize people to “do the right thing”.&#x20;
+Standardized way to reward contributions to the scientific record, creating a new way to incentivize people to “do the right thing”.
 
 ## Research object service economy
 

@@ -1,25 +1,16 @@
 ---
-description: Rough roadmap for the protocol rollout
+description: Roadmap for protocol and related services
 ---
 
 # 🛣️ Roadmap
 
-## 2023 Q3
+## 2025 Q4
 
-* Development of the protocol spec
-* A first practical implementation
+* Support for listing directory content of publications directly in the dPID resolver
+* Migration of [DeSci Nodes](https://nodes.desci.com), [dPID resolver](https://dpid.org/browse) and associated software from js-ceramic and ComposeDB to [rust-ceramic](https://github.com/ceramicnetwork/rust-ceramic)
+  * This greatly improves stability and resilience of the network, speeds up indexing and queries, and enables network participation with Codex Nodes.
+* Public dashboard for Codex network health and data replication metrics
 
-## 2023 Q4
+## 2026 Q1
 
-* Release of protocol spec
-* Release of reference implementation
-* dPID registry/resolver support for Ceramic streams, ensuring future scalability
-
-## 2024 Q1
-
-* Iterative testing and rollout of remaining protocol entities with the [DeSci Nodes](https://nodes-v2.desci.com/) application, while keeping fully backward compatible manifest files
-* Release of open-source dPID resolver
-
-## 2024 Q2
-
-* Release of new schema version, slimmed down to remove information duplication after stabilizing the entity schemas.
+* Public leaderboard for Codex node operators to incentivise community contribution
