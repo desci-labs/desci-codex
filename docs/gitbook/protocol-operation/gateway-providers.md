@@ -8,7 +8,7 @@ The protocol itself isn't meant for direct end-user interaction, but to act as t
 
 A gateway can freely choose what data from the protocol to surface. This means that a gateway can decide to skip supporting annotations and attestations and just support a reader experience, or go the other way and be a fully-fledged command center for protocol interaction. The same applies for attestations, does the gateway only show attestations from verified, credible institutions, or any made by unknown community members? Does it show annotations only made by researchers with a verified ORCiD account? There are no right or wrong answers; different use cases may demand different views into the data of the protocol.
 
-The pioneering gateway is the [DeSci Nodes](https://nodes.desci.com) platform, providing an user friendly publication experience, exploration of publications, a journal system, and related functionality.
+The pioneering gateway is the [DeSci Nodes](https://nodes.desci.com) platform, providing a user-friendly publication experience, exploration of publications, a journal system, and related functionality.
 
 Notable also is the [Insight Journal](https://insight-journal.org/), an innovative journal using Codex to publish and serve publications in an interactive format.
 
