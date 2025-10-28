@@ -4,6 +4,11 @@ description: The choice of underlying data and indexing layer
 
 # 🌊 Ceramic & ComposeDB
 
+{% hint style="info" %}
+Codex is currently transitioning from the now outdated `js-ceramic` & `composedb` to `rust-ceramic`. This information will be updated when that work is finished.
+{% endhint %}
+
+
 ## Ceramic Network
 
 The Ceramic Network has been chosen as the standard implementation of the data protocol, as it fulfills the necessary requirements from Sidetree, but for JSON data, and includes schema validation as part of the node message processing.
