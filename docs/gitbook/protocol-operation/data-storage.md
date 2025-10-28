@@ -19,7 +19,7 @@ If you publish using [DeSci Nodes](https://nodes.desci.com), the interface nativ
 {% hint style="info" %}
 If you or your organisation want to self-host data on IPFS, the Kubo client is the most stable and mature. You can refer to the [IPFS documentation](https://docs.ipfs.tech/how-to/) for instructions how to configure Kubo.
 
-The IPFS Desktop application might be suitable for a personal machine, but as data is only available when the node is online it's not a good way to ensure data availability when others try to resolve the content of a publication. What you are looking for is likely to configure a highly available server that runs Kubo. Instructions for that can be found [here](https://docs.ipfs.tech/how-to/command-line-quick-start/), and if you need help you can always reach out in the [community Discord](https://discord.gg/A5P9fgB5Cf).
+The IPFS Desktop application might be suitable for a personal machine, but as data is only available when the node is online it's not a good way to ensure data availability when others try to resolve the content of a publication. What you are looking for is likely to configure a highly available server that runs Kubo. Instructions for that can be found in the [IPFS command-line quick start guide](https://docs.ipfs.tech/how-to/command-line-quick-start/), and if you need help you can always reach out in the [community Discord](https://discord.gg/A5P9fgB5Cf).
 {% endhint %}
 
 ## Community DAG replication
