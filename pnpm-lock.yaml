@@ -192,6 +192,9 @@ importers:
 
   packages/metrics_server:
     dependencies:
+      '@codex/metrics':
+        specifier: workspace:*
+        version: link:../metrics
       '@libp2p/crypto':
         specifier: ^5.1.7
         version: 5.1.7
@@ -302,6 +305,9 @@ importers:
       '@chainsafe/libp2p-yamux':
         specifier: ^7.0.4
         version: 7.0.4
+      '@codex/metrics':
+        specifier: workspace:*
+        version: link:../metrics
       '@desci-labs/desci-codex-lib':
         specifier: workspace:*
         version: link:../lib

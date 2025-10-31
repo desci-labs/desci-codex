@@ -1,31 +1,24 @@
 import logger from "./logger.js";
 import type { CeramicEventsService } from "./events.js";
 import type { IPFSNode } from "./ipfs.js";
-import { loadOrCreateSelfKey } from "@libp2p/config";
+import {
+  signMetrics,
+  type NodeMetricsSignable,
+  type NodeMetricsInternal,
+} from "@codex/metrics";
+import type { Ed25519PrivateKey } from "@libp2p/interface";
 
 const log = logger.child({ module: "metrics" });
 
 export interface MetricsService {
-  getMetrics: () => Promise<{
-    identity: {
-      ipfs: string;
-      ceramic: string;
-    };
-    environment: "testnet" | "mainnet" | "local";
-    summary: {
-      totalStreams: number;
-      totalPinnedCids: number;
-      collectedAt: string;
-    };
-    signature: number[];
-  }>;
+  getMetrics: () => Promise<NodeMetricsInternal>;
 }
 
 export interface MetricsServiceConfig {
   eventsService: CeramicEventsService;
   ipfsNode: IPFSNode;
   environment: "testnet" | "mainnet" | "local";
-  privateKey: Awaited<ReturnType<typeof loadOrCreateSelfKey>>;
+  privateKey: Ed25519PrivateKey;
 }
 
 export function createMetricsService(
@@ -50,8 +43,8 @@ export function createMetricsService(
 
         const ipfsPeerId = (await config.ipfsNode.libp2pInfo()).peerId;
 
-        // Create the metrics data that will be sent to backend
-        const metricsForBackend = {
+        // Create the signable metrics data
+        const signableData: NodeMetricsSignable = {
           ipfsPeerId: ipfsPeerId,
           ceramicPeerId: ceramicStats.peerId,
           environment: config.environment,
@@ -60,21 +53,13 @@ export function createMetricsService(
           collectedAt: summary.collectedAt,
         };
 
-        // Sign the exact data that will be sent to backend
-        const metricsBytes = new TextEncoder().encode(
-          JSON.stringify(metricsForBackend),
+        // Sign the metrics using the @codex/metrics library
+        const signedMetrics = await signMetrics(
+          signableData,
+          config.privateKey,
         );
-        const signature = await config.privateKey.sign(metricsBytes);
 
-        return {
-          identity: {
-            ipfs: ipfsPeerId,
-            ceramic: ceramicStats.peerId,
-          },
-          environment: config.environment,
-          summary,
-          signature: Array.from(signature), // Convert to array for JSON serialization
-        };
+        return signedMetrics;
       } catch (error) {
         log.error(error, "Error collecting metrics");
         throw error;

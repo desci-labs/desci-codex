@@ -2,10 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createMetricsService } from "../src/metrics.js";
 import type { CeramicEventsService, CeramicNodeStats } from "../src/events.js";
 import type { IPFSNode } from "../src/ipfs.js";
-import { peerIdFromPrivateKey, peerIdFromString } from "@libp2p/peer-id";
+import { peerIdFromPrivateKey } from "@libp2p/peer-id";
 import { generateKeyPair } from "@libp2p/crypto/keys";
 import { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
 import { metricsToPayload } from "../src/metrics-pusher.js";
+import { validateMetricsSignature, signMetrics } from "@codex/metrics";
 
 describe("Metrics Signing", () => {
   let mockEventsService: CeramicEventsService;
@@ -86,7 +87,7 @@ describe("Metrics Signing", () => {
   });
 
   describe("Simulated backend verification", () => {
-    it("can validate legitimate signature", async () => {
+    it("can validate legitimate signature using @codex/metrics library", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
@@ -95,24 +96,15 @@ describe("Metrics Signing", () => {
       });
 
       const metrics = await metricsService.getMetrics();
+      const payload = metricsToPayload(metrics);
 
-      const receivedPayload = metricsToPayload(metrics);
-      const { signature, ...dataToVerify } = receivedPayload;
-
-      const peerIdFromPayload = peerIdFromString(receivedPayload.ipfsPeerId);
-      const publicKeyFromPeerId = peerIdFromPayload.publicKey!;
-
-      const dataBytes = new TextEncoder().encode(JSON.stringify(dataToVerify));
-      const signatureBytes = new Uint8Array(signature);
-
-      const isValid = await publicKeyFromPeerId.verify(
-        dataBytes,
-        signatureBytes,
-      );
-      expect(isValid).toBe(true);
+      // Use the @codex/metrics validation function
+      const validationResult = await validateMetricsSignature(payload);
+      expect(validationResult.isValid).toBe(true);
+      expect(validationResult.error).toBeUndefined();
     });
 
-    it("can reject tampered data", async () => {
+    it("can reject tampered data using @codex/metrics library", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
@@ -121,62 +113,49 @@ describe("Metrics Signing", () => {
       });
 
       const metrics = await metricsService.getMetrics();
-
       const legitimatePayload = metricsToPayload(metrics);
 
+      // Tamper with the data
       const tamperedPayload = {
         ...legitimatePayload,
-        totalStreams: legitimatePayload.totalStreams + 1, // Tampered value
+        summary: {
+          ...legitimatePayload.summary,
+          totalStreams: legitimatePayload.summary.totalStreams + 999,
+        },
       };
 
-      const { signature, ...dataToVerify } = tamperedPayload;
-      const peerIdFromPayload = peerIdFromString(tamperedPayload.ipfsPeerId);
-      const publicKeyFromPeerId = peerIdFromPayload.publicKey!;
-
-      const dataBytes = new TextEncoder().encode(JSON.stringify(dataToVerify));
-      const signatureBytes = new Uint8Array(signature);
-
-      // Verify should fail for tampered data
-      const isValid = await publicKeyFromPeerId.verify(
-        dataBytes,
-        signatureBytes,
+      // Use the @codex/metrics validation function
+      const validationResult = await validateMetricsSignature(tamperedPayload);
+      expect(validationResult.isValid).toBe(false);
+      expect(validationResult.error).toBe(
+        "Cryptographic signature verification failed",
       );
-      expect(isValid).toBe(false);
     });
 
     it("can reject signature from different key (peer impersonation)", async () => {
-      const metricsService = createMetricsService({
-        eventsService: mockEventsService,
-        ipfsNode: mockIpfsNode,
-        environment: "testnet",
-        privateKey,
-      });
+      const victimKey = await generateKeyPair("Ed25519");
+      const victimPeerId = peerIdFromPrivateKey(victimKey);
+      const attackerKey = await generateKeyPair("Ed25519");
 
-      const metrics = await metricsService.getMetrics();
-
-      const legitimatePayload = metricsToPayload(metrics);
-
-      const attackerPrivateKey = await generateKeyPair("Ed25519");
-
-      const { signature: _, ...dataToSign } = legitimatePayload;
-      const dataBytes = new TextEncoder().encode(JSON.stringify(dataToSign));
-
-      const attackerSignature = await attackerPrivateKey.sign(dataBytes);
-
-      const maliciousPayload = {
-        ...dataToSign,
-        signature: Array.from(attackerSignature),
+      // Create metrics claiming to be from victim
+      const fakeSignableData = {
+        ipfsPeerId: victimPeerId.toString(),
+        ceramicPeerId: victimPeerId.toString(),
+        environment: "testnet" as const,
+        totalStreams: 100,
+        totalPinnedCids: 50,
+        collectedAt: new Date().toISOString(),
       };
 
-      const victimPeerId = peerIdFromString(maliciousPayload.ipfsPeerId);
-      const victimPublicKey = victimPeerId.publicKey!;
-      const attackerSignatureBytes = new Uint8Array(maliciousPayload.signature);
+      // Sign with attacker's key (impersonation attempt)
+      const maliciousMetrics = await signMetrics(fakeSignableData, attackerKey);
 
-      const isValid = await victimPublicKey.verify(
-        dataBytes,
-        attackerSignatureBytes,
+      // Use the @codex/metrics validation function
+      const validationResult = await validateMetricsSignature(maliciousMetrics);
+      expect(validationResult.isValid).toBe(false);
+      expect(validationResult.error).toBe(
+        "Cryptographic signature verification failed",
       );
-      expect(isValid).toBe(false);
     });
   });
 });

@@ -1,8 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { validateMetricsSignature } from "../src/validation.js";
 import {
-  validateMetricsSignature,
-  type SignedNodeMetrics,
-} from "../src/validation.js";
+  signMetrics,
+  type NodeMetricsSignable,
+  type NodeMetricsInternal,
+} from "@codex/metrics";
 import { generateKeyPair } from "@libp2p/crypto/keys";
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
 import type { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
@@ -17,17 +19,11 @@ describe("Metrics Signature Validation", () => {
   });
 
   const createSignedMetrics = async (
-    data: Omit<SignedNodeMetrics, "signature">,
+    data: NodeMetricsSignable,
     signingKey?: Ed25519PrivateKey,
-  ): Promise<SignedNodeMetrics> => {
+  ): Promise<NodeMetricsInternal> => {
     const keyToUse = signingKey || privateKey;
-    const dataBytes = new TextEncoder().encode(JSON.stringify(data));
-    const signature = await keyToUse.sign(dataBytes);
-
-    return {
-      ...data,
-      signature: Array.from(signature),
-    };
+    return await signMetrics(data, keyToUse);
   };
 
   describe("validateMetricsSignature", () => {
@@ -50,12 +46,16 @@ describe("Metrics Signature Validation", () => {
 
     it("should reject metrics with missing signature", async () => {
       const metricsData = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+        identity: {
+          ipfs: peerId.toString(),
+          ceramic: peerId.toString(),
+        },
         environment: "testnet" as const,
-        totalStreams: 5,
-        totalPinnedCids: 10,
-        collectedAt: new Date().toISOString(),
+        summary: {
+          totalStreams: 5,
+          totalPinnedCids: 10,
+          collectedAt: new Date().toISOString(),
+        },
         signature: [], // Empty signature
       };
 
@@ -67,12 +67,16 @@ describe("Metrics Signature Validation", () => {
 
     it("should reject metrics with invalid peer ID format", async () => {
       const metricsData = {
-        ipfsPeerId: "invalid-peer-id",
-        ceramicPeerId: peerId.toString(),
+        identity: {
+          ipfs: "invalid-peer-id",
+          ceramic: peerId.toString(),
+        },
         environment: "testnet" as const,
-        totalStreams: 5,
-        totalPinnedCids: 10,
-        collectedAt: new Date().toISOString(),
+        summary: {
+          totalStreams: 5,
+          totalPinnedCids: 10,
+          collectedAt: new Date().toISOString(),
+        },
         signature: [1, 2, 3], // Dummy signature
       };
 
@@ -83,7 +87,7 @@ describe("Metrics Signature Validation", () => {
     });
 
     it("should reject tampered data", async () => {
-      const metricsData = {
+      const metricsData: NodeMetricsSignable = {
         ipfsPeerId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
         environment: "testnet" as const,
@@ -95,7 +99,7 @@ describe("Metrics Signature Validation", () => {
       const signedMetrics = await createSignedMetrics(metricsData);
 
       // Tamper with the data after signing
-      signedMetrics.totalStreams = 999;
+      signedMetrics.summary.totalStreams = 999;
 
       const result = await validateMetricsSignature(signedMetrics);
 
@@ -106,7 +110,7 @@ describe("Metrics Signature Validation", () => {
     it("should reject signatures from different keys (impersonation attempt)", async () => {
       const attackerPrivateKey = await generateKeyPair("Ed25519");
 
-      const metricsData = {
+      const metricsData: NodeMetricsSignable = {
         ipfsPeerId: peerId.toString(), // Victim's peer ID
         ceramicPeerId: peerId.toString(),
         environment: "testnet" as const,
@@ -131,7 +135,7 @@ describe("Metrics Signature Validation", () => {
       const environments = ["testnet", "mainnet", "local"] as const;
 
       for (const environment of environments) {
-        const metricsData = {
+        const metricsData: NodeMetricsSignable = {
           ipfsPeerId: peerId.toString(),
           ceramicPeerId: peerId.toString(),
           environment,

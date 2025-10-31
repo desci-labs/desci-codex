@@ -172,7 +172,7 @@ This library enforces some important security properties:
 - **Schema validation**: Malformed data gets rejected before reaching crypto operations
 - **Deterministic serialization**: Same data always produces same signature
 
-The deterministic JSON serialization is crucial - if the node and server serialize data differently, signature verification breaks.
+The deterministic JSON serialization is crucial. If the node and server serialize data differently, signature verification breaks.
 
 ## Testing
 
@@ -180,7 +180,7 @@ The deterministic JSON serialization is crucial - if the node and server seriali
 pnpm test
 ```
 
-We have 53 tests covering:
+We have tests covering:
 - End-to-end signing and validation flows
 - Schema validation edge cases  
 - Security scenarios (tampering, impersonation)
@@ -193,9 +193,3 @@ pnpm install    # Install deps
 pnpm build      # Build TypeScript  
 pnpm test       # Run tests
 ```
-
-## What this replaces
-
-Before this library, the node and metrics server had duplicate type definitions and manual signing logic. The transformation functions replace the old `metricsToPayload()` approach that required careful field ordering.
-
-Now both packages import the same types and use the same signing/validation functions, so there's no way to get out of sync.

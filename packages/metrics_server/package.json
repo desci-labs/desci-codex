@@ -26,6 +26,7 @@
     "vitest": "^1.0.0"
   },
   "dependencies": {
+    "@codex/metrics": "workspace:*",
     "@libp2p/crypto": "^5.1.7",
     "@libp2p/interface": "^2.10.5",
     "@libp2p/peer-id": "^5.0.0",

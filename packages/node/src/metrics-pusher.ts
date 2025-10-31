@@ -20,15 +20,8 @@ export interface MetricsPusher {
 export const metricsToPayload = (
   metrics: Awaited<ReturnType<MetricsService["getMetrics"]>>,
 ) => {
-  return {
-    ipfsPeerId: metrics.identity.ipfs,
-    ceramicPeerId: metrics.identity.ceramic,
-    environment: metrics.environment,
-    totalStreams: metrics.summary.totalStreams,
-    totalPinnedCids: metrics.summary.totalPinnedCids,
-    collectedAt: metrics.summary.collectedAt,
-    signature: metrics.signature,
-  };
+  // The metrics are already in the correct format from @codex/metrics
+  return metrics;
 };
 
 export function createMetricsPusher(
