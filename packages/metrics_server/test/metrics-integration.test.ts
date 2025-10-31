@@ -12,13 +12,11 @@ import { peerIdFromPrivateKey } from "@libp2p/peer-id";
 import type { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
 
 /**
- * Integration tests to ensure compatibility with \@codex/metrics library.
- * These tests verify that:
- * 1. metrics_server can validate metrics from \@codex/metrics
- * 2. Any changes to \@codex/metrics API will cause test failures here
- * 3. The complete flow from node -\> \@codex/metrics -\> metrics_server validation works
+ * Tests for metrics_server processing pipeline and API contract compliance.
+ * Focuses on server-specific data processing, schema validation, and database preparation.
+ * Security validation is thoroughly tested in \@codex/metrics library.
  */
-describe("Metrics Server Library Integration", () => {
+describe("Metrics Server Processing", () => {
   let privateKey: Ed25519PrivateKey;
   let peerId: PeerId;
 
@@ -27,8 +25,8 @@ describe("Metrics Server Library Integration", () => {
     peerId = peerIdFromPrivateKey(privateKey);
   });
 
-  describe("Schema Processing", () => {
-    it("should successfully process metrics created by @codex/metrics", async () => {
+  describe("Request Processing Pipeline", () => {
+    it("should parse incoming metrics with NodeMetricsInternalSchema", async () => {
       const signableData: NodeMetricsSignable = {
         ipfsPeerId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
@@ -38,21 +36,20 @@ describe("Metrics Server Library Integration", () => {
         collectedAt: new Date().toISOString(),
       };
 
-      // Create signed metrics using @codex/metrics
       const signedMetrics = await signMetrics(signableData, privateKey);
 
-      // Verify schema validation passes
+      // Simulate what happens in index.ts: parse incoming request body
       expect(() =>
         NodeMetricsInternalSchema.parse(signedMetrics),
       ).not.toThrow();
 
-      // Verify structure validation passes
-      const validationResult = await validateMetricsSignature(signedMetrics);
-      expect(validationResult.isValid).toBe(true);
-      expect(validationResult.error).toBeUndefined();
+      const parsed = NodeMetricsInternalSchema.parse(signedMetrics);
+      expect(parsed.identity.ipfs).toBe(peerId.toString());
+      expect(parsed.environment).toBe("testnet");
+      expect(parsed.summary.totalStreams).toBe(42);
     });
 
-    it("should properly extract signable data for database storage", async () => {
+    it("should extract data for database storage", async () => {
       const signableData: NodeMetricsSignable = {
         ipfsPeerId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
@@ -65,11 +62,11 @@ describe("Metrics Server Library Integration", () => {
       const signedMetrics = await signMetrics(signableData, privateKey);
       const extractedData = extractSignableData(signedMetrics);
 
-      // Verify extracted data matches original
+      // Verify data extraction for database (removing signature)
       expect(extractedData).toEqual(signableData);
       expect(extractedData).not.toHaveProperty("signature");
 
-      // Verify we can reconstruct flat format for database
+      // Simulate database format transformation (as done in index.ts)
       const dbFormat = {
         ipfsPeerId: extractedData.ipfsPeerId,
         ceramicPeerId: extractedData.ceramicPeerId,
@@ -84,10 +81,90 @@ describe("Metrics Server Library Integration", () => {
       expect(dbFormat.totalStreams).toBe(100);
       expect(dbFormat.totalPinnedCids).toBe(50);
     });
+
+    it("should validate complete request-to-storage flow", async () => {
+      const signableData: NodeMetricsSignable = {
+        ipfsPeerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
+        environment: "local",
+        totalStreams: 5,
+        totalPinnedCids: 3,
+        collectedAt: new Date().toISOString(),
+      };
+
+      const signedMetrics = await signMetrics(signableData, privateKey);
+
+      // Step 1: Parse request (simulating Express middleware)
+      const parsedMetrics = NodeMetricsInternalSchema.parse(signedMetrics);
+
+      // Step 2: Validate signature (simulating validation middleware)
+      const validationResult = await validateMetricsSignature(parsedMetrics);
+      expect(validationResult.isValid).toBe(true);
+
+      // Step 3: Extract for database storage (simulating storage preparation)
+      const dbData = extractSignableData(parsedMetrics);
+      expect(dbData.ipfsPeerId).toBe(peerId.toString());
+      expect(dbData.environment).toBe("local");
+    });
   });
 
-  describe("Validation Integration", () => {
-    it("should validate all supported environments using @codex/metrics", async () => {
+  describe("Error Handling", () => {
+    it("should reject malformed request bodies", async () => {
+      const invalidInputs = [
+        // Missing required fields
+        { identity: { ipfs: peerId.toString() }, environment: "testnet" },
+        // Wrong field types
+        {
+          identity: { ipfs: peerId.toString(), ceramic: peerId.toString() },
+          environment: "invalid-env",
+          summary: {
+            totalStreams: "not-a-number",
+            totalPinnedCids: 5,
+            collectedAt: "2024-01-01T00:00:00.000Z",
+          },
+          signature: [1, 2, 3],
+        },
+        // Invalid signature format
+        {
+          identity: { ipfs: peerId.toString(), ceramic: peerId.toString() },
+          environment: "testnet",
+          summary: {
+            totalStreams: 5,
+            totalPinnedCids: 5,
+            collectedAt: "2024-01-01T00:00:00.000Z",
+          },
+          signature: "not-an-array",
+        },
+      ];
+
+      for (const invalid of invalidInputs) {
+        expect(() => NodeMetricsInternalSchema.parse(invalid)).toThrow();
+      }
+    });
+
+    it("should handle validation failures gracefully", async () => {
+      const metricsWithBadPeerId = {
+        identity: {
+          ipfs: "invalid-peer-id-format",
+          ceramic: peerId.toString(),
+        },
+        environment: "testnet" as const,
+        summary: {
+          totalStreams: 5,
+          totalPinnedCids: 10,
+          collectedAt: new Date().toISOString(),
+        },
+        signature: [1, 2, 3], // Invalid signature
+      };
+
+      const result = await validateMetricsSignature(metricsWithBadPeerId);
+      expect(result.isValid).toBe(false);
+      expect(typeof result.error).toBe("string");
+    });
+  });
+
+  describe("API Contract Compliance", () => {
+    it("should handle all supported environments", async () => {
       const environments = ["testnet", "mainnet", "local"] as const;
 
       for (const environment of environments) {
@@ -95,72 +172,26 @@ describe("Metrics Server Library Integration", () => {
           ipfsPeerId: peerId.toString(),
           ceramicPeerId: peerId.toString(),
           environment,
-          totalStreams: 10,
-          totalPinnedCids: 5,
+          totalStreams: 1,
+          totalPinnedCids: 1,
           collectedAt: new Date().toISOString(),
         };
 
         const signedMetrics = await signMetrics(signableData, privateKey);
-        const validationResult = await validateMetricsSignature(signedMetrics);
 
+        // Verify server can process this environment
+        expect(() =>
+          NodeMetricsInternalSchema.parse(signedMetrics),
+        ).not.toThrow();
+
+        const validationResult = await validateMetricsSignature(signedMetrics);
         expect(validationResult.isValid).toBe(true);
-        expect(validationResult.error).toBeUndefined();
-        expect(signedMetrics.environment).toBe(environment);
       }
     });
 
-    it("should reject tampered data using @codex/metrics validation", async () => {
-      const signableData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
-        environment: "local",
-        totalStreams: 20,
-        totalPinnedCids: 15,
-        collectedAt: new Date().toISOString(),
-      };
-
-      const signedMetrics = await signMetrics(signableData, privateKey);
-
-      // Tamper with the data
-      signedMetrics.summary.totalStreams = 999;
-
-      const validationResult = await validateMetricsSignature(signedMetrics);
-      expect(validationResult.isValid).toBe(false);
-      expect(validationResult.error).toBe(
-        "Cryptographic signature verification failed",
-      );
-    });
-
-    it("should reject impersonation attempts using @codex/metrics validation", async () => {
-      const victimKey = await generateKeyPair("Ed25519");
-      const victimPeerId = peerIdFromPrivateKey(victimKey);
-      const attackerKey = await generateKeyPair("Ed25519");
-
-      // Attacker tries to create metrics claiming to be victim
-      const fakeData: NodeMetricsSignable = {
-        ipfsPeerId: victimPeerId.toString(),
-        ceramicPeerId: victimPeerId.toString(),
-        environment: "testnet",
-        totalStreams: 1000,
-        totalPinnedCids: 500,
-        collectedAt: new Date().toISOString(),
-      };
-
-      // Sign with attacker's key
-      const maliciousMetrics = await signMetrics(fakeData, attackerKey);
-
-      const validationResult = await validateMetricsSignature(maliciousMetrics);
-      expect(validationResult.isValid).toBe(false);
-      expect(validationResult.error).toBe(
-        "Cryptographic signature verification failed",
-      );
-    });
-  });
-
-  describe("API Contract Compliance", () => {
-    it("should handle the expected metrics format from node package", async () => {
-      // Simulate what the node package sends
-      const nodeMetrics: NodeMetricsInternal = {
+    it("should maintain compatibility with node package output format", async () => {
+      // Simulate the exact format sent by node package
+      const nodeOutput: NodeMetricsInternal = {
         identity: {
           ipfs: peerId.toString(),
           ceramic: peerId.toString(),
@@ -174,104 +205,15 @@ describe("Metrics Server Library Integration", () => {
         signature: [1, 2, 3, 4, 5], // Dummy signature for structure test
       };
 
-      // Verify schema parsing works
-      expect(() => NodeMetricsInternalSchema.parse(nodeMetrics)).not.toThrow();
+      // Verify server can parse node output
+      expect(() => NodeMetricsInternalSchema.parse(nodeOutput)).not.toThrow();
 
-      // Verify data extraction works
-      const extracted = extractSignableData(nodeMetrics);
+      // Verify server can extract data for storage
+      const extracted = extractSignableData(nodeOutput);
       expect(extracted.ipfsPeerId).toBe(peerId.toString());
       expect(extracted.environment).toBe("testnet");
       expect(extracted.totalStreams).toBe(42);
       expect(extracted.totalPinnedCids).toBe(24);
-    });
-
-    it("should reject invalid schemas to prevent security issues", async () => {
-      const invalidMetrics = [
-        // Missing required fields
-        {
-          identity: { ipfs: peerId.toString() },
-          environment: "testnet",
-        },
-        // Wrong types
-        {
-          identity: { ipfs: peerId.toString(), ceramic: peerId.toString() },
-          environment: "invalid",
-          summary: {
-            totalStreams: "not a number",
-            totalPinnedCids: 5,
-            collectedAt: "2024-01-01T00:00:00.000Z",
-          },
-          signature: [1, 2, 3],
-        },
-        // Invalid signature
-        {
-          identity: { ipfs: peerId.toString(), ceramic: peerId.toString() },
-          environment: "testnet",
-          summary: {
-            totalStreams: 5,
-            totalPinnedCids: 5,
-            collectedAt: "2024-01-01T00:00:00.000Z",
-          },
-          signature: "not an array",
-        },
-      ];
-
-      for (const invalid of invalidMetrics) {
-        expect(() => NodeMetricsInternalSchema.parse(invalid)).toThrow();
-      }
-    });
-  });
-
-  describe("Breaking Change Detection", () => {
-    it("should detect if @codex/metrics changes its signing behavior", async () => {
-      const signableData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
-        environment: "testnet",
-        totalStreams: 1,
-        totalPinnedCids: 1,
-        collectedAt: "2024-01-01T00:00:00.000Z",
-      };
-
-      // Create metrics twice with same data
-      const metrics1 = await signMetrics(signableData, privateKey);
-      const metrics2 = await signMetrics(signableData, privateKey);
-
-      // Signatures should be identical for identical data (deterministic)
-      expect(metrics1.signature).toEqual(metrics2.signature);
-
-      // Both should validate
-      expect((await validateMetricsSignature(metrics1)).isValid).toBe(true);
-      expect((await validateMetricsSignature(metrics2)).isValid).toBe(true);
-
-      // If this test starts failing, \@codex/metrics signing behavior changed
-    });
-
-    it("should detect if @codex/metrics changes its schema format", async () => {
-      const signableData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
-        environment: "testnet",
-        totalStreams: 5,
-        totalPinnedCids: 3,
-        collectedAt: new Date().toISOString(),
-      };
-
-      const signedMetrics = await signMetrics(signableData, privateKey);
-
-      // Verify expected nested structure still exists
-      expect(signedMetrics).toHaveProperty("identity");
-      expect(signedMetrics).toHaveProperty("environment");
-      expect(signedMetrics).toHaveProperty("summary");
-      expect(signedMetrics).toHaveProperty("signature");
-
-      expect(signedMetrics.identity).toHaveProperty("ipfs");
-      expect(signedMetrics.identity).toHaveProperty("ceramic");
-      expect(signedMetrics.summary).toHaveProperty("totalStreams");
-      expect(signedMetrics.summary).toHaveProperty("totalPinnedCids");
-      expect(signedMetrics.summary).toHaveProperty("collectedAt");
-
-      // If this test starts failing, \@codex/metrics format changed
     });
   });
 });

@@ -6,9 +6,13 @@ import { peerIdFromPrivateKey } from "@libp2p/peer-id";
 import { generateKeyPair } from "@libp2p/crypto/keys";
 import { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
 import { metricsToPayload } from "../src/metrics-pusher.js";
-import { validateMetricsSignature, signMetrics } from "@codex/metrics";
 
-describe("Metrics Signing", () => {
+/**
+ * Tests for node-specific metrics collection and service integration.
+ * Cryptographic validation is handled by \@codex/metrics library tests.
+ * These tests focus on service integration and data collection accuracy.
+ */
+describe("Node Metrics Service", () => {
   let mockEventsService: CeramicEventsService;
   let mockIpfsNode: IPFSNode;
   let privateKey: Ed25519PrivateKey;
@@ -46,8 +50,8 @@ describe("Metrics Signing", () => {
     };
   });
 
-  describe("createMetricsService", () => {
-    it("should create a metrics service with signing capability", () => {
+  describe("Service Creation and Data Collection", () => {
+    it("should create a metrics service", () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
@@ -59,103 +63,119 @@ describe("Metrics Signing", () => {
       expect(typeof metricsService.getMetrics).toBe("function");
     });
 
-    it("should collect metrics and sign them correctly", async () => {
+    it("should collect accurate metrics from integrated services", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
-        environment: "testnet",
+        environment: "mainnet",
         privateKey,
       });
 
       const metrics = await metricsService.getMetrics();
 
-      // Verify the metrics structure
-      expect(metrics).toHaveProperty("identity");
-      expect(metrics).toHaveProperty("environment");
-      expect(metrics).toHaveProperty("summary");
-      expect(metrics).toHaveProperty("signature");
-
+      // Verify service integration - data comes from mocked services
       expect(metrics.identity.ipfs).toBe(peerId.toString());
       expect(metrics.identity.ceramic).toBe(peerId.toString());
-      expect(metrics.environment).toBe("testnet");
-      expect(metrics.summary.totalStreams).toBe(2);
-      expect(metrics.summary.totalPinnedCids).toBe(3);
+      expect(metrics.environment).toBe("mainnet");
+      expect(metrics.summary.totalStreams).toBe(2); // From mockEventsService
+      expect(metrics.summary.totalPinnedCids).toBe(3); // From mockIpfsNode
       expect(metrics.summary.collectedAt).toBeDefined();
-      expect(metrics.signature).toBeInstanceOf(Array);
-      expect(metrics.signature.length).toBeGreaterThan(0);
+      expect(new Date(metrics.summary.collectedAt)).toBeInstanceOf(Date);
+    });
+
+    it("should handle different environments correctly", async () => {
+      const environments = ["testnet", "mainnet", "local"] as const;
+
+      for (const environment of environments) {
+        const metricsService = createMetricsService({
+          eventsService: mockEventsService,
+          ipfsNode: mockIpfsNode,
+          environment,
+          privateKey,
+        });
+
+        const metrics = await metricsService.getMetrics();
+        expect(metrics.environment).toBe(environment);
+      }
     });
   });
 
-  describe("Simulated backend verification", () => {
-    it("can validate legitimate signature using @codex/metrics library", async () => {
+  describe("Service Integration Accuracy", () => {
+    it("should accurately reflect changes in ceramic streams", async () => {
+      // Test with different stream counts
+      const testCases = [
+        { streams: [], expectedCount: 0 },
+        { streams: [{ id: "stream1", versions: ["v1"] }], expectedCount: 1 },
+        {
+          streams: [
+            { id: "stream1", versions: ["v1", "v2"] },
+            { id: "stream2", versions: ["v1"] },
+            { id: "stream3", versions: ["v1", "v2", "v3"] },
+          ],
+          expectedCount: 3,
+        },
+      ];
+
+      for (const testCase of testCases) {
+        mockEventsService.stats = vi.fn().mockResolvedValue({
+          peerId: peerId.toString(),
+          streams: testCase.streams,
+        });
+
+        const metricsService = createMetricsService({
+          eventsService: mockEventsService,
+          ipfsNode: mockIpfsNode,
+          environment: "testnet",
+          privateKey,
+        });
+
+        const metrics = await metricsService.getMetrics();
+        expect(metrics.summary.totalStreams).toBe(testCase.expectedCount);
+      }
+    });
+
+    it("should accurately reflect changes in pinned CIDs", async () => {
+      // Test with different pin counts
+      const testCases = [
+        { pins: [], expectedCount: 0 },
+        { pins: ["cid1"], expectedCount: 1 },
+        { pins: ["cid1", "cid2", "cid3", "cid4", "cid5"], expectedCount: 5 },
+      ];
+
+      for (const testCase of testCases) {
+        mockIpfsNode.listPins = vi.fn().mockResolvedValue(testCase.pins);
+
+        const metricsService = createMetricsService({
+          eventsService: mockEventsService,
+          ipfsNode: mockIpfsNode,
+          environment: "testnet",
+          privateKey,
+        });
+
+        const metrics = await metricsService.getMetrics();
+        expect(metrics.summary.totalPinnedCids).toBe(testCase.expectedCount);
+      }
+    });
+  });
+
+  describe("metricsToPayload Integration", () => {
+    it("should transform metrics correctly for transmission", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
-        environment: "testnet",
+        environment: "local",
         privateKey,
       });
 
       const metrics = await metricsService.getMetrics();
       const payload = metricsToPayload(metrics);
 
-      // Use the @codex/metrics validation function
-      const validationResult = await validateMetricsSignature(payload);
-      expect(validationResult.isValid).toBe(true);
-      expect(validationResult.error).toBeUndefined();
-    });
-
-    it("can reject tampered data using @codex/metrics library", async () => {
-      const metricsService = createMetricsService({
-        eventsService: mockEventsService,
-        ipfsNode: mockIpfsNode,
-        environment: "testnet",
-        privateKey,
-      });
-
-      const metrics = await metricsService.getMetrics();
-      const legitimatePayload = metricsToPayload(metrics);
-
-      // Tamper with the data
-      const tamperedPayload = {
-        ...legitimatePayload,
-        summary: {
-          ...legitimatePayload.summary,
-          totalStreams: legitimatePayload.summary.totalStreams + 999,
-        },
-      };
-
-      // Use the @codex/metrics validation function
-      const validationResult = await validateMetricsSignature(tamperedPayload);
-      expect(validationResult.isValid).toBe(false);
-      expect(validationResult.error).toBe(
-        "Cryptographic signature verification failed",
-      );
-    });
-
-    it("can reject signature from different key (peer impersonation)", async () => {
-      const victimKey = await generateKeyPair("Ed25519");
-      const victimPeerId = peerIdFromPrivateKey(victimKey);
-      const attackerKey = await generateKeyPair("Ed25519");
-
-      // Create metrics claiming to be from victim
-      const fakeSignableData = {
-        ipfsPeerId: victimPeerId.toString(),
-        ceramicPeerId: victimPeerId.toString(),
-        environment: "testnet" as const,
-        totalStreams: 100,
-        totalPinnedCids: 50,
-        collectedAt: new Date().toISOString(),
-      };
-
-      // Sign with attacker's key (impersonation attempt)
-      const maliciousMetrics = await signMetrics(fakeSignableData, attackerKey);
-
-      // Use the @codex/metrics validation function
-      const validationResult = await validateMetricsSignature(maliciousMetrics);
-      expect(validationResult.isValid).toBe(false);
-      expect(validationResult.error).toBe(
-        "Cryptographic signature verification failed",
-      );
+      // Verify payload is ready for metrics_server consumption
+      expect(payload).toBe(metrics); // Should be identity function now
+      expect(payload).toHaveProperty("identity");
+      expect(payload).toHaveProperty("environment");
+      expect(payload).toHaveProperty("summary");
+      expect(payload).toHaveProperty("signature");
     });
   });
 });
