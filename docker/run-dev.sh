@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # CODEX Development Environment Runner
 # This script provides easy commands to run different development configurations
