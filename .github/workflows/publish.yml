@@ -1,4 +1,4 @@
-name: Publish codex-lib to npmjs
+name: Publish packages to npmjs
 on:
   push:
     branches: [main]
@@ -21,5 +21,6 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: |
           pnpm --filter @desci-labs/desci-codex-lib doPublish
+          pnpm --filter @codex/metrics doPublish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
