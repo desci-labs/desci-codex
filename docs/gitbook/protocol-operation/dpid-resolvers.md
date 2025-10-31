@@ -12,5 +12,3 @@ The dPID resolver acts as a HTTP bridge to content resolvable in the protocol, a
 
 ## Implementation
 The dPID registry is implemented in a decentralised fashion as a smart contract, which permanently maps a human-readable PID to a Codex reference. This contract is open for anyone to interact with, the protocol data is open, and the [dPID resolver](https://github.com/desci-labs/dpid-resolver) is free, open source software.
-
-Going from dPID URL to content is where the resolver comes in: first finding the correct protocol node from the mapping in the smart contract, then following the steps in [deterministic-resolution.md](../deterministic-resolution.md "mention") to point to the target content.

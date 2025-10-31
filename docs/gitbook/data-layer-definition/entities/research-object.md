@@ -64,14 +64,8 @@ The `metadata` field holds minified JSON, the specific format of which is not st
 
 Most of this information will not be set by hand, but either automatically compiled by the publication gateway or suggested by other actors in the protocol, for the owner of the research object to accept. We will return to this concept of metadata contributions later, in the [annotation.md](annotation.md "mention") chapter. A full summary of the metadata capabilities can be found in [metadata.md](../metadata.md "mention").
 
-## Data storage
-
-I[^1]t is worth pointing out that operation of the protocol is not concerned with hosting the contents of the data DAG, but only indexing the contextual information surrounding it. However, gateways will likely include data pinning in their end user facing services. More on this in the [data-services.md](../../protocol-operation/participation/data-services.md "mention") chapter.
-
 ## Self-sufficiency
 
 One could view this entity as the only primitive of the protocol, and all other as extensions. In fact, all other entities could have been created by the community.
 
 Additionally, to reach functional parity with the previous generation of dPID resolution (details of which we will get into later) we only need the Research Object entity holding a manifest CID to keep track of the entire record of versions.
-
-[^1]: 
