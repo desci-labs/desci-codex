@@ -1,0 +1,244 @@
+import { describe, it, expect, beforeEach } from "vitest";
+import { generateKeyPair } from "@libp2p/crypto/keys";
+import { peerIdFromPrivateKey } from "@libp2p/peer-id";
+import type { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
+import {
+  type NodeMetricsInternal,
+  type NodeMetricsSignable,
+  internalToWire,
+  signMetrics,
+  validateMetricsSignature,
+  extractSignableData,
+  canonicalJsonSerialize,
+} from "../src/index.js";
+
+describe("End-to-End Integration Tests", () => {
+  let privateKey: Ed25519PrivateKey;
+  let peerId: PeerId;
+
+  beforeEach(async () => {
+    privateKey = await generateKeyPair("Ed25519");
+    peerId = peerIdFromPrivateKey(privateKey);
+  });
+
+  describe("Producer → Consumer Flow (with libp2p peer ID security)", () => {
+    it("should handle the complete flow from producer to consumer", async () => {
+      // This test demonstrates the complete security model where:
+      // 1. Each node has a unique libp2p peer ID that contains their public key
+      // 2. Metrics are signed with the node's private key
+      // 3. The consumer can verify authenticity using the public key from the peer ID
+      // 4. This prevents impersonation and ensures data integrity
+
+      // Step 1: Producer creates internal metrics (simulating node package)
+      const internalMetrics: NodeMetricsInternal = {
+        identity: {
+          ipfs: peerId.toString(),
+          ceramic: peerId.toString(),
+        },
+        environment: "testnet",
+        summary: {
+          totalStreams: 100,
+          totalPinnedCids: 50,
+          collectedAt: new Date().toISOString(),
+        },
+        signature: [], // Will be populated after signing
+      };
+
+      // Step 2: Transform to wire format (what metrics-pusher does)
+      const wireFormatUnsigned = internalToWire(internalMetrics);
+      const signableData = extractSignableData(wireFormatUnsigned);
+
+      // Step 3: Sign the metrics
+      const signedMetrics = await signMetrics(signableData, privateKey);
+
+      // Step 4: Transmit (simulated - just checking serialization works)
+      const transmitted = JSON.stringify(signedMetrics);
+      const received = JSON.parse(transmitted);
+
+      // Step 5: Consumer validates the signature (simulating metrics_server)
+      const validationResult = await validateMetricsSignature(received);
+
+      expect(validationResult.isValid).toBe(true);
+      expect(validationResult.error).toBeUndefined();
+
+      // Verify data integrity
+      expect(received.ipfsPeerId).toBe(peerId.toString());
+      expect(received.totalStreams).toBe(100);
+      expect(received.totalPinnedCids).toBe(50);
+    });
+
+    it("should demonstrate peer ID as public key (libp2p core security feature)", async () => {
+      // This test explicitly demonstrates that libp2p peer IDs contain public keys
+      const metricsData: NodeMetricsSignable = {
+        ipfsPeerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
+        environment: "testnet",
+        totalStreams: 42,
+        totalPinnedCids: 24,
+        collectedAt: "2024-01-01T00:00:00.000Z",
+      };
+
+      // Sign the metrics
+      const signedMetrics = await signMetrics(metricsData, privateKey);
+
+      // Extract the public key directly from the peer ID (critical libp2p feature)
+      const publicKeyFromPeerId = peerId.publicKey!;
+      expect(publicKeyFromPeerId).toBeDefined();
+
+      // Manually verify signature using the public key extracted from peer ID
+      const { signature, ...dataToVerify } = signedMetrics;
+      const canonicalJson = canonicalJsonSerialize(dataToVerify);
+      const dataBytes = new TextEncoder().encode(canonicalJson);
+      const signatureBytes = new Uint8Array(signature);
+
+      // This verification proves that:
+      // 1. The peer ID contains the public key
+      // 2. The signature was created by the corresponding private key
+      // 3. The data hasn't been tampered with
+      const isValid = await publicKeyFromPeerId.verify(
+        dataBytes,
+        signatureBytes,
+      );
+      expect(isValid).toBe(true);
+
+      // Also verify that our validation function works the same way
+      const validationResult = await validateMetricsSignature(signedMetrics);
+      expect(validationResult.isValid).toBe(true);
+    });
+
+    it("should use deterministic serialization for reliable signature verification", async () => {
+      // This test ensures our canonical serialization produces deterministic output
+      const metricsData: NodeMetricsSignable = {
+        ipfsPeerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
+        environment: "testnet",
+        totalStreams: 42,
+        totalPinnedCids: 24,
+        collectedAt: "2024-01-01T00:00:00.000Z",
+      };
+
+      // Sign using our new utilities
+      const signedMetrics = await signMetrics(metricsData, privateKey);
+
+      // Manually verify using our canonical serialization
+      const { signature, ...dataToVerify } = signedMetrics;
+      const canonicalJson = canonicalJsonSerialize(dataToVerify);
+      const canonicalBytes = new TextEncoder().encode(canonicalJson);
+      const signatureBytes = new Uint8Array(signature);
+
+      const isValid = await peerId.publicKey!.verify(
+        canonicalBytes,
+        signatureBytes,
+      );
+      expect(isValid).toBe(true);
+
+      // Verify that our serialization is deterministic
+      const canonicalJson2 = canonicalJsonSerialize(metricsData);
+      expect(canonicalJson).toBe(canonicalJson2);
+    });
+
+    it("should reject tampered data", async () => {
+      const metricsData: NodeMetricsSignable = {
+        ipfsPeerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
+        environment: "mainnet",
+        totalStreams: 10,
+        totalPinnedCids: 5,
+        collectedAt: new Date().toISOString(),
+      };
+
+      const signedMetrics = await signMetrics(metricsData, privateKey);
+
+      // Tamper with the data after signing
+      signedMetrics.totalStreams = 999;
+
+      const validationResult = await validateMetricsSignature(signedMetrics);
+      expect(validationResult.isValid).toBe(false);
+      expect(validationResult.error).toBe(
+        "Cryptographic signature verification failed",
+      );
+    });
+
+    it("should reject impersonation attempts (peer ID as public key verification)", async () => {
+      // Create attacker's key and peer ID
+      const attackerKey = await generateKeyPair("Ed25519");
+      const attackerPeerId = peerIdFromPrivateKey(attackerKey);
+
+      // Create victim's key and peer ID
+      const victimKey = await generateKeyPair("Ed25519");
+      const victimPeerId = peerIdFromPrivateKey(victimKey);
+
+      // Attacker tries to sign metrics claiming to be the victim
+      const metricsData: NodeMetricsSignable = {
+        ipfsPeerId: victimPeerId.toString(), // Claiming to be victim
+        ceramicPeerId: victimPeerId.toString(),
+        environment: "local",
+        totalStreams: 1000,
+        totalPinnedCids: 500,
+        collectedAt: new Date().toISOString(),
+      };
+
+      // Sign with attacker's key
+      const maliciousMetrics = await signMetrics(metricsData, attackerKey);
+
+      // CRITICAL SECURITY TEST: Validation should fail because the claimed peer ID
+      // contains the victim's public key, but the signature was created with the attacker's private key.
+      // This demonstrates that peer IDs ARE public keys in libp2p.
+      const validationResult = await validateMetricsSignature(maliciousMetrics);
+      expect(validationResult.isValid).toBe(false);
+      expect(validationResult.error).toBe(
+        "Cryptographic signature verification failed",
+      );
+
+      // Explicitly verify the peer ID contains the public key
+      expect(victimPeerId.publicKey).toBeDefined();
+      expect(attackerPeerId.publicKey).toBeDefined();
+      expect(victimPeerId.toString()).not.toBe(attackerPeerId.toString());
+    });
+
+    it("should handle all supported environments", async () => {
+      const environments = ["testnet", "mainnet", "local"] as const;
+
+      for (const env of environments) {
+        const metricsData: NodeMetricsSignable = {
+          ipfsPeerId: peerId.toString(),
+          ceramicPeerId: peerId.toString(),
+          environment: env,
+          totalStreams: 5,
+          totalPinnedCids: 3,
+          collectedAt: new Date().toISOString(),
+        };
+
+        const signedMetrics = await signMetrics(metricsData, privateKey);
+        const validationResult = await validateMetricsSignature(signedMetrics);
+
+        expect(validationResult.isValid).toBe(true);
+        expect(signedMetrics.environment).toBe(env);
+      }
+    });
+  });
+
+  describe("Deterministic Serialization", () => {
+    it("should produce deterministic output for the same data", () => {
+      const data: NodeMetricsSignable = {
+        ipfsPeerId: "peer123",
+        ceramicPeerId: "ceramic456",
+        environment: "testnet",
+        totalStreams: 10,
+        totalPinnedCids: 5,
+        collectedAt: "2024-01-01T00:00:00.000Z",
+      };
+
+      const serialized1 = canonicalJsonSerialize(data);
+      const serialized2 = canonicalJsonSerialize(data);
+
+      // Should produce identical output
+      expect(serialized1).toBe(serialized2);
+
+      // Should be valid JSON
+      const parsed = JSON.parse(serialized1);
+      expect(parsed.ipfsPeerId).toBe("peer123");
+      expect(parsed.environment).toBe("testnet");
+    });
+  });
+});
