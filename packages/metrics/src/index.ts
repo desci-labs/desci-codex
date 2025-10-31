@@ -2,8 +2,6 @@
 export type {
   Environment,
   NodeMetricsInternal,
-  NodeMetricsWire,
-  NodeMetricsStorage,
   NodeMetricsSignable,
   ValidationResult,
 } from "./types.js";
@@ -12,8 +10,6 @@ export type {
 export {
   EnvironmentSchema,
   NodeMetricsInternalSchema,
-  NodeMetricsWireSchema,
-  NodeMetricsStorageSchema,
   NodeMetricsSignableSchema,
   SignatureSchema,
 } from "./schemas.js";
@@ -31,12 +27,8 @@ export { canonicalJsonSerialize } from "./serialization.js";
 
 // Transformation exports
 export {
-  internalToWire,
-  wireToInternal,
   extractSignableData,
-  wireToStorage,
-  createWireFormat,
-  isValidWireFormat,
+  createInternalFormat,
   isValidInternalFormat,
   cloneMetrics,
 } from "./transformations.js";

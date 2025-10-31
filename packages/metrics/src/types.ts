@@ -2,8 +2,6 @@
 export type {
   Environment,
   NodeMetricsInternal,
-  NodeMetricsWire,
-  NodeMetricsStorage,
   NodeMetricsSignable,
 } from "./schemas.js";
 

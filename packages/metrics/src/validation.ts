@@ -1,6 +1,6 @@
 import { peerIdFromString } from "@libp2p/peer-id";
-import type { ValidationResult, NodeMetricsWire } from "./types.js";
-import { NodeMetricsWireSchema } from "./schemas.js";
+import type { ValidationResult, NodeMetricsInternal } from "./types.js";
+import { NodeMetricsInternalSchema } from "./schemas.js";
 import { canonicalJsonSerialize } from "./serialization.js";
 import { extractSignableData } from "./transformations.js";
 import { signatureFromArray } from "./signing.js";
@@ -16,7 +16,7 @@ import { ERROR_MESSAGES } from "./constants.js";
  * @returns Promise<ValidationResult> - Whether the signature is valid
  */
 export async function validateMetricsSignature(
-  metrics: NodeMetricsWire,
+  metrics: NodeMetricsInternal,
 ): Promise<ValidationResult> {
   try {
     // Validate signature presence
@@ -34,7 +34,7 @@ export async function validateMetricsSignature(
     // Parse the peer ID to get the public key
     let peerId;
     try {
-      peerId = peerIdFromString(metrics.ipfsPeerId);
+      peerId = peerIdFromString(metrics.identity.ipfs);
     } catch (error) {
       return {
         isValid: false,
@@ -88,7 +88,7 @@ export async function validateMetricsSignature(
  */
 export function validateMetricsStructure(metrics: unknown): ValidationResult {
   try {
-    NodeMetricsWireSchema.parse(metrics);
+    NodeMetricsInternalSchema.parse(metrics);
     return { isValid: true };
   } catch (error) {
     if (error instanceof ZodError) {

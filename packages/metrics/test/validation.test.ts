@@ -7,7 +7,7 @@ import {
   validateMetricsStructure,
 } from "../src/validation.js";
 import { signMetrics } from "../src/signing.js";
-import type { NodeMetricsWire, NodeMetricsSignable } from "../src/types.js";
+import type { NodeMetricsInternal, NodeMetricsSignable } from "../src/types.js";
 
 describe("Validation", () => {
   let privateKey: Ed25519PrivateKey;
@@ -37,13 +37,17 @@ describe("Validation", () => {
     });
 
     it("should reject missing signature", async () => {
-      const metrics: NodeMetricsWire = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+      const metrics: NodeMetricsInternal = {
+        identity: {
+          ipfs: peerId.toString(),
+          ceramic: peerId.toString(),
+        },
         environment: "testnet",
-        totalStreams: 10,
-        totalPinnedCids: 5,
-        collectedAt: new Date().toISOString(),
+        summary: {
+          totalStreams: 10,
+          totalPinnedCids: 5,
+          collectedAt: new Date().toISOString(),
+        },
         signature: [],
       };
 
@@ -53,13 +57,17 @@ describe("Validation", () => {
     });
 
     it("should reject invalid peer ID format", async () => {
-      const metrics: NodeMetricsWire = {
-        ipfsPeerId: "not-a-valid-peer-id",
-        ceramicPeerId: "ceramic123",
+      const metrics: NodeMetricsInternal = {
+        identity: {
+          ipfs: "not-a-valid-peer-id",
+          ceramic: "ceramic123",
+        },
         environment: "testnet",
-        totalStreams: 10,
-        totalPinnedCids: 5,
-        collectedAt: new Date().toISOString(),
+        summary: {
+          totalStreams: 10,
+          totalPinnedCids: 5,
+          collectedAt: new Date().toISOString(),
+        },
         signature: [1, 2, 3],
       };
 
@@ -71,13 +79,17 @@ describe("Validation", () => {
     it("should reject peer ID without public key", async () => {
       // Create a peer ID string that's valid but doesn't encode a public key
       // This is a synthetic test case
-      const metrics: NodeMetricsWire = {
-        ipfsPeerId: "QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N", // Old style peer ID without key
-        ceramicPeerId: "ceramic123",
+      const metrics: NodeMetricsInternal = {
+        identity: {
+          ipfs: "QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N", // Old style peer ID without key
+          ceramic: "ceramic123",
+        },
         environment: "testnet",
-        totalStreams: 10,
-        totalPinnedCids: 5,
-        collectedAt: new Date().toISOString(),
+        summary: {
+          totalStreams: 10,
+          totalPinnedCids: 5,
+          collectedAt: new Date().toISOString(),
+        },
         signature: [1, 2, 3],
       };
 
@@ -99,7 +111,7 @@ describe("Validation", () => {
       const signedMetrics = await signMetrics(metricsData, privateKey);
 
       // Tamper with the data
-      signedMetrics.totalStreams = 999;
+      signedMetrics.summary.totalStreams = 999;
 
       const result = await validateMetricsSignature(signedMetrics);
       expect(result.isValid).toBe(false);
@@ -148,9 +160,11 @@ describe("Validation", () => {
 
     it("should handle validation errors gracefully", async () => {
       const metrics = {
-        ipfsPeerId: peerId.toString(),
+        identity: {
+          ipfs: peerId.toString(),
+        },
         // Missing other required fields
-      } as any;
+      } as Record<string, unknown>;
 
       const result = await validateMetricsSignature(metrics);
       expect(result.isValid).toBe(false);
@@ -159,13 +173,17 @@ describe("Validation", () => {
   });
 
   describe("validateMetricsStructure", () => {
-    const validMetrics: NodeMetricsWire = {
-      ipfsPeerId: "12D3KooWExample",
-      ceramicPeerId: "12D3KooWCeramic",
+    const validMetrics: NodeMetricsInternal = {
+      identity: {
+        ipfs: "12D3KooWExample",
+        ceramic: "12D3KooWCeramic",
+      },
       environment: "testnet",
-      totalStreams: 10,
-      totalPinnedCids: 5,
-      collectedAt: "2024-01-01T00:00:00.000Z",
+      summary: {
+        totalStreams: 10,
+        totalPinnedCids: 5,
+        collectedAt: "2024-01-01T00:00:00.000Z",
+      },
       signature: [1, 2, 3],
     };
 
@@ -191,19 +209,11 @@ describe("Validation", () => {
     });
 
     it("should reject missing required fields", () => {
-      const fields = [
-        "ipfsPeerId",
-        "ceramicPeerId",
-        "environment",
-        "totalStreams",
-        "totalPinnedCids",
-        "collectedAt",
-        "signature",
-      ];
+      const fields = ["identity", "environment", "summary", "signature"];
 
       for (const field of fields) {
         const incomplete = { ...validMetrics };
-        delete (incomplete as any)[field];
+        delete (incomplete as Record<string, unknown>)[field];
 
         const result = validateMetricsStructure(incomplete);
         expect(result.isValid).toBe(false);
@@ -214,19 +224,19 @@ describe("Validation", () => {
     it("should validate field types", () => {
       const testCases = [
         {
-          field: "ipfsPeerId",
+          field: "identity.ipfs",
           value: "",
-          error: "ipfsPeerId must be a non-empty string",
+          error: "String must contain at least 1 character(s)",
         },
         {
-          field: "ipfsPeerId",
+          field: "identity.ipfs",
           value: 123,
-          error: "ipfsPeerId must be a non-empty string",
+          error: "Expected string, received number",
         },
         {
-          field: "ceramicPeerId",
+          field: "identity.ceramic",
           value: "",
-          error: "ceramicPeerId must be a non-empty string",
+          error: "String must contain at least 1 character(s)",
         },
         {
           field: "environment",
@@ -234,24 +244,24 @@ describe("Validation", () => {
           error: "environment must be one of: testnet, mainnet, local",
         },
         {
-          field: "totalStreams",
+          field: "summary.totalStreams",
           value: -1,
-          error: "totalStreams must be a non-negative number",
+          error: "Number must be greater than or equal to 0",
         },
         {
-          field: "totalStreams",
+          field: "summary.totalStreams",
           value: "10",
-          error: "totalStreams must be a non-negative number",
+          error: "Expected number, received string",
         },
         {
-          field: "totalPinnedCids",
+          field: "summary.totalPinnedCids",
           value: -5,
-          error: "totalPinnedCids must be a non-negative number",
+          error: "Number must be greater than or equal to 0",
         },
         {
-          field: "collectedAt",
+          field: "summary.collectedAt",
           value: 123,
-          error: "collectedAt must be a string",
+          error: "Expected string, received number",
         },
         {
           field: "signature",
@@ -261,7 +271,19 @@ describe("Validation", () => {
       ];
 
       for (const test of testCases) {
-        const invalid = { ...validMetrics, [test.field]: test.value };
+        let invalid = { ...validMetrics };
+        if (test.field.includes(".")) {
+          const [parent, child] = test.field.split(".");
+          invalid = {
+            ...validMetrics,
+            [parent]: {
+              ...(validMetrics as Record<string, unknown>)[parent],
+              [child]: test.value,
+            },
+          };
+        } else {
+          invalid = { ...validMetrics, [test.field]: test.value };
+        }
         const result = validateMetricsStructure(invalid);
         expect(result.isValid).toBe(false);
         expect(result.error).toBe(test.error);
@@ -277,12 +299,13 @@ describe("Validation", () => {
       ];
 
       for (const date of invalidDates) {
-        const invalid = { ...validMetrics, collectedAt: date };
+        const invalid = {
+          ...validMetrics,
+          summary: { ...validMetrics.summary, collectedAt: date },
+        };
         const result = validateMetricsStructure(invalid);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe(
-          "collectedAt must be a valid ISO date string",
-        );
+        expect(result.error).toBe("Invalid datetime");
       }
     });
 

@@ -1,16 +1,19 @@
 # @codex/metrics
 
-Shared metrics types, validation, and utilities for the Codex project.
+Shared metrics library for node data collection and server validation in the Codex P2P network.
 
-## Purpose
+## What's this for?
 
-This package solves the format coordination problem between the producer (`packages/node`) and consumer (`packages/metrics_server`) sides of the metrics system. It provides:
+The node package collects metrics and sends them to the metrics server. This library handles the tricky parts - making sure both sides use the same data format, properly signing metrics with libp2p keys, and validating everything on the server side.
 
-- **Type Safety**: Shared TypeScript interfaces and Zod schemas for all metric formats
-- **Canonical Serialization**: Deterministic JSON serialization for cryptographic signatures
-- **Format Transformations**: Utilities to convert between internal and wire formats
-- **Validation**: Runtime validation using Zod schemas
-- **Signing & Verification**: Utilities for Ed25519 signature creation and validation
+Before this library, we had duplicate type definitions and manual signing logic scattered across packages. Now it's all in one place.
+
+## Features
+
+- **Shared types**: Both node and server use the same TypeScript definitions
+- **libp2p integration**: Uses Ed25519 keys and peer IDs for signatures  
+- **Bulletproof validation**: Schema validation plus cryptographic verification
+- **Simple API**: Just a few functions to handle signing and validation
 
 ## Installation
 
@@ -18,240 +21,181 @@ This package solves the format coordination problem between the producer (`packa
 pnpm add @codex/metrics
 ```
 
-## Key Features
+## How it works
 
-### 🔒 **Cryptographically Secure**
-- Schema-validated deterministic JSON serialization ensures signature verification works reliably
-- Ed25519 signature utilities with peer ID validation
-- Protection against tampering and impersonation attacks
+The basic flow is:
 
-### 🎯 **Type Safe**
-- Full TypeScript support with comprehensive type definitions
-- Zod schemas for runtime validation
-- Compile-time guarantees that producer and consumer use compatible formats
+1. **Node side**: Collect metrics → sign with libp2p private key → send to server
+2. **Server side**: Receive metrics → validate structure → verify signature → store
 
-### 🔄 **Format Transformation**
-- Seamless conversion between internal (nested) and wire (flat) formats
-- Utilities for extracting signable data from complete payloads
-- Support for storage format (without signatures)
+The key insight is that libp2p peer IDs contain public keys, so we can verify that metrics actually came from the claimed peer. No one can fake metrics from another node without their private key.
 
-### ✅ **Comprehensive Testing**
-- 62 tests covering all functionality
-- End-to-end integration tests
-- Deterministic serialization validation
-- Edge case and security scenario testing
+## Quick start
 
-## API Overview
+### For the node package (producing metrics)
 
-### Types
+```typescript
+import { signMetrics } from "@codex/metrics";
+
+const metricsData = {
+  ipfsPeerId: peerId.toString(),
+  ceramicPeerId: ceramicPeerId.toString(), 
+  environment: "testnet",
+  totalStreams: 42,
+  totalPinnedCids: 24,
+  collectedAt: new Date().toISOString(),
+};
+
+const signedMetrics = await signMetrics(metricsData, privateKey);
+// Send signedMetrics to server
+```
+
+### For the metrics server (consuming metrics)
+
+```typescript
+import { validateMetricsSignature } from "@codex/metrics";
+
+const result = await validateMetricsSignature(receivedMetrics);
+if (result.isValid) {
+  // Store metrics in database
+} else {
+  console.error("Invalid metrics:", result.error);
+}
+```
+
+## Types
 
 ```typescript
 import type {
-  NodeMetricsInternal,   // Nested format used internally by node
-  NodeMetricsWire,       // Flat format for network transmission
-  NodeMetricsSignable,   // Wire format without signature
-  NodeMetricsStorage,    // Storage format (same as signable)
+  NodeMetricsInternal,   // Complete format with nested structure + signature
+  NodeMetricsSignable,   // Just the data that gets signed (no signature field)
   Environment,           // "testnet" | "mainnet" | "local"
   ValidationResult,      // { isValid: boolean; error?: string }
 } from "@codex/metrics";
 ```
 
-### Schemas
+## Other utilities
 
 ```typescript
-import {
-  NodeMetricsWireSchema,
-  NodeMetricsInternalSchema,
-  NodeMetricsSignableSchema,
-  EnvironmentSchema,
-  SignatureSchema,
+import { 
+  canonicalJsonSerialize,    // Deterministic JSON for signatures
+  extractSignableData,       // Get data without signature 
+  createInternalFormat,      // Build complete metrics object
+  validateMetricsStructure,  // Just structure validation (no crypto)
 } from "@codex/metrics";
-
-// Runtime validation
-const validatedMetrics = NodeMetricsWireSchema.parse(inputData);
 ```
 
-### Serialization
+## Complete examples
+
+### Node package integration
 
 ```typescript
-import { canonicalJsonSerialize } from "@codex/metrics";
+import { signMetrics, type NodeMetricsSignable } from "@codex/metrics";
 
-// Schema-validated deterministic JSON serialization for signing
-const jsonString = canonicalJsonSerialize(metricsData);
-const dataBytes = new TextEncoder().encode(jsonString);
-```
-
-### Transformations
-
-```typescript
-import {
-  internalToWire,
-  wireToInternal,
-  extractSignableData,
-  createWireFormat,
-} from "@codex/metrics";
-
-// Convert between formats
-const wireFormat = internalToWire(internalMetrics);
-const signableData = extractSignableData(wireFormat);
-const completePayload = createWireFormat(signableData, signature);
-```
-
-### Signing & Validation
-
-```typescript
-import {
-  signMetrics,
-  validateMetricsSignature,
-  validateMetricsStructure,
-} from "@codex/metrics";
-
-// Producer side (node)
-const signedMetrics = await signMetrics(metricsData, privateKey);
-
-// Consumer side (metrics_server)
-const isValid = await validateMetricsSignature(receivedMetrics);
-const structureValid = validateMetricsStructure(receivedMetrics);
-```
-
-## Usage Examples
-
-### Producer (Node) Usage
-
-```typescript
-import {
-  signMetrics,
-  internalToWire,
-  extractSignableData,
-  type NodeMetricsInternal,
-} from "@codex/metrics";
-
-// Create internal metrics format
-const internalMetrics: NodeMetricsInternal = {
-  identity: {
-    ipfs: peerId.toString(),
-    ceramic: ceramicPeerId.toString(),
-  },
-  environment: "testnet",
-  summary: {
-    totalStreams: 42,
-    totalPinnedCids: 24,
+async function collectAndSendMetrics() {
+  // Gather your metrics data
+  const metrics: NodeMetricsSignable = {
+    ipfsPeerId: peerId.toString(),
+    ceramicPeerId: ceramicPeerId.toString(),
+    environment: "testnet", 
+    totalStreams: await countStreams(),
+    totalPinnedCids: await countPinnedCids(),
     collectedAt: new Date().toISOString(),
-  },
-  signature: [], // Will be populated after signing
-};
+  };
 
-// Transform to wire format and sign
-const wireFormat = internalToWire(internalMetrics);
-const signableData = extractSignableData(wireFormat);
-const signedMetrics = await signMetrics(signableData, privateKey);
-
-// Send signedMetrics over HTTP
-await fetch('/api/v1/metrics/node', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(signedMetrics),
-});
+  // Sign and send
+  const signed = await signMetrics(metrics, privateKey);
+  
+  const response = await fetch('/api/v1/metrics/node', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(signed),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Metrics submission failed: ${response.status}`);
+  }
+}
 ```
 
-### Consumer (Metrics Server) Usage
+### Metrics server integration
 
 ```typescript
-import {
-  validateMetricsSignature,
-  validateMetricsStructure,
-  wireToStorage,
-  NodeMetricsWireSchema,
-} from "@codex/metrics";
+import { validateMetricsSignature, NodeMetricsInternalSchema } from "@codex/metrics";
 
-// Validate incoming metrics
 app.post('/api/v1/metrics/node', async (req, res) => {
   try {
-    // Runtime schema validation
-    const metrics = NodeMetricsWireSchema.parse(req.body);
+    // Parse and validate structure
+    const metrics = NodeMetricsInternalSchema.parse(req.body);
     
-    // Structure validation (redundant with schema but shows the API)
-    const structureResult = validateMetricsStructure(metrics);
-    if (!structureResult.isValid) {
-      return res.status(400).json({ error: structureResult.error });
+    // Verify cryptographic signature
+    const result = await validateMetricsSignature(metrics);
+    if (!result.isValid) {
+      return res.status(400).json({ error: result.error });
     }
     
-    // Cryptographic signature validation
-    const signatureResult = await validateMetricsSignature(metrics);
-    if (!signatureResult.isValid) {
-      return res.status(400).json({ error: signatureResult.error });
-    }
-    
-    // Convert to storage format and save
-    const storageData = wireToStorage(metrics);
-    await database.writeNodeMetrics(storageData);
+    // Store in database (you can remove signature for storage)
+    await db.metrics.create({
+      data: {
+        ipfsPeerId: metrics.identity.ipfs,
+        ceramicPeerId: metrics.identity.ceramic,
+        environment: metrics.environment,
+        totalStreams: metrics.summary.totalStreams,
+        totalPinnedCids: metrics.summary.totalPinnedCids,
+        collectedAt: new Date(metrics.summary.collectedAt),
+      }
+    });
     
     res.json({ success: true });
   } catch (error) {
-    res.status(400).json({ error: 'Invalid metrics format' });
+    console.error('Metrics validation failed:', error);
+    res.status(400).json({ error: 'Invalid metrics' });
   }
 });
 ```
 
-## Architecture
+## Data formats
 
-The package is structured around three main data formats:
+There are just two formats to know about:
 
-1. **Internal Format** (`NodeMetricsInternal`): Nested structure used by the node service
-2. **Wire Format** (`NodeMetricsWire`): Flattened structure for network transmission
-3. **Storage Format** (`NodeMetricsStorage`): Wire format without signature for database storage
+- **`NodeMetricsSignable`**: The raw data that gets signed (no signature field)
+- **`NodeMetricsInternal`**: Complete metrics with nested structure and signature array
 
-The transformation flow:
-```
-Internal → Wire → Signing → Transmission → Validation → Storage
-```
+The signing process takes signable data, creates a deterministic JSON representation, signs it with Ed25519, then builds the complete internal format.
 
-## Security Considerations
+## Security notes
 
-- **Schema Validation**: Input data is validated using Zod schemas before serialization
-- **Deterministic Serialization**: JSON.stringify produces consistent output for the same data structure
-- **Type Safety**: Prevents format mismatches that could break signature verification
-- **Cryptographic Validation**: Ed25519 signature verification ensures data authenticity and integrity
+This library enforces some important security properties:
+
+- **Peer ID verification**: Can't fake metrics from another node without their private key
+- **Tamper detection**: Any modification to signed data will fail verification  
+- **Schema validation**: Malformed data gets rejected before reaching crypto operations
+- **Deterministic serialization**: Same data always produces same signature
+
+The deterministic JSON serialization is crucial - if the node and server serialize data differently, signature verification breaks.
 
 ## Testing
-
-Run the comprehensive test suite:
 
 ```bash
 pnpm test
 ```
 
-The package includes:
-- Unit tests for all functions
-- Integration tests for producer→consumer flow
-- Schema validation tests
-- Security and edge case tests
-- Deterministic serialization tests
+We have 53 tests covering:
+- End-to-end signing and validation flows
+- Schema validation edge cases  
+- Security scenarios (tampering, impersonation)
+- libp2p peer ID integration
 
 ## Development
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Build the package
-pnpm build
-
-# Run tests
-pnpm test
-
-# Watch mode for tests
-pnpm test:watch
+pnpm install    # Install deps
+pnpm build      # Build TypeScript  
+pnpm test       # Run tests
 ```
 
-## Migration from Ad-hoc Format
+## What this replaces
 
-This package replaces the manual format coordination between `packages/node` and `packages/metrics_server`. To migrate:
+Before this library, the node and metrics server had duplicate type definitions and manual signing logic. The transformation functions replace the old `metricsToPayload()` approach that required careful field ordering.
 
-1. Install `@codex/metrics` in both packages
-2. Replace manual type definitions with imports from this package
-3. Use `signMetrics()` instead of manual signing logic
-4. Use `validateMetricsSignature()` instead of manual validation
-5. Use transformation utilities instead of the manual `metricsToPayload()` function
-
-The package uses a simplified, schema-validated approach that eliminates the previous field ordering requirements.
+Now both packages import the same types and use the same signing/validation functions, so there's no way to get out of sync.

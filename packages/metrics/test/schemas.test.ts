@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import {
-  NodeMetricsWireSchema,
   NodeMetricsInternalSchema,
   NodeMetricsSignableSchema,
   EnvironmentSchema,
@@ -57,7 +56,7 @@ describe("Zod Schemas", () => {
 
     it("should require all fields", () => {
       const incomplete = { ...validSignableData };
-      delete (incomplete as any).ipfsPeerId;
+      delete (incomplete as Record<string, unknown>).ipfsPeerId;
       expect(() => NodeMetricsSignableSchema.parse(incomplete)).toThrow();
     });
 
@@ -97,36 +96,6 @@ describe("Zod Schemas", () => {
       for (const date of invalidDates) {
         const data = { ...validSignableData, collectedAt: date };
         expect(() => NodeMetricsSignableSchema.parse(data)).toThrow();
-      }
-    });
-  });
-
-  describe("NodeMetricsWireSchema", () => {
-    const validWireData = {
-      ipfsPeerId: "12D3KooWExample",
-      ceramicPeerId: "12D3KooWCeramic",
-      environment: "mainnet" as const,
-      totalStreams: 100,
-      totalPinnedCids: 50,
-      collectedAt: "2024-01-01T00:00:00.000Z",
-      signature: [1, 2, 3, 4, 5],
-    };
-
-    it("should validate valid wire data", () => {
-      const result = NodeMetricsWireSchema.parse(validWireData);
-      expect(result).toEqual(validWireData);
-    });
-
-    it("should include signature validation", () => {
-      const invalidSigs = [
-        { ...validWireData, signature: "not an array" },
-        { ...validWireData, signature: [-1, 0, 0] },
-        { ...validWireData, signature: [256, 0, 0] },
-        { ...validWireData, signature: [1.5, 2, 3] },
-      ];
-
-      for (const invalid of invalidSigs) {
-        expect(() => NodeMetricsWireSchema.parse(invalid)).toThrow();
       }
     });
   });
@@ -181,21 +150,25 @@ describe("Zod Schemas", () => {
 
   describe("Schema type inference", () => {
     it("should infer correct TypeScript types", () => {
-      const wireData = NodeMetricsWireSchema.parse({
-        ipfsPeerId: "peer123",
-        ceramicPeerId: "ceramic456",
+      const internalData = NodeMetricsInternalSchema.parse({
+        identity: {
+          ipfs: "peer123",
+          ceramic: "ceramic456",
+        },
         environment: "testnet",
-        totalStreams: 10,
-        totalPinnedCids: 5,
-        collectedAt: "2024-01-01T00:00:00.000Z",
+        summary: {
+          totalStreams: 10,
+          totalPinnedCids: 5,
+          collectedAt: "2024-01-01T00:00:00.000Z",
+        },
         signature: [1, 2, 3],
       });
 
       // TypeScript should infer these types correctly
-      const peerId: string = wireData.ipfsPeerId;
-      const env: "testnet" | "mainnet" | "local" = wireData.environment;
-      const streams: number = wireData.totalStreams;
-      const sig: number[] = wireData.signature;
+      const peerId: string = internalData.identity.ipfs;
+      const env: "testnet" | "mainnet" | "local" = internalData.environment;
+      const streams: number = internalData.summary.totalStreams;
+      const sig: number[] = internalData.signature;
 
       expect(peerId).toBe("peer123");
       expect(env).toBe("testnet");

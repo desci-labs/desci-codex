@@ -31,7 +31,7 @@ export const NodeMetricsInternalSchema = z.object({
 });
 
 /**
- * Schema for signable metrics data (wire format without signature)
+ * Schema for signable metrics data (without signature)
  */
 export const NodeMetricsSignableSchema = z.object({
   ipfsPeerId: z.string().min(1),
@@ -43,22 +43,8 @@ export const NodeMetricsSignableSchema = z.object({
 });
 
 /**
- * Schema for the wire format used for network transmission
- */
-export const NodeMetricsWireSchema = NodeMetricsSignableSchema.extend({
-  signature: SignatureSchema,
-});
-
-/**
- * Schema for storage format (same as signable)
- */
-export const NodeMetricsStorageSchema = NodeMetricsSignableSchema;
-
-/**
  * Infer TypeScript types from schemas
  */
 export type Environment = z.infer<typeof EnvironmentSchema>;
 export type NodeMetricsInternal = z.infer<typeof NodeMetricsInternalSchema>;
 export type NodeMetricsSignable = z.infer<typeof NodeMetricsSignableSchema>;
-export type NodeMetricsWire = z.infer<typeof NodeMetricsWireSchema>;
-export type NodeMetricsStorage = z.infer<typeof NodeMetricsStorageSchema>;

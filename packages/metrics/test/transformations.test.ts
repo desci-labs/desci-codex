@@ -1,19 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
-  internalToWire,
-  wireToInternal,
   extractSignableData,
-  wireToStorage,
-  createWireFormat,
-  isValidWireFormat,
+  createInternalFormat,
   isValidInternalFormat,
   cloneMetrics,
 } from "../src/transformations.js";
-import type {
-  NodeMetricsInternal,
-  NodeMetricsWire,
-  NodeMetricsSignable,
-} from "../src/types.js";
+import type { NodeMetricsInternal, NodeMetricsSignable } from "../src/types.js";
 
 describe("Transformations", () => {
   const sampleInternal: NodeMetricsInternal = {
@@ -30,152 +22,78 @@ describe("Transformations", () => {
     signature: [1, 2, 3, 4, 5],
   };
 
-  const sampleWire: NodeMetricsWire = {
+  const sampleSignable: NodeMetricsSignable = {
     ipfsPeerId: "12D3KooWIPFS",
     ceramicPeerId: "12D3KooWCeramic",
     environment: "testnet",
     totalStreams: 42,
     totalPinnedCids: 24,
     collectedAt: "2024-01-01T00:00:00.000Z",
-    signature: [1, 2, 3, 4, 5],
   };
 
-  describe("internalToWire", () => {
-    it("should transform internal format to wire format", () => {
-      const wire = internalToWire(sampleInternal);
+  describe("extractSignableData", () => {
+    it("should extract signable data by removing signature and flattening structure", () => {
+      const signable = extractSignableData(sampleInternal);
 
-      expect(wire.ipfsPeerId).toBe(sampleInternal.identity.ipfs);
-      expect(wire.ceramicPeerId).toBe(sampleInternal.identity.ceramic);
-      expect(wire.environment).toBe(sampleInternal.environment);
-      expect(wire.totalStreams).toBe(sampleInternal.summary.totalStreams);
-      expect(wire.totalPinnedCids).toBe(sampleInternal.summary.totalPinnedCids);
-      expect(wire.collectedAt).toBe(sampleInternal.summary.collectedAt);
-      expect(wire.signature).toEqual(sampleInternal.signature);
+      expect(signable.ipfsPeerId).toBe(sampleInternal.identity.ipfs);
+      expect(signable.ceramicPeerId).toBe(sampleInternal.identity.ceramic);
+      expect(signable.environment).toBe(sampleInternal.environment);
+      expect(signable.totalStreams).toBe(sampleInternal.summary.totalStreams);
+      expect(signable.totalPinnedCids).toBe(
+        sampleInternal.summary.totalPinnedCids,
+      );
+      expect(signable.collectedAt).toBe(sampleInternal.summary.collectedAt);
     });
 
-    it("should flatten nested structure", () => {
-      const wire = internalToWire(sampleInternal);
+    it("should not include signature in signable data", () => {
+      const signable = extractSignableData(sampleInternal);
+      expect(signable).not.toHaveProperty("signature");
+    });
 
-      expect(wire).not.toHaveProperty("identity");
-      expect(wire).not.toHaveProperty("summary");
-      expect(wire).toHaveProperty("ipfsPeerId");
-      expect(wire).toHaveProperty("totalStreams");
+    it("should not modify the original internal object", () => {
+      const original = { ...sampleInternal };
+      extractSignableData(sampleInternal);
+      expect(sampleInternal).toEqual(original);
     });
   });
 
-  describe("wireToInternal", () => {
-    it("should transform wire format back to internal format", () => {
-      const internal = wireToInternal(sampleWire);
+  describe("createInternalFormat", () => {
+    it("should create internal format from signable data and signature", () => {
+      const signature = [9, 8, 7, 6, 5];
+      const internal = createInternalFormat(sampleSignable, signature);
 
-      expect(internal.identity.ipfs).toBe(sampleWire.ipfsPeerId);
-      expect(internal.identity.ceramic).toBe(sampleWire.ceramicPeerId);
-      expect(internal.environment).toBe(sampleWire.environment);
-      expect(internal.summary.totalStreams).toBe(sampleWire.totalStreams);
-      expect(internal.summary.totalPinnedCids).toBe(sampleWire.totalPinnedCids);
-      expect(internal.summary.collectedAt).toBe(sampleWire.collectedAt);
-      expect(internal.signature).toEqual(sampleWire.signature);
+      expect(internal.identity.ipfs).toBe(sampleSignable.ipfsPeerId);
+      expect(internal.identity.ceramic).toBe(sampleSignable.ceramicPeerId);
+      expect(internal.environment).toBe(sampleSignable.environment);
+      expect(internal.summary.totalStreams).toBe(sampleSignable.totalStreams);
+      expect(internal.summary.totalPinnedCids).toBe(
+        sampleSignable.totalPinnedCids,
+      );
+      expect(internal.summary.collectedAt).toBe(sampleSignable.collectedAt);
+      expect(internal.signature).toEqual(signature);
     });
 
-    it("should recreate nested structure", () => {
-      const internal = wireToInternal(sampleWire);
+    it("should create nested structure", () => {
+      const signature = [1, 2, 3];
+      const internal = createInternalFormat(sampleSignable, signature);
 
       expect(internal).toHaveProperty("identity");
       expect(internal).toHaveProperty("summary");
       expect(internal.identity).toHaveProperty("ipfs");
+      expect(internal.identity).toHaveProperty("ceramic");
       expect(internal.summary).toHaveProperty("totalStreams");
+      expect(internal.summary).toHaveProperty("totalPinnedCids");
+      expect(internal.summary).toHaveProperty("collectedAt");
     });
 
-    it("should be inverse of internalToWire", () => {
-      const wire = internalToWire(sampleInternal);
-      const backToInternal = wireToInternal(wire);
+    it("should be inverse of extractSignableData", () => {
+      const signable = extractSignableData(sampleInternal);
+      const backToInternal = createInternalFormat(
+        signable,
+        sampleInternal.signature,
+      );
 
       expect(backToInternal).toEqual(sampleInternal);
-    });
-  });
-
-  describe("extractSignableData", () => {
-    it("should extract signable data by removing signature", () => {
-      const signable = extractSignableData(sampleWire);
-
-      expect(signable).not.toHaveProperty("signature");
-      expect(signable.ipfsPeerId).toBe(sampleWire.ipfsPeerId);
-      expect(signable.totalStreams).toBe(sampleWire.totalStreams);
-    });
-
-    it("should not modify the original wire object", () => {
-      const originalSig = [...sampleWire.signature];
-      extractSignableData(sampleWire);
-
-      expect(sampleWire.signature).toEqual(originalSig);
-    });
-  });
-
-  describe("wireToStorage", () => {
-    it("should convert wire format to storage format", () => {
-      const storage = wireToStorage(sampleWire);
-
-      expect(storage).not.toHaveProperty("signature");
-      expect(storage.ipfsPeerId).toBe(sampleWire.ipfsPeerId);
-      expect(storage.environment).toBe(sampleWire.environment);
-      expect(storage.totalStreams).toBe(sampleWire.totalStreams);
-    });
-  });
-
-  describe("createWireFormat", () => {
-    it("should create wire format from signable data and signature", () => {
-      const signable: NodeMetricsSignable = {
-        ipfsPeerId: "peer123",
-        ceramicPeerId: "ceramic456",
-        environment: "mainnet",
-        totalStreams: 10,
-        totalPinnedCids: 5,
-        collectedAt: "2024-01-01T00:00:00.000Z",
-      };
-      const signature = [9, 8, 7, 6, 5];
-
-      const wire = createWireFormat(signable, signature);
-
-      expect(wire.ipfsPeerId).toBe(signable.ipfsPeerId);
-      expect(wire.signature).toEqual(signature);
-      expect(wire).toHaveProperty("signature");
-    });
-  });
-
-  describe("isValidWireFormat", () => {
-    it("should validate correct wire format", () => {
-      expect(isValidWireFormat(sampleWire)).toBe(true);
-    });
-
-    it("should reject invalid formats", () => {
-      expect(isValidWireFormat(null)).toBe(false);
-      expect(isValidWireFormat(undefined)).toBe(false);
-      expect(isValidWireFormat({})).toBe(false);
-      expect(isValidWireFormat("string")).toBe(false);
-      expect(isValidWireFormat(123)).toBe(false);
-    });
-
-    it("should reject missing required fields", () => {
-      const incomplete = { ...sampleWire };
-      delete (incomplete as any).ipfsPeerId;
-      expect(isValidWireFormat(incomplete)).toBe(false);
-    });
-
-    it("should reject wrong field types", () => {
-      const wrongType = { ...sampleWire, totalStreams: "not a number" };
-      expect(isValidWireFormat(wrongType)).toBe(false);
-    });
-
-    it("should reject invalid environment values", () => {
-      const badEnv = { ...sampleWire, environment: "production" };
-      expect(isValidWireFormat(badEnv)).toBe(false);
-    });
-
-    it("should reject invalid signature format", () => {
-      const badSig1 = { ...sampleWire, signature: "not an array" };
-      expect(isValidWireFormat(badSig1)).toBe(false);
-
-      const badSig2 = { ...sampleWire, signature: [1, "two", 3] };
-      expect(isValidWireFormat(badSig2)).toBe(false);
     });
   });
 
@@ -184,60 +102,73 @@ describe("Transformations", () => {
       expect(isValidInternalFormat(sampleInternal)).toBe(true);
     });
 
-    it("should reject flat structure", () => {
-      expect(isValidInternalFormat(sampleWire)).toBe(false);
+    it("should reject invalid formats", () => {
+      expect(isValidInternalFormat(null)).toBe(false);
+      expect(isValidInternalFormat(undefined)).toBe(false);
+      expect(isValidInternalFormat("string")).toBe(false);
+      expect(isValidInternalFormat(123)).toBe(false);
+      expect(isValidInternalFormat([])).toBe(false);
     });
 
-    it("should reject missing nested structures", () => {
-      const noIdentity = { ...sampleInternal, identity: null };
-      expect(isValidInternalFormat(noIdentity)).toBe(false);
+    it("should reject missing required fields", () => {
+      const missingIdentity = { ...sampleInternal };
+      delete (missingIdentity as Record<string, unknown>).identity;
+      expect(isValidInternalFormat(missingIdentity)).toBe(false);
 
-      const noSummary = { ...sampleInternal, summary: null };
-      expect(isValidInternalFormat(noSummary)).toBe(false);
+      const missingSummary = { ...sampleInternal };
+      delete (missingSummary as Record<string, unknown>).summary;
+      expect(isValidInternalFormat(missingSummary)).toBe(false);
+
+      const missingSignature = { ...sampleInternal };
+      delete (missingSignature as Record<string, unknown>).signature;
+      expect(isValidInternalFormat(missingSignature)).toBe(false);
     });
 
-    it("should reject incomplete nested structures", () => {
-      const incompleteIdentity = {
-        ...sampleInternal,
-        identity: { ipfs: "peer123" }, // Missing ceramic
-      };
-      expect(isValidInternalFormat(incompleteIdentity)).toBe(false);
+    it("should reject wrong field types", () => {
+      const badIdentity = { ...sampleInternal, identity: "not an object" };
+      expect(isValidInternalFormat(badIdentity)).toBe(false);
+
+      const badSummary = { ...sampleInternal, summary: "not an object" };
+      expect(isValidInternalFormat(badSummary)).toBe(false);
+
+      const badEnvironment = { ...sampleInternal, environment: "invalid" };
+      expect(isValidInternalFormat(badEnvironment)).toBe(false);
+    });
+
+    it("should reject invalid signature format", () => {
+      const badSig1 = { ...sampleInternal, signature: "not array" };
+      expect(isValidInternalFormat(badSig1)).toBe(false);
+
+      const badSig2 = { ...sampleInternal, signature: [1, "two", 3] };
+      expect(isValidInternalFormat(badSig2)).toBe(false);
     });
   });
 
   describe("cloneMetrics", () => {
-    it("should create a deep copy of metrics", () => {
-      const clone = cloneMetrics(sampleInternal);
+    it("should create deep copy of internal metrics", () => {
+      const cloned = cloneMetrics(sampleInternal);
 
-      expect(clone).toEqual(sampleInternal);
-      expect(clone).not.toBe(sampleInternal);
-      expect(clone.identity).not.toBe(sampleInternal.identity);
-      expect(clone.summary).not.toBe(sampleInternal.summary);
-      expect(clone.signature).not.toBe(sampleInternal.signature);
+      expect(cloned).toEqual(sampleInternal);
+      expect(cloned).not.toBe(sampleInternal);
+      expect(cloned.identity).not.toBe(sampleInternal.identity);
+      expect(cloned.summary).not.toBe(sampleInternal.summary);
+      expect(cloned.signature).not.toBe(sampleInternal.signature);
     });
 
-    it("should prevent mutations from affecting the original", () => {
-      const clone = cloneMetrics(sampleInternal);
+    it("should create deep copy of signable metrics", () => {
+      const cloned = cloneMetrics(sampleSignable);
 
-      clone.environment = "mainnet";
-      clone.identity.ipfs = "modified";
-      clone.summary.totalStreams = 999;
-      clone.signature[0] = 999;
+      expect(cloned).toEqual(sampleSignable);
+      expect(cloned).not.toBe(sampleSignable);
+    });
 
-      expect(sampleInternal.environment).toBe("testnet");
+    it("should prevent mutations on the original", () => {
+      const cloned = cloneMetrics(sampleInternal);
+      cloned.identity.ipfs = "modified";
+      cloned.summary.totalStreams = 999;
+
       expect(sampleInternal.identity.ipfs).toBe("12D3KooWIPFS");
       expect(sampleInternal.summary.totalStreams).toBe(42);
-      expect(sampleInternal.signature[0]).toBe(1);
-    });
-
-    it("should work with wire format", () => {
-      const clone = cloneMetrics(sampleWire);
-
-      expect(clone).toEqual(sampleWire);
-      expect(clone).not.toBe(sampleWire);
-
-      clone.totalStreams = 999;
-      expect(sampleWire.totalStreams).toBe(42);
     });
   });
 });

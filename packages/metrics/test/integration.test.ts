@@ -3,9 +3,7 @@ import { generateKeyPair } from "@libp2p/crypto/keys";
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
 import type { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
 import {
-  type NodeMetricsInternal,
   type NodeMetricsSignable,
-  internalToWire,
   signMetrics,
   validateMetricsSignature,
   extractSignableData,
@@ -29,42 +27,33 @@ describe("End-to-End Integration Tests", () => {
       // 3. The consumer can verify authenticity using the public key from the peer ID
       // 4. This prevents impersonation and ensures data integrity
 
-      // Step 1: Producer creates internal metrics (simulating node package)
-      const internalMetrics: NodeMetricsInternal = {
-        identity: {
-          ipfs: peerId.toString(),
-          ceramic: peerId.toString(),
-        },
+      // Step 1: Producer creates signable metrics data (simulating node package)
+      const signableData: NodeMetricsSignable = {
+        ipfsPeerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
-        summary: {
-          totalStreams: 100,
-          totalPinnedCids: 50,
-          collectedAt: new Date().toISOString(),
-        },
-        signature: [], // Will be populated after signing
+        totalStreams: 100,
+        totalPinnedCids: 50,
+        collectedAt: new Date().toISOString(),
       };
 
-      // Step 2: Transform to wire format (what metrics-pusher does)
-      const wireFormatUnsigned = internalToWire(internalMetrics);
-      const signableData = extractSignableData(wireFormatUnsigned);
-
-      // Step 3: Sign the metrics
+      // Step 2: Sign the metrics (creates internal format with signature)
       const signedMetrics = await signMetrics(signableData, privateKey);
 
-      // Step 4: Transmit (simulated - just checking serialization works)
+      // Step 3: Transmit (simulated - just checking serialization works)
       const transmitted = JSON.stringify(signedMetrics);
       const received = JSON.parse(transmitted);
 
-      // Step 5: Consumer validates the signature (simulating metrics_server)
+      // Step 4: Consumer validates the signature (simulating metrics_server)
       const validationResult = await validateMetricsSignature(received);
 
       expect(validationResult.isValid).toBe(true);
       expect(validationResult.error).toBeUndefined();
 
       // Verify data integrity
-      expect(received.ipfsPeerId).toBe(peerId.toString());
-      expect(received.totalStreams).toBe(100);
-      expect(received.totalPinnedCids).toBe(50);
+      expect(received.identity.ipfs).toBe(peerId.toString());
+      expect(received.summary.totalStreams).toBe(100);
+      expect(received.summary.totalPinnedCids).toBe(50);
     });
 
     it("should demonstrate peer ID as public key (libp2p core security feature)", async () => {
@@ -86,10 +75,10 @@ describe("End-to-End Integration Tests", () => {
       expect(publicKeyFromPeerId).toBeDefined();
 
       // Manually verify signature using the public key extracted from peer ID
-      const { signature, ...dataToVerify } = signedMetrics;
+      const dataToVerify = extractSignableData(signedMetrics);
       const canonicalJson = canonicalJsonSerialize(dataToVerify);
       const dataBytes = new TextEncoder().encode(canonicalJson);
-      const signatureBytes = new Uint8Array(signature);
+      const signatureBytes = new Uint8Array(signedMetrics.signature);
 
       // This verification proves that:
       // 1. The peer ID contains the public key
@@ -121,10 +110,10 @@ describe("End-to-End Integration Tests", () => {
       const signedMetrics = await signMetrics(metricsData, privateKey);
 
       // Manually verify using our canonical serialization
-      const { signature, ...dataToVerify } = signedMetrics;
+      const dataToVerify = extractSignableData(signedMetrics);
       const canonicalJson = canonicalJsonSerialize(dataToVerify);
       const canonicalBytes = new TextEncoder().encode(canonicalJson);
-      const signatureBytes = new Uint8Array(signature);
+      const signatureBytes = new Uint8Array(signedMetrics.signature);
 
       const isValid = await peerId.publicKey!.verify(
         canonicalBytes,
@@ -150,7 +139,7 @@ describe("End-to-End Integration Tests", () => {
       const signedMetrics = await signMetrics(metricsData, privateKey);
 
       // Tamper with the data after signing
-      signedMetrics.totalStreams = 999;
+      signedMetrics.summary.totalStreams = 999;
 
       const validationResult = await validateMetricsSignature(signedMetrics);
       expect(validationResult.isValid).toBe(false);

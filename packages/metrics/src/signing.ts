@@ -1,20 +1,20 @@
 import type { Ed25519PrivateKey } from "@libp2p/interface";
-import type { NodeMetricsSignable, NodeMetricsWire } from "./types.js";
+import type { NodeMetricsSignable, NodeMetricsInternal } from "./types.js";
 import { NodeMetricsSignableSchema } from "./schemas.js";
 import { canonicalJsonSerialize } from "./serialization.js";
-import { createWireFormat } from "./transformations.js";
+import { createInternalFormat } from "./transformations.js";
 
 /**
  * Signs metrics data using the provided private key.
  *
  * @param data - The metrics data to sign (without signature field)
  * @param privateKey - The Ed25519 private key for signing
- * @returns The signed metrics in wire format
+ * @returns The signed metrics in internal format
  */
 export async function signMetrics(
   data: NodeMetricsSignable,
   privateKey: Ed25519PrivateKey,
-): Promise<NodeMetricsWire> {
+): Promise<NodeMetricsInternal> {
   // Validate input data first
   const validatedData = NodeMetricsSignableSchema.parse(data);
 
@@ -28,8 +28,8 @@ export async function signMetrics(
   // Convert signature to number array for JSON serialization
   const signature = Array.from(signatureBytes);
 
-  // Create the complete wire format with signature
-  return createWireFormat(validatedData, signature);
+  // Create the complete internal format with signature
+  return createInternalFormat(validatedData, signature);
 }
 
 /**

@@ -64,7 +64,9 @@ describe("Serialization", () => {
         // Missing required fields
       };
 
-      expect(() => canonicalJsonSerialize(invalidData as any)).toThrow();
+      expect(() =>
+        canonicalJsonSerialize(invalidData as Record<string, unknown>),
+      ).toThrow();
     });
   });
 });
