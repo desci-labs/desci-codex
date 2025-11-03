@@ -1,0 +1,108 @@
+table events {
+  event_id text [pk, not null]
+  stream_id text [not null]
+  event_cid text [not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    stream_id [name: 'idx_events_stream']
+    event_cid [name: 'idx_events_cid']
+    first_seen_at [name: 'idx_events_first_seen']
+  }
+}
+
+table manifests {
+  cid text [pk, not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    first_seen_at [name: 'idx_manifests_first_seen']
+  }
+}
+
+table node_events {
+  ipfs_peer_id text [not null]
+  event_id text [not null]
+  first_reported_at "timestamp with time zone" [not null, default: `now()`]
+  last_verified_at "timestamp with time zone"
+  verification_result text
+
+  indexes {
+    (ipfs_peer_id, event_id) [pk]
+    ipfs_peer_id [name: 'idx_node_events_node']
+    event_id [name: 'idx_node_events_event']
+    last_verified_at [name: 'idx_node_events_verification']
+  }
+}
+
+table node_manifests {
+  ipfs_peer_id text [not null]
+  manifest_cid text [not null]
+  first_reported_at "timestamp with time zone" [not null, default: `now()`]
+  last_verified_at "timestamp with time zone"
+  verification_result text
+
+  indexes {
+    (ipfs_peer_id, manifest_cid) [pk]
+    ipfs_peer_id [name: 'idx_node_manifests_node']
+    manifest_cid [name: 'idx_node_manifests_manifest']
+    last_verified_at [name: 'idx_node_manifests_verification']
+  }
+}
+
+table node_streams {
+  ipfs_peer_id text [not null]
+  stream_id text [not null]
+  first_reported_at "timestamp with time zone" [not null, default: `now()`]
+  last_verified_at "timestamp with time zone"
+  verification_result text
+
+  indexes {
+    (ipfs_peer_id, stream_id) [pk]
+    ipfs_peer_id [name: 'idx_node_streams_node']
+    stream_id [name: 'idx_node_streams_stream']
+    last_verified_at [name: 'idx_node_streams_verification']
+  }
+}
+
+table nodes {
+  ipfs_peer_id text [pk, not null]
+  ceramic_peer_id text [not null, unique]
+  codex_node_version text
+  ceramic_version text
+  operator_info jsonb
+  environment text [not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+  last_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    ceramic_peer_id [name: 'idx_nodes_ceramic_peer']
+    environment [name: 'idx_nodes_environment']
+    last_seen_at [name: 'idx_nodes_last_seen']
+  }
+}
+
+table streams {
+  stream_id text [pk, not null]
+  stream_cid text [not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    stream_cid [name: 'idx_streams_cid']
+    first_seen_at [name: 'idx_streams_first_seen']
+  }
+}
+
+ref: events.stream_id > streams.stream_id
+
+ref: node_events.ipfs_peer_id > nodes.ipfs_peer_id
+
+ref: node_events.event_id > events.event_id
+
+ref: node_manifests.ipfs_peer_id > nodes.ipfs_peer_id
+
+ref: node_manifests.manifest_cid > manifests.cid
+
+ref: node_streams.ipfs_peer_id > nodes.ipfs_peer_id
+
+ref: node_streams.stream_id > streams.stream_id

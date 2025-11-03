@@ -1,0 +1,95 @@
+table events {
+  event_id text [pk, not null]
+  stream_id text [not null]
+  event_cid text [not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    stream_id [name: 'idx_events_stream']
+    event_cid [name: 'idx_events_cid']
+    first_seen_at [name: 'idx_events_first_seen']
+  }
+}
+
+table manifests {
+  manifest_cid text [pk, not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    first_seen_at [name: 'idx_manifests_first_seen']
+  }
+}
+
+table node_events {
+  node_id text [not null]
+  event_id text [not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    node_id [name: 'idx_node_events_node']
+    event_id [name: 'idx_node_events_event']
+    (node_id, event_id) [name: 'idx_node_events_composite']
+  }
+}
+
+table node_manifests {
+  node_id text [not null]
+  manifest_cid text [not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    node_id [name: 'idx_node_manifests_node']
+    manifest_cid [name: 'idx_node_manifests_manifest']
+    (node_id, manifest_cid) [name: 'idx_node_manifests_composite']
+  }
+}
+
+table node_streams {
+  node_id text [not null]
+  stream_id text [not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    node_id [name: 'idx_node_streams_node']
+    stream_id [name: 'idx_node_streams_stream']
+    (node_id, stream_id) [name: 'idx_node_streams_composite']
+  }
+}
+
+table nodes {
+  node_id text [pk, not null]
+  peer_id text [not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+  last_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    peer_id [name: 'idx_nodes_peer']
+    first_seen_at [name: 'idx_nodes_first_seen']
+    last_seen_at [name: 'idx_nodes_last_seen']
+  }
+}
+
+table streams {
+  stream_id text [pk, not null]
+  stream_cid text [not null]
+  first_seen_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    stream_cid [name: 'idx_streams_cid']
+    first_seen_at [name: 'idx_streams_first_seen']
+  }
+}
+
+ref: events.stream_id > streams.stream_id
+
+ref: node_events.node_id > nodes.node_id
+
+ref: node_events.event_id > events.event_id
+
+ref: node_manifests.node_id > nodes.node_id
+
+ref: node_manifests.manifest_cid > manifests.manifest_cid
+
+ref: node_streams.node_id > nodes.node_id
+
+ref: node_streams.stream_id > streams.stream_id
