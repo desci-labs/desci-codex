@@ -22,11 +22,17 @@ describe("Metrics Server Validation", () => {
   describe("Validation Module Integration", () => {
     it("should correctly re-export @codex/metrics validation function", async () => {
       const metricsData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        peerId: peerId.toString(),
         environment: "testnet",
-        totalStreams: 5,
-        totalPinnedCids: 10,
+        manifests: ["cid1", "cid2"],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid: "streamCid1",
+            eventIds: ["event1", "event2"],
+          },
+        ],
         collectedAt: new Date().toISOString(),
       };
 
@@ -39,16 +45,12 @@ describe("Metrics Server Validation", () => {
 
     it("should handle validation errors gracefully", async () => {
       const invalidMetrics = {
-        identity: {
-          ipfs: "invalid-peer-id",
-          ceramic: peerId.toString(),
-        },
+        nodeId: "node-123",
+        peerId: "invalid-peer-id",
         environment: "testnet" as const,
-        summary: {
-          totalStreams: 5,
-          totalPinnedCids: 10,
-          collectedAt: new Date().toISOString(),
-        },
+        manifests: [],
+        streams: [],
+        collectedAt: new Date().toISOString(),
         signature: [1, 2, 3], // Invalid signature
       };
 
@@ -64,11 +66,17 @@ describe("Metrics Server Validation", () => {
 
       for (const environment of environments) {
         const metricsData: NodeMetricsSignable = {
-          ipfsPeerId: peerId.toString(),
-          ceramicPeerId: peerId.toString(),
+          nodeId: `node-${peerId.toString().slice(0, 8)}`,
+          peerId: peerId.toString(),
           environment,
-          totalStreams: 1,
-          totalPinnedCids: 1,
+          manifests: ["cid1"],
+          streams: [
+            {
+              streamId: "stream1",
+              streamCid: "streamCid1",
+              eventIds: ["event1"],
+            },
+          ],
           collectedAt: new Date().toISOString(),
         };
 

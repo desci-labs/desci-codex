@@ -1,4 +1,10 @@
-import { pgTable, text, timestamp, index } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  index,
+  primaryKey,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -104,9 +110,9 @@ export const nodeManifests = pgTable(
       .defaultNow(),
   },
   (table) => [
+    primaryKey({ columns: [table.nodeId, table.manifestCid] }),
     index("idx_node_manifests_node").on(table.nodeId),
     index("idx_node_manifests_manifest").on(table.manifestCid),
-    index("idx_node_manifests_composite").on(table.nodeId, table.manifestCid),
   ],
 );
 
@@ -129,9 +135,9 @@ export const nodeStreams = pgTable(
       .defaultNow(),
   },
   (table) => [
+    primaryKey({ columns: [table.nodeId, table.streamId] }),
     index("idx_node_streams_node").on(table.nodeId),
     index("idx_node_streams_stream").on(table.streamId),
-    index("idx_node_streams_composite").on(table.nodeId, table.streamId),
   ],
 );
 
@@ -154,9 +160,9 @@ export const nodeEvents = pgTable(
       .defaultNow(),
   },
   (table) => [
+    primaryKey({ columns: [table.nodeId, table.eventId] }),
     index("idx_node_events_node").on(table.nodeId),
     index("idx_node_events_event").on(table.eventId),
-    index("idx_node_events_composite").on(table.nodeId, table.eventId),
   ],
 );
 

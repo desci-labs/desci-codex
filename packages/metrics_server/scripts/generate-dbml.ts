@@ -1,4 +1,4 @@
-import * as schema from "../drizzle/schema.ts";
+import * as schema from "../src/drizzleSchema.js";
 import { pgGenerate } from "drizzle-dbml-generator";
 import { exec } from "child_process";
 import { promisify } from "util";
@@ -28,9 +28,6 @@ async function generateDBML() {
     console.log(`   - ${OUTPUT_PATH}/erd.svg (Entity Relationship Diagram)`);
   } catch (error) {
     console.error("❌ Failed to generate SVG:", error);
-    console.log(
-      "💡 You can still view the ERD by uploading generated/schema.dbml to https://dbdiagram.io/",
-    );
   }
 }
 

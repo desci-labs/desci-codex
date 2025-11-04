@@ -26,9 +26,9 @@ table node_events {
   first_seen_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
+    (node_id, event_id) [pk]
     node_id [name: 'idx_node_events_node']
     event_id [name: 'idx_node_events_event']
-    (node_id, event_id) [name: 'idx_node_events_composite']
   }
 }
 
@@ -38,9 +38,9 @@ table node_manifests {
   first_seen_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
+    (node_id, manifest_cid) [pk]
     node_id [name: 'idx_node_manifests_node']
     manifest_cid [name: 'idx_node_manifests_manifest']
-    (node_id, manifest_cid) [name: 'idx_node_manifests_composite']
   }
 }
 
@@ -50,9 +50,9 @@ table node_streams {
   first_seen_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
+    (node_id, stream_id) [pk]
     node_id [name: 'idx_node_streams_node']
     stream_id [name: 'idx_node_streams_stream']
-    (node_id, stream_id) [name: 'idx_node_streams_composite']
   }
 }
 

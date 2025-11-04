@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { validateMetricsSignature } from "../src/validation.js";
 import {
   signMetrics,
-  NodeMetricsInternalSchema,
+  NodeMetricsGranularSchema,
   extractSignableData,
   type NodeMetricsSignable,
-  type NodeMetricsInternal,
+  type NodeMetricsGranular,
 } from "@codex/metrics";
 import { generateKeyPair } from "@libp2p/crypto/keys";
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
@@ -26,13 +26,22 @@ describe("Metrics Server Processing", () => {
   });
 
   describe("Request Processing Pipeline", () => {
-    it("should parse incoming metrics with NodeMetricsInternalSchema", async () => {
+    it("should parse incoming metrics with NodeMetricsGranularSchema", async () => {
       const signableData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        peerId: peerId.toString(),
         environment: "testnet",
-        totalStreams: 42,
-        totalPinnedCids: 24,
+        manifests: [
+          "bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
+        ],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1", "event2"],
+          },
+        ],
         collectedAt: new Date().toISOString(),
       };
 
@@ -40,22 +49,29 @@ describe("Metrics Server Processing", () => {
 
       // Simulate what happens in index.ts: parse incoming request body
       expect(() =>
-        NodeMetricsInternalSchema.parse(signedMetrics),
+        NodeMetricsGranularSchema.parse(signedMetrics),
       ).not.toThrow();
 
-      const parsed = NodeMetricsInternalSchema.parse(signedMetrics);
-      expect(parsed.identity.ipfs).toBe(peerId.toString());
+      const parsed = NodeMetricsGranularSchema.parse(signedMetrics);
+      expect(parsed.peerId).toBe(peerId.toString());
       expect(parsed.environment).toBe("testnet");
-      expect(parsed.summary.totalStreams).toBe(42);
+      expect(parsed.manifests).toHaveLength(1);
+      expect(parsed.streams).toHaveLength(1);
     });
 
     it("should extract data for database storage", async () => {
       const signableData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        peerId: peerId.toString(),
         environment: "mainnet",
-        totalStreams: 100,
-        totalPinnedCids: 50,
+        manifests: ["cid1", "cid2"],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid: "streamCid1",
+            eventIds: ["event1", "event2"],
+          },
+        ],
         collectedAt: "2024-01-01T00:00:00.000Z",
       };
 
@@ -68,34 +84,45 @@ describe("Metrics Server Processing", () => {
 
       // Simulate database format transformation (as done in index.ts)
       const dbFormat = {
-        ipfsPeerId: extractedData.ipfsPeerId,
-        ceramicPeerId: extractedData.ceramicPeerId,
+        nodeId: extractedData.nodeId,
+        peerId: extractedData.peerId,
         environment: extractedData.environment,
-        totalStreams: extractedData.totalStreams,
-        totalPinnedCids: extractedData.totalPinnedCids,
+        manifests: extractedData.manifests,
+        streams: extractedData.streams,
         collectedAt: extractedData.collectedAt,
       };
 
-      expect(dbFormat.ipfsPeerId).toBe(peerId.toString());
+      expect(dbFormat.peerId).toBe(peerId.toString());
       expect(dbFormat.environment).toBe("mainnet");
-      expect(dbFormat.totalStreams).toBe(100);
-      expect(dbFormat.totalPinnedCids).toBe(50);
+      expect(dbFormat.manifests).toHaveLength(2);
+      expect(dbFormat.streams).toHaveLength(1);
     });
 
     it("should validate complete request-to-storage flow", async () => {
       const signableData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        peerId: peerId.toString(),
         environment: "local",
-        totalStreams: 5,
-        totalPinnedCids: 3,
+        manifests: ["cid1", "cid2", "cid3"],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid: "streamCid1",
+            eventIds: ["event1"],
+          },
+          {
+            streamId: "stream2",
+            streamCid: "streamCid2",
+            eventIds: ["event2", "event3"],
+          },
+        ],
         collectedAt: new Date().toISOString(),
       };
 
       const signedMetrics = await signMetrics(signableData, privateKey);
 
       // Step 1: Parse request (simulating Express middleware)
-      const parsedMetrics = NodeMetricsInternalSchema.parse(signedMetrics);
+      const parsedMetrics = NodeMetricsGranularSchema.parse(signedMetrics);
 
       // Step 2: Validate signature (simulating validation middleware)
       const validationResult = await validateMetricsSignature(parsedMetrics);
@@ -103,7 +130,7 @@ describe("Metrics Server Processing", () => {
 
       // Step 3: Extract for database storage (simulating storage preparation)
       const dbData = extractSignableData(parsedMetrics);
-      expect(dbData.ipfsPeerId).toBe(peerId.toString());
+      expect(dbData.peerId).toBe(peerId.toString());
       expect(dbData.environment).toBe("local");
     });
   });
@@ -112,48 +139,42 @@ describe("Metrics Server Processing", () => {
     it("should reject malformed request bodies", async () => {
       const invalidInputs = [
         // Missing required fields
-        { identity: { ipfs: peerId.toString() }, environment: "testnet" },
+        { nodeId: "node-123", environment: "testnet" },
         // Wrong field types
         {
-          identity: { ipfs: peerId.toString(), ceramic: peerId.toString() },
+          nodeId: "node-123",
+          peerId: peerId.toString(),
           environment: "invalid-env",
-          summary: {
-            totalStreams: "not-a-number",
-            totalPinnedCids: 5,
-            collectedAt: "2024-01-01T00:00:00.000Z",
-          },
+          manifests: "not-an-array",
+          streams: [],
+          collectedAt: "2024-01-01T00:00:00.000Z",
           signature: [1, 2, 3],
         },
         // Invalid signature format
         {
-          identity: { ipfs: peerId.toString(), ceramic: peerId.toString() },
+          nodeId: "node-123",
+          peerId: peerId.toString(),
           environment: "testnet",
-          summary: {
-            totalStreams: 5,
-            totalPinnedCids: 5,
-            collectedAt: "2024-01-01T00:00:00.000Z",
-          },
+          manifests: [],
+          streams: [],
+          collectedAt: "2024-01-01T00:00:00.000Z",
           signature: "not-an-array",
         },
       ];
 
       for (const invalid of invalidInputs) {
-        expect(() => NodeMetricsInternalSchema.parse(invalid)).toThrow();
+        expect(() => NodeMetricsGranularSchema.parse(invalid)).toThrow();
       }
     });
 
     it("should handle validation failures gracefully", async () => {
       const metricsWithBadPeerId = {
-        identity: {
-          ipfs: "invalid-peer-id-format",
-          ceramic: peerId.toString(),
-        },
+        nodeId: "node-123",
+        peerId: "invalid-peer-id-format",
         environment: "testnet" as const,
-        summary: {
-          totalStreams: 5,
-          totalPinnedCids: 10,
-          collectedAt: new Date().toISOString(),
-        },
+        manifests: [],
+        streams: [],
+        collectedAt: new Date().toISOString(),
         signature: [1, 2, 3], // Invalid signature
       };
 
@@ -169,11 +190,17 @@ describe("Metrics Server Processing", () => {
 
       for (const environment of environments) {
         const signableData: NodeMetricsSignable = {
-          ipfsPeerId: peerId.toString(),
-          ceramicPeerId: peerId.toString(),
+          nodeId: `node-${peerId.toString().slice(0, 8)}`,
+          peerId: peerId.toString(),
           environment,
-          totalStreams: 1,
-          totalPinnedCids: 1,
+          manifests: ["cid1"],
+          streams: [
+            {
+              streamId: "stream1",
+              streamCid: "streamCid1",
+              eventIds: ["event1"],
+            },
+          ],
           collectedAt: new Date().toISOString(),
         };
 
@@ -181,7 +208,7 @@ describe("Metrics Server Processing", () => {
 
         // Verify server can process this environment
         expect(() =>
-          NodeMetricsInternalSchema.parse(signedMetrics),
+          NodeMetricsGranularSchema.parse(signedMetrics),
         ).not.toThrow();
 
         const validationResult = await validateMetricsSignature(signedMetrics);
@@ -191,29 +218,31 @@ describe("Metrics Server Processing", () => {
 
     it("should maintain compatibility with node package output format", async () => {
       // Simulate the exact format sent by node package
-      const nodeOutput: NodeMetricsInternal = {
-        identity: {
-          ipfs: peerId.toString(),
-          ceramic: peerId.toString(),
-        },
+      const nodeOutput: NodeMetricsGranular = {
+        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        peerId: peerId.toString(),
         environment: "testnet",
-        summary: {
-          totalStreams: 42,
-          totalPinnedCids: 24,
-          collectedAt: new Date().toISOString(),
-        },
+        manifests: ["cid1", "cid2"],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid: "streamCid1",
+            eventIds: ["event1", "event2"],
+          },
+        ],
+        collectedAt: new Date().toISOString(),
         signature: [1, 2, 3, 4, 5], // Dummy signature for structure test
       };
 
       // Verify server can parse node output
-      expect(() => NodeMetricsInternalSchema.parse(nodeOutput)).not.toThrow();
+      expect(() => NodeMetricsGranularSchema.parse(nodeOutput)).not.toThrow();
 
       // Verify server can extract data for storage
       const extracted = extractSignableData(nodeOutput);
-      expect(extracted.ipfsPeerId).toBe(peerId.toString());
+      expect(extracted.peerId).toBe(peerId.toString());
       expect(extracted.environment).toBe("testnet");
-      expect(extracted.totalStreams).toBe(42);
-      expect(extracted.totalPinnedCids).toBe(24);
+      expect(extracted.manifests).toHaveLength(2);
+      expect(extracted.streams).toHaveLength(1);
     });
   });
 });

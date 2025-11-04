@@ -4,9 +4,8 @@ import helmet from "helmet";
 import { DatabaseService } from "./database.js";
 import { validateMetricsSignature } from "./validation.js";
 import {
-  NodeMetricsInternalSchema,
-  extractSignableData,
-  type NodeMetricsInternal,
+  NodeMetricsGranularSchema,
+  type NodeMetricsGranular,
 } from "@codex/metrics";
 import logger from "./logger.js";
 
@@ -42,9 +41,9 @@ const apiV1 = express.Router();
 apiV1.post("/metrics/node", async (req, res) => {
   try {
     // Parse and validate structure using Zod schema
-    let metrics: NodeMetricsInternal;
+    let metrics: NodeMetricsGranular;
     try {
-      metrics = NodeMetricsInternalSchema.parse(req.body);
+      metrics = NodeMetricsGranularSchema.parse(req.body);
     } catch (error) {
       return res.status(400).json({
         error: "Invalid metrics structure",
@@ -58,7 +57,8 @@ apiV1.post("/metrics/node", async (req, res) => {
     if (!validationResult.isValid) {
       log.warn(
         {
-          ipfsPeerId: metrics.identity.ipfs,
+          nodeId: metrics.nodeId,
+          peerId: metrics.peerId,
           error: validationResult.error,
         },
         "Rejected metrics submission due to invalid signature",
@@ -69,24 +69,18 @@ apiV1.post("/metrics/node", async (req, res) => {
       });
     }
 
-    // Extract signable data for database storage (removes signature)
-    const signableData = extractSignableData(metrics);
-
-    // Store in database (flatten structure for existing schema)
-    const dbMetrics = {
-      ipfsPeerId: signableData.ipfsPeerId,
-      ceramicPeerId: signableData.ceramicPeerId,
-      environment: signableData.environment,
-      totalStreams: signableData.totalStreams,
-      totalPinnedCids: signableData.totalPinnedCids,
-      collectedAt: signableData.collectedAt,
-    };
-
-    await databaseService.writeNodeMetrics(dbMetrics);
+    // Store granular metrics directly in database using drizzle
+    await databaseService.writeNodeMetrics(metrics);
 
     log.info(
-      { ipfsPeerId: metrics.identity.ipfs, environment: metrics.environment },
-      "Successfully processed and validated node metrics",
+      {
+        nodeId: metrics.nodeId,
+        peerId: metrics.peerId,
+        environment: metrics.environment,
+        manifestCount: metrics.manifests.length,
+        streamCount: metrics.streams.length,
+      },
+      "Successfully processed and validated granular node metrics",
     );
     return res.status(200).json({ success: true });
   } catch (error) {
@@ -151,9 +145,6 @@ process.on("SIGTERM", async () => {
 // Start server
 const startServer = async () => {
   try {
-    // Initialize database
-    await databaseService.initialize();
-
     app.listen(port, () => {
       log.info({ port }, "Metrics server started");
     });

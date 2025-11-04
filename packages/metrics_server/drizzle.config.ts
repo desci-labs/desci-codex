@@ -11,7 +11,7 @@ console.log("Drizzle config variables:", {
 });
 
 export default defineConfig({
-  schema: "./drizzle/schema.ts",
+  schema: "./src/drizzleSchema.ts",
   out: "./drizzle/migrations",
   dialect: "postgresql",
   dbCredentials: {

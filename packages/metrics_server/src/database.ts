@@ -1,19 +1,23 @@
-import { Pool, type PoolClient } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { NodeMetricsGranular } from "@codex/metrics";
+import {
+  nodes,
+  manifests,
+  streams,
+  events,
+  nodeManifests,
+  nodeStreams,
+  nodeEvents,
+} from "./drizzleSchema.js";
 import logger from "./logger.js";
 
 const log = logger.child({ module: "database" });
 
-export interface NodeMetrics {
-  ipfsPeerId: string;
-  ceramicPeerId: string;
-  environment: "testnet" | "mainnet" | "local";
-  totalStreams: number;
-  totalPinnedCids: number;
-  collectedAt: string;
-}
-
 export class DatabaseService {
   private pool: Pool;
+  private db: NodePgDatabase;
 
   constructor() {
     this.pool = new Pool({
@@ -29,86 +33,124 @@ export class DatabaseService {
       connectionTimeoutMillis: 2000,
     });
 
+    this.db = drizzle(this.pool);
+
     // Handle pool errors
     this.pool.on("error", (err: Error) => {
       log.error(err, "Unexpected error on idle client");
     });
   }
 
-  async initialize(): Promise<void> {
-    try {
-      const client = await this.pool.connect();
-
-      // Create simplified node_metrics table with environment support
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS node_metrics (
-          time TIMESTAMPTZ NOT NULL,
-          ipfs_peer_id TEXT NOT NULL,
-          ceramic_peer_id TEXT NOT NULL,
-          environment TEXT NOT NULL CHECK (environment IN ('testnet', 'mainnet', 'local')),
-          total_streams INTEGER NOT NULL,
-          total_pinned_cids INTEGER NOT NULL,
-          created_at TIMESTAMPTZ DEFAULT NOW()
-        )
-      `);
-
-      // Create indexes for better query performance
-      await client.query(
-        "CREATE INDEX IF NOT EXISTS idx_node_metrics_time ON node_metrics (time DESC)",
-      );
-      await client.query(
-        "CREATE INDEX IF NOT EXISTS idx_node_metrics_ipfs_peer_id ON node_metrics (ipfs_peer_id, time DESC)",
-      );
-      await client.query(
-        "CREATE INDEX IF NOT EXISTS idx_node_metrics_environment ON node_metrics (environment, time DESC)",
-      );
-
-      client.release();
-      log.info("Database initialized successfully");
-    } catch (error) {
-      log.error(error, "Error initializing database");
-      throw error;
-    }
-  }
-
   async dbConnectionIsOk(): Promise<boolean> {
-    let client: PoolClient | undefined;
     try {
-      client = await this.pool.connect();
-      await client.query("SELECT * FROM node_metrics LIMIT 1");
+      await this.db.select().from(nodes).limit(1);
       return true;
     } catch (error) {
       log.error(error, "Database connection check failed");
       return false;
-    } finally {
-      client?.release();
     }
   }
 
-  async writeNodeMetrics(metrics: NodeMetrics): Promise<void> {
+  async writeNodeMetrics(metrics: NodeMetricsGranular): Promise<void> {
     try {
-      const client = await this.pool.connect();
+      await this.db.transaction(async (tx) => {
+        // Upsert node
+        await tx
+          .insert(nodes)
+          .values({
+            nodeId: metrics.nodeId,
+            peerId: metrics.peerId,
+            firstSeenAt: new Date(metrics.collectedAt),
+            lastSeenAt: new Date(metrics.collectedAt),
+          })
+          .onConflictDoUpdate({
+            target: nodes.nodeId,
+            set: {
+              lastSeenAt: new Date(metrics.collectedAt),
+            },
+          });
 
-      await client.query(
-        `INSERT INTO node_metrics (time, ipfs_peer_id, ceramic_peer_id, environment, total_streams, total_pinned_cids)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          new Date(metrics.collectedAt),
-          metrics.ipfsPeerId,
-          metrics.ceramicPeerId,
-          metrics.environment,
-          metrics.totalStreams,
-          metrics.totalPinnedCids,
-        ],
-      );
+        // Upsert manifests
+        for (const manifestCid of metrics.manifests) {
+          await tx
+            .insert(manifests)
+            .values({
+              manifestCid: manifestCid,
+              firstSeenAt: new Date(metrics.collectedAt),
+            })
+            .onConflictDoNothing();
 
-      client.release();
+          // Link node to manifest
+          await tx
+            .insert(nodeManifests)
+            .values({
+              nodeId: metrics.nodeId,
+              manifestCid: manifestCid,
+              firstSeenAt: new Date(metrics.collectedAt),
+            })
+            .onConflictDoNothing();
+        }
+
+        // Upsert streams and events
+        for (const stream of metrics.streams) {
+          // Upsert stream
+          await tx
+            .insert(streams)
+            .values({
+              streamId: stream.streamId,
+              streamCid: stream.streamCid,
+              firstSeenAt: new Date(metrics.collectedAt),
+            })
+            .onConflictDoNothing();
+
+          // Link node to stream
+          await tx
+            .insert(nodeStreams)
+            .values({
+              nodeId: metrics.nodeId,
+              streamId: stream.streamId,
+              firstSeenAt: new Date(metrics.collectedAt),
+            })
+            .onConflictDoNothing();
+
+          // Upsert events
+          for (const eventId of stream.eventIds) {
+            // Upsert event
+            await tx
+              .insert(events)
+              .values({
+                eventId: eventId,
+                streamId: stream.streamId,
+                eventCid: `${eventId}-cid`, // Placeholder - actual implementation would have real CID
+                firstSeenAt: new Date(metrics.collectedAt),
+              })
+              .onConflictDoNothing();
+
+            // Link node to event
+            await tx
+              .insert(nodeEvents)
+              .values({
+                nodeId: metrics.nodeId,
+                eventId: eventId,
+                firstSeenAt: new Date(metrics.collectedAt),
+              })
+              .onConflictDoNothing();
+          }
+        }
+      });
+
       log.info(
-        { ipfsPeerId: metrics.ipfsPeerId, environment: metrics.environment },
-        "Successfully wrote node metrics to database",
+        {
+          nodeId: metrics.nodeId,
+          peerId: metrics.peerId,
+          environment: metrics.environment,
+          manifestCount: metrics.manifests.length,
+          streamCount: metrics.streams.length,
+        },
+        "Successfully wrote granular metrics to database",
       );
     } catch (error) {
-      log.error(error, "Error writing node metrics to database");
+      log.error(error, "Error writing granular metrics to database");
       throw error;
     }
   }
