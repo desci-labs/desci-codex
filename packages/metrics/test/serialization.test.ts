@@ -6,11 +6,13 @@ describe("Serialization", () => {
   describe("canonicalJsonSerialize", () => {
     it("should serialize metrics data deterministically", () => {
       const data: NodeMetricsSignable = {
-        ipfsPeerId: "peer123",
-        ceramicPeerId: "ceramic456",
+        nodeId: "node-123",
+        peerId: "peer123",
         environment: "testnet",
-        totalStreams: 10,
-        totalPinnedCids: 5,
+        manifests: [
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        ],
+        streams: [],
         collectedAt: "2024-01-01T00:00:00.000Z",
       };
 
@@ -22,11 +24,18 @@ describe("Serialization", () => {
 
     it("should produce identical output for the same data structure", () => {
       const data: NodeMetricsSignable = {
-        ipfsPeerId: "peer123",
-        ceramicPeerId: "ceramic456",
+        nodeId: "node-123",
+        peerId: "peer123",
         environment: "testnet",
-        totalStreams: 10,
-        totalPinnedCids: 5,
+        manifests: [],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1"],
+          },
+        ],
         collectedAt: "2024-01-01T00:00:00.000Z",
       };
 
@@ -38,11 +47,13 @@ describe("Serialization", () => {
 
     it("should produce valid JSON", () => {
       const data: NodeMetricsSignable = {
-        ipfsPeerId: "peer123",
-        ceramicPeerId: "ceramic456",
+        nodeId: "node-123",
+        peerId: "peer123",
         environment: "mainnet",
-        totalStreams: 100,
-        totalPinnedCids: 50,
+        manifests: [
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        ],
+        streams: [],
         collectedAt: "2024-01-01T00:00:00.000Z",
       };
 
@@ -50,17 +61,17 @@ describe("Serialization", () => {
       const parsed = JSON.parse(json);
 
       // Verify data integrity
-      expect(parsed.ipfsPeerId).toBe("peer123");
+      expect(parsed.nodeId).toBe("node-123");
+      expect(parsed.peerId).toBe("peer123");
       expect(parsed.environment).toBe("mainnet");
-      expect(parsed.totalStreams).toBe(100);
-      expect(parsed.ceramicPeerId).toBe("ceramic456");
-      expect(parsed.totalPinnedCids).toBe(50);
+      expect(parsed.manifests).toHaveLength(1);
+      expect(parsed.streams).toHaveLength(0);
       expect(parsed.collectedAt).toBe("2024-01-01T00:00:00.000Z");
     });
 
     it("should validate input data using schema", () => {
       const invalidData = {
-        ipfsPeerId: "peer123",
+        peerId: "peer123",
         // Missing required fields
       };
 

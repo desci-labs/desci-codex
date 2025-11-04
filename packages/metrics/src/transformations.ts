@@ -1,60 +1,55 @@
-import type { NodeMetricsInternal, NodeMetricsSignable } from "./types.js";
+import type { NodeMetricsGranular, NodeMetricsSignable } from "./types.js";
 
 /**
- * Extracts signable data from internal format by removing the signature field
- * and flattening the structure.
+ * Extracts signable data from granular format by removing the signature field.
  *
- * @param internal - The internal metrics format
+ * @param granular - The granular metrics format
  * @returns The signable data without signature
  */
 export function extractSignableData(
-  internal: NodeMetricsInternal,
+  granular: NodeMetricsGranular,
 ): NodeMetricsSignable {
   return {
-    ipfsPeerId: internal.identity.ipfs,
-    ceramicPeerId: internal.identity.ceramic,
-    environment: internal.environment,
-    totalStreams: internal.summary.totalStreams,
-    totalPinnedCids: internal.summary.totalPinnedCids,
-    collectedAt: internal.summary.collectedAt,
+    nodeId: granular.nodeId,
+    peerId: granular.peerId,
+    environment: granular.environment,
+    manifests: granular.manifests,
+    streams: granular.streams,
+    collectedAt: granular.collectedAt,
   };
 }
 
 /**
- * Creates internal format from signable data and signature.
+ * Creates granular format from signable data and signature.
  *
  * @param signable - The data that was signed
  * @param signature - The signature array
- * @returns Complete internal format with signature
+ * @returns Complete granular format with signature
  */
 export function createInternalFormat(
   signable: NodeMetricsSignable,
   signature: number[],
-): NodeMetricsInternal {
+): NodeMetricsGranular {
   return {
-    identity: {
-      ipfs: signable.ipfsPeerId,
-      ceramic: signable.ceramicPeerId,
-    },
+    nodeId: signable.nodeId,
+    peerId: signable.peerId,
     environment: signable.environment,
-    summary: {
-      totalStreams: signable.totalStreams,
-      totalPinnedCids: signable.totalPinnedCids,
-      collectedAt: signable.collectedAt,
-    },
+    manifests: signable.manifests,
+    streams: signable.streams,
+    collectedAt: signable.collectedAt,
     signature,
   };
 }
 
 /**
- * Validates that an internal format object has all required fields.
+ * Validates that a granular format object has all required fields.
  *
  * @param data - The object to validate
- * @returns True if the object is a valid internal format
+ * @returns True if the object is a valid granular format
  */
 export function isValidInternalFormat(
   data: unknown,
-): data is NodeMetricsInternal {
+): data is NodeMetricsGranular {
   if (!data || typeof data !== "object") {
     return false;
   }
@@ -62,17 +57,24 @@ export function isValidInternalFormat(
   const obj = data as Record<string, unknown>;
 
   return (
-    obj.identity !== null &&
-    typeof obj.identity === "object" &&
-    typeof (obj.identity as Record<string, unknown>).ipfs === "string" &&
-    typeof (obj.identity as Record<string, unknown>).ceramic === "string" &&
+    typeof obj.nodeId === "string" &&
+    typeof obj.peerId === "string" &&
     ["testnet", "mainnet", "local"].includes(obj.environment as string) &&
-    obj.summary !== null &&
-    typeof obj.summary === "object" &&
-    typeof (obj.summary as Record<string, unknown>).totalStreams === "number" &&
-    typeof (obj.summary as Record<string, unknown>).totalPinnedCids ===
-      "number" &&
-    typeof (obj.summary as Record<string, unknown>).collectedAt === "string" &&
+    Array.isArray(obj.manifests) &&
+    obj.manifests.every((m: unknown) => typeof m === "string") &&
+    Array.isArray(obj.streams) &&
+    obj.streams.every(
+      (s: unknown) =>
+        s !== null &&
+        typeof s === "object" &&
+        typeof (s as Record<string, unknown>).streamId === "string" &&
+        typeof (s as Record<string, unknown>).streamCid === "string" &&
+        Array.isArray((s as Record<string, unknown>).eventIds) &&
+        ((s as Record<string, unknown>).eventIds as unknown[]).every(
+          (e: unknown) => typeof e === "string",
+        ),
+    ) &&
+    typeof obj.collectedAt === "string" &&
     Array.isArray(obj.signature) &&
     obj.signature.every((v: unknown) => typeof v === "number")
   );
@@ -85,7 +87,7 @@ export function isValidInternalFormat(
  * @returns A deep copy of the data
  */
 export function cloneMetrics<
-  T extends NodeMetricsInternal | NodeMetricsSignable,
+  T extends NodeMetricsGranular | NodeMetricsSignable,
 >(data: T): T {
   return JSON.parse(JSON.stringify(data));
 }

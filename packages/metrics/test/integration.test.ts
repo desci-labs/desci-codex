@@ -29,11 +29,21 @@ describe("End-to-End Integration Tests", () => {
 
       // Step 1: Producer creates signable metrics data (simulating node package)
       const signableData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        peerId: peerId.toString(),
         environment: "testnet",
-        totalStreams: 100,
-        totalPinnedCids: 50,
+        manifests: [
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+          "bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
+        ],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1", "event2"],
+          },
+        ],
         collectedAt: new Date().toISOString(),
       };
 
@@ -51,19 +61,27 @@ describe("End-to-End Integration Tests", () => {
       expect(validationResult.error).toBeUndefined();
 
       // Verify data integrity
-      expect(received.identity.ipfs).toBe(peerId.toString());
-      expect(received.summary.totalStreams).toBe(100);
-      expect(received.summary.totalPinnedCids).toBe(50);
+      expect(received.peerId).toBe(peerId.toString());
+      expect(received.manifests).toHaveLength(2);
+      expect(received.streams).toHaveLength(1);
+      expect(received.streams[0].eventIds).toHaveLength(2);
     });
 
     it("should demonstrate peer ID as public key (libp2p core security feature)", async () => {
       // This test explicitly demonstrates that libp2p peer IDs contain public keys
       const metricsData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        peerId: peerId.toString(),
         environment: "testnet",
-        totalStreams: 42,
-        totalPinnedCids: 24,
+        manifests: [],
+        streams: [
+          {
+            streamId: "stream42",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1"],
+          },
+        ],
         collectedAt: "2024-01-01T00:00:00.000Z",
       };
 
@@ -98,11 +116,13 @@ describe("End-to-End Integration Tests", () => {
     it("should use deterministic serialization for reliable signature verification", async () => {
       // This test ensures our canonical serialization produces deterministic output
       const metricsData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        peerId: peerId.toString(),
         environment: "testnet",
-        totalStreams: 42,
-        totalPinnedCids: 24,
+        manifests: [
+          "bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
+        ],
+        streams: [],
         collectedAt: "2024-01-01T00:00:00.000Z",
       };
 
@@ -128,18 +148,25 @@ describe("End-to-End Integration Tests", () => {
 
     it("should reject tampered data", async () => {
       const metricsData: NodeMetricsSignable = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        peerId: peerId.toString(),
         environment: "mainnet",
-        totalStreams: 10,
-        totalPinnedCids: 5,
+        manifests: [],
+        streams: [
+          {
+            streamId: "stream10",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1"],
+          },
+        ],
         collectedAt: new Date().toISOString(),
       };
 
       const signedMetrics = await signMetrics(metricsData, privateKey);
 
       // Tamper with the data after signing
-      signedMetrics.summary.totalStreams = 999;
+      signedMetrics.streams[0].streamId = "tampered";
 
       const validationResult = await validateMetricsSignature(signedMetrics);
       expect(validationResult.isValid).toBe(false);
@@ -159,11 +186,11 @@ describe("End-to-End Integration Tests", () => {
 
       // Attacker tries to sign metrics claiming to be the victim
       const metricsData: NodeMetricsSignable = {
-        ipfsPeerId: victimPeerId.toString(), // Claiming to be victim
-        ceramicPeerId: victimPeerId.toString(),
+        nodeId: `node-${victimPeerId.toString().slice(0, 8)}`,
+        peerId: victimPeerId.toString(), // Claiming to be victim
         environment: "local",
-        totalStreams: 1000,
-        totalPinnedCids: 500,
+        manifests: [],
+        streams: [],
         collectedAt: new Date().toISOString(),
       };
 
@@ -190,11 +217,11 @@ describe("End-to-End Integration Tests", () => {
 
       for (const env of environments) {
         const metricsData: NodeMetricsSignable = {
-          ipfsPeerId: peerId.toString(),
-          ceramicPeerId: peerId.toString(),
+          nodeId: `node-${peerId.toString().slice(0, 8)}`,
+          peerId: peerId.toString(),
           environment: env,
-          totalStreams: 5,
-          totalPinnedCids: 3,
+          manifests: [],
+          streams: [],
           collectedAt: new Date().toISOString(),
         };
 
@@ -210,11 +237,13 @@ describe("End-to-End Integration Tests", () => {
   describe("Deterministic Serialization", () => {
     it("should produce deterministic output for the same data", () => {
       const data: NodeMetricsSignable = {
-        ipfsPeerId: "peer123",
-        ceramicPeerId: "ceramic456",
+        nodeId: "node-123",
+        peerId: "peer123",
         environment: "testnet",
-        totalStreams: 10,
-        totalPinnedCids: 5,
+        manifests: [
+          "bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
+        ],
+        streams: [],
         collectedAt: "2024-01-01T00:00:00.000Z",
       };
 
@@ -226,7 +255,7 @@ describe("End-to-End Integration Tests", () => {
 
       // Should be valid JSON
       const parsed = JSON.parse(serialized1);
-      expect(parsed.ipfsPeerId).toBe("peer123");
+      expect(parsed.peerId).toBe("peer123");
       expect(parsed.environment).toBe("testnet");
     });
   });

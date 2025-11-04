@@ -1,7 +1,8 @@
-// Re-export types from schemas for backward compatibility
+// Re-export types from schemas
 export type {
   Environment,
-  NodeMetricsInternal,
+  Stream,
+  NodeMetricsGranular,
   NodeMetricsSignable,
 } from "./schemas.js";
 

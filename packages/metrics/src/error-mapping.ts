@@ -39,12 +39,11 @@ function getFieldSpecificErrorMap(): Record<
   (error: ZodIssue) => string | null
 > {
   return {
-    ipfsPeerId: (error) => handleStringFieldError(error, "ipfsPeerId"),
-    ceramicPeerId: (error) => handleStringFieldError(error, "ceramicPeerId"),
+    nodeId: (error) => handleStringFieldError(error, "nodeId"),
+    peerId: (error) => handleStringFieldError(error, "peerId"),
     collectedAt: (error) => handleCollectedAtError(error),
-    totalStreams: (error) => handleNumberFieldError(error, "totalStreams"),
-    totalPinnedCids: (error) =>
-      handleNumberFieldError(error, "totalPinnedCids"),
+    manifests: (error) => handleArrayFieldError(error, "manifests"),
+    streams: (error) => handleArrayFieldError(error, "streams"),
     environment: (error) => handleEnvironmentError(error),
     signature: (error) => handleSignatureError(error),
   };
@@ -86,20 +85,17 @@ function handleCollectedAtError(error: ZodIssue): string | null {
 }
 
 /**
- * Handles number field validation errors
+ * Handles array field validation errors
  */
-function handleNumberFieldError(
+function handleArrayFieldError(
   error: ZodIssue,
   fieldName: string,
 ): string | null {
   if (error.code === "invalid_type" && error.received === "undefined") {
     return `${ERROR_MESSAGES.MISSING_FIELD}: ${fieldName}`;
   }
-  if (
-    error.code === "too_small" ||
-    (error.code === "invalid_type" && error.expected === "number")
-  ) {
-    return `${fieldName} ${ERROR_MESSAGES.NON_NEGATIVE_NUMBER}`;
+  if (error.code === "invalid_type" && error.expected === "array") {
+    return `${fieldName} ${ERROR_MESSAGES.MUST_BE_ARRAY}`;
   }
   return null;
 }

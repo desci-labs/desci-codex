@@ -14,31 +14,36 @@ export const SignatureSchema = z.array(
 );
 
 /**
- * Schema for the internal metrics format used by the node service
+ * Schema for stream data with associated events
  */
-export const NodeMetricsInternalSchema = z.object({
-  identity: z.object({
-    ipfs: z.string().min(1),
-    ceramic: z.string().min(1),
-  }),
+export const StreamSchema = z.object({
+  streamId: z.string().min(1),
+  streamCid: z.string().min(1),
+  eventIds: z.array(z.string().min(1)),
+});
+
+/**
+ * Schema for the granular metrics format
+ */
+export const NodeMetricsGranularSchema = z.object({
+  nodeId: z.string().min(1),
+  peerId: z.string().min(1),
   environment: EnvironmentSchema,
-  summary: z.object({
-    totalStreams: z.number().int().min(0),
-    totalPinnedCids: z.number().int().min(0),
-    collectedAt: z.string().datetime(),
-  }),
+  manifests: z.array(z.string().min(1)),
+  streams: z.array(StreamSchema),
+  collectedAt: z.string().datetime(),
   signature: SignatureSchema,
 });
 
 /**
- * Schema for signable metrics data (without signature)
+ * Schema for signable granular metrics data (without signature)
  */
 export const NodeMetricsSignableSchema = z.object({
-  ipfsPeerId: z.string().min(1),
-  ceramicPeerId: z.string().min(1),
+  nodeId: z.string().min(1),
+  peerId: z.string().min(1),
   environment: EnvironmentSchema,
-  totalStreams: z.number().int().min(0),
-  totalPinnedCids: z.number().int().min(0),
+  manifests: z.array(z.string().min(1)),
+  streams: z.array(StreamSchema),
   collectedAt: z.string().datetime(),
 });
 
@@ -46,5 +51,6 @@ export const NodeMetricsSignableSchema = z.object({
  * Infer TypeScript types from schemas
  */
 export type Environment = z.infer<typeof EnvironmentSchema>;
-export type NodeMetricsInternal = z.infer<typeof NodeMetricsInternalSchema>;
+export type Stream = z.infer<typeof StreamSchema>;
+export type NodeMetricsGranular = z.infer<typeof NodeMetricsGranularSchema>;
 export type NodeMetricsSignable = z.infer<typeof NodeMetricsSignableSchema>;

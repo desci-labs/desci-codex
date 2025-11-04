@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
-  NodeMetricsInternalSchema,
+  NodeMetricsGranularSchema,
   NodeMetricsSignableSchema,
+  StreamSchema,
   EnvironmentSchema,
   SignatureSchema,
 } from "../src/schemas.js";
@@ -39,13 +40,54 @@ describe("Zod Schemas", () => {
     });
   });
 
+  describe("StreamSchema", () => {
+    it("should validate valid stream", () => {
+      const stream = {
+        streamId: "stream123",
+        streamCid:
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        eventIds: ["event1", "event2", "event3"],
+      };
+      expect(StreamSchema.parse(stream)).toEqual(stream);
+    });
+
+    it("should reject invalid stream", () => {
+      expect(() =>
+        StreamSchema.parse({ streamId: "", streamCid: "cid", eventIds: [] }),
+      ).toThrow();
+      expect(() =>
+        StreamSchema.parse({ streamId: "id", streamCid: "", eventIds: [] }),
+      ).toThrow();
+      expect(() =>
+        StreamSchema.parse({
+          streamId: "id",
+          streamCid: "cid",
+          eventIds: [""],
+        }),
+      ).toThrow();
+      expect(() =>
+        StreamSchema.parse({ streamId: "id", streamCid: "cid" }),
+      ).toThrow();
+    });
+  });
+
   describe("NodeMetricsSignableSchema", () => {
     const validSignableData = {
-      ipfsPeerId: "12D3KooWExample",
-      ceramicPeerId: "12D3KooWCeramic",
+      nodeId: "node-12D3KooW",
+      peerId: "12D3KooWExample",
       environment: "testnet" as const,
-      totalStreams: 42,
-      totalPinnedCids: 24,
+      manifests: [
+        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      ],
+      streams: [
+        {
+          streamId: "stream1",
+          streamCid:
+            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+          eventIds: ["event1", "event2"],
+        },
+      ],
       collectedAt: "2024-01-01T00:00:00.000Z",
     };
 
@@ -56,15 +98,16 @@ describe("Zod Schemas", () => {
 
     it("should require all fields", () => {
       const incomplete = { ...validSignableData };
-      delete (incomplete as Record<string, unknown>).ipfsPeerId;
+      delete (incomplete as Record<string, unknown>).nodeId;
       expect(() => NodeMetricsSignableSchema.parse(incomplete)).toThrow();
     });
 
     it("should validate field types", () => {
       const invalidTypes = [
-        { ...validSignableData, ipfsPeerId: "" },
-        { ...validSignableData, totalStreams: -1 },
-        { ...validSignableData, totalPinnedCids: "not a number" },
+        { ...validSignableData, nodeId: "" },
+        { ...validSignableData, peerId: "" },
+        { ...validSignableData, manifests: "not an array" },
+        { ...validSignableData, streams: ["not a stream object"] },
         { ...validSignableData, environment: "invalid" },
         { ...validSignableData, collectedAt: "not a date" },
       ];
@@ -100,79 +143,84 @@ describe("Zod Schemas", () => {
     });
   });
 
-  describe("NodeMetricsInternalSchema", () => {
-    const validInternalData = {
-      identity: {
-        ipfs: "12D3KooWIPFS",
-        ceramic: "12D3KooWCeramic",
-      },
+  describe("NodeMetricsGranularSchema", () => {
+    const validGranularData = {
+      nodeId: "node-12D3KooW",
+      peerId: "12D3KooWIPFS",
       environment: "local" as const,
-      summary: {
-        totalStreams: 42,
-        totalPinnedCids: 24,
-        collectedAt: "2024-01-01T00:00:00.000Z",
-      },
+      manifests: [
+        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      ],
+      streams: [
+        {
+          streamId: "stream1",
+          streamCid:
+            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+          eventIds: ["event1", "event2"],
+        },
+      ],
+      collectedAt: "2024-01-01T00:00:00.000Z",
       signature: [1, 2, 3, 4, 5],
     };
 
-    it("should validate valid internal data", () => {
-      const result = NodeMetricsInternalSchema.parse(validInternalData);
-      expect(result).toEqual(validInternalData);
+    it("should validate valid granular data", () => {
+      const result = NodeMetricsGranularSchema.parse(validGranularData);
+      expect(result).toEqual(validGranularData);
     });
 
-    it("should require nested structure", () => {
-      const flatData = {
-        ipfsPeerId: "12D3KooWIPFS",
-        ceramicPeerId: "12D3KooWCeramic",
-        environment: "local",
-        totalStreams: 42,
-        totalPinnedCids: 24,
-        collectedAt: "2024-01-01T00:00:00.000Z",
-        signature: [1, 2, 3, 4, 5],
-      };
+    it("should require all fields", () => {
+      const missingNodeId = { ...validGranularData };
+      delete (missingNodeId as Record<string, unknown>).nodeId;
+      expect(() => NodeMetricsGranularSchema.parse(missingNodeId)).toThrow();
 
-      expect(() => NodeMetricsInternalSchema.parse(flatData)).toThrow();
+      const missingSignature = { ...validGranularData };
+      delete (missingSignature as Record<string, unknown>).signature;
+      expect(() => NodeMetricsGranularSchema.parse(missingSignature)).toThrow();
     });
 
-    it("should validate nested objects", () => {
-      const invalidNested = [
-        { ...validInternalData, identity: null },
-        { ...validInternalData, summary: null },
-        { ...validInternalData, identity: { ipfs: "test" } }, // missing ceramic
-        { ...validInternalData, summary: { totalStreams: 42 } }, // missing other fields
+    it("should validate arrays", () => {
+      const invalidArrays = [
+        { ...validGranularData, manifests: null },
+        { ...validGranularData, streams: null },
+        { ...validGranularData, manifests: [""] }, // invalid cid
+        { ...validGranularData, streams: [{ streamId: "test" }] }, // missing fields
       ];
 
-      for (const invalid of invalidNested) {
-        expect(() => NodeMetricsInternalSchema.parse(invalid)).toThrow();
+      for (const invalid of invalidArrays) {
+        expect(() => NodeMetricsGranularSchema.parse(invalid)).toThrow();
       }
     });
   });
 
   describe("Schema type inference", () => {
     it("should infer correct TypeScript types", () => {
-      const internalData = NodeMetricsInternalSchema.parse({
-        identity: {
-          ipfs: "peer123",
-          ceramic: "ceramic456",
-        },
+      const granularData = NodeMetricsGranularSchema.parse({
+        nodeId: "node123",
+        peerId: "peer123",
         environment: "testnet",
-        summary: {
-          totalStreams: 10,
-          totalPinnedCids: 5,
-          collectedAt: "2024-01-01T00:00:00.000Z",
-        },
+        manifests: ["cid1"],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid: "streamCid1",
+            eventIds: ["event1"],
+          },
+        ],
+        collectedAt: "2024-01-01T00:00:00.000Z",
         signature: [1, 2, 3],
       });
 
       // TypeScript should infer these types correctly
-      const peerId: string = internalData.identity.ipfs;
-      const env: "testnet" | "mainnet" | "local" = internalData.environment;
-      const streams: number = internalData.summary.totalStreams;
-      const sig: number[] = internalData.signature;
+      const nodeId: string = granularData.nodeId;
+      const peerId: string = granularData.peerId;
+      const env: "testnet" | "mainnet" | "local" = granularData.environment;
+      const manifests: string[] = granularData.manifests;
+      const sig: number[] = granularData.signature;
 
+      expect(nodeId).toBe("node123");
       expect(peerId).toBe("peer123");
       expect(env).toBe("testnet");
-      expect(streams).toBe(10);
+      expect(manifests[0]).toBe("cid1");
       expect(sig).toEqual([1, 2, 3]);
     });
   });

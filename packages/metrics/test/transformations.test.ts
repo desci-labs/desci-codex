@@ -5,101 +5,115 @@ import {
   isValidInternalFormat,
   cloneMetrics,
 } from "../src/transformations.js";
-import type { NodeMetricsInternal, NodeMetricsSignable } from "../src/types.js";
+import type { NodeMetricsGranular, NodeMetricsSignable } from "../src/types.js";
 
 describe("Transformations", () => {
-  const sampleInternal: NodeMetricsInternal = {
-    identity: {
-      ipfs: "12D3KooWIPFS",
-      ceramic: "12D3KooWCeramic",
-    },
+  const sampleGranular: NodeMetricsGranular = {
+    nodeId: "node-12D3KooW",
+    peerId: "12D3KooWIPFS",
     environment: "testnet",
-    summary: {
-      totalStreams: 42,
-      totalPinnedCids: 24,
-      collectedAt: "2024-01-01T00:00:00.000Z",
-    },
+    manifests: [
+      "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+    ],
+    streams: [
+      {
+        streamId: "stream1",
+        streamCid:
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        eventIds: ["event1", "event2"],
+      },
+    ],
+    collectedAt: "2024-01-01T00:00:00.000Z",
     signature: [1, 2, 3, 4, 5],
   };
 
   const sampleSignable: NodeMetricsSignable = {
-    ipfsPeerId: "12D3KooWIPFS",
-    ceramicPeerId: "12D3KooWCeramic",
+    nodeId: "node-12D3KooW",
+    peerId: "12D3KooWIPFS",
     environment: "testnet",
-    totalStreams: 42,
-    totalPinnedCids: 24,
+    manifests: [
+      "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+    ],
+    streams: [
+      {
+        streamId: "stream1",
+        streamCid:
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        eventIds: ["event1", "event2"],
+      },
+    ],
     collectedAt: "2024-01-01T00:00:00.000Z",
   };
 
   describe("extractSignableData", () => {
-    it("should extract signable data by removing signature and flattening structure", () => {
-      const signable = extractSignableData(sampleInternal);
+    it("should extract signable data by removing signature", () => {
+      const signable = extractSignableData(sampleGranular);
 
-      expect(signable.ipfsPeerId).toBe(sampleInternal.identity.ipfs);
-      expect(signable.ceramicPeerId).toBe(sampleInternal.identity.ceramic);
-      expect(signable.environment).toBe(sampleInternal.environment);
-      expect(signable.totalStreams).toBe(sampleInternal.summary.totalStreams);
-      expect(signable.totalPinnedCids).toBe(
-        sampleInternal.summary.totalPinnedCids,
-      );
-      expect(signable.collectedAt).toBe(sampleInternal.summary.collectedAt);
+      expect(signable.nodeId).toBe(sampleGranular.nodeId);
+      expect(signable.peerId).toBe(sampleGranular.peerId);
+      expect(signable.environment).toBe(sampleGranular.environment);
+      expect(signable.manifests).toEqual(sampleGranular.manifests);
+      expect(signable.streams).toEqual(sampleGranular.streams);
+      expect(signable.collectedAt).toBe(sampleGranular.collectedAt);
     });
 
     it("should not include signature in signable data", () => {
-      const signable = extractSignableData(sampleInternal);
+      const signable = extractSignableData(sampleGranular);
       expect(signable).not.toHaveProperty("signature");
     });
 
-    it("should not modify the original internal object", () => {
-      const original = { ...sampleInternal };
-      extractSignableData(sampleInternal);
-      expect(sampleInternal).toEqual(original);
+    it("should not modify the original granular object", () => {
+      const original = { ...sampleGranular };
+      extractSignableData(sampleGranular);
+      expect(sampleGranular).toEqual(original);
     });
   });
 
   describe("createInternalFormat", () => {
-    it("should create internal format from signable data and signature", () => {
+    it("should create granular format from signable data and signature", () => {
       const signature = [9, 8, 7, 6, 5];
-      const internal = createInternalFormat(sampleSignable, signature);
+      const granular = createInternalFormat(sampleSignable, signature);
 
-      expect(internal.identity.ipfs).toBe(sampleSignable.ipfsPeerId);
-      expect(internal.identity.ceramic).toBe(sampleSignable.ceramicPeerId);
-      expect(internal.environment).toBe(sampleSignable.environment);
-      expect(internal.summary.totalStreams).toBe(sampleSignable.totalStreams);
-      expect(internal.summary.totalPinnedCids).toBe(
-        sampleSignable.totalPinnedCids,
-      );
-      expect(internal.summary.collectedAt).toBe(sampleSignable.collectedAt);
-      expect(internal.signature).toEqual(signature);
+      expect(granular.nodeId).toBe(sampleSignable.nodeId);
+      expect(granular.peerId).toBe(sampleSignable.peerId);
+      expect(granular.environment).toBe(sampleSignable.environment);
+      expect(granular.manifests).toEqual(sampleSignable.manifests);
+      expect(granular.streams).toEqual(sampleSignable.streams);
+      expect(granular.collectedAt).toBe(sampleSignable.collectedAt);
+      expect(granular.signature).toEqual(signature);
     });
 
-    it("should create nested structure", () => {
+    it("should preserve arrays and structure", () => {
       const signature = [1, 2, 3];
-      const internal = createInternalFormat(sampleSignable, signature);
+      const granular = createInternalFormat(sampleSignable, signature);
 
-      expect(internal).toHaveProperty("identity");
-      expect(internal).toHaveProperty("summary");
-      expect(internal.identity).toHaveProperty("ipfs");
-      expect(internal.identity).toHaveProperty("ceramic");
-      expect(internal.summary).toHaveProperty("totalStreams");
-      expect(internal.summary).toHaveProperty("totalPinnedCids");
-      expect(internal.summary).toHaveProperty("collectedAt");
+      expect(granular).toHaveProperty("nodeId");
+      expect(granular).toHaveProperty("peerId");
+      expect(granular).toHaveProperty("manifests");
+      expect(granular).toHaveProperty("streams");
+      expect(Array.isArray(granular.manifests)).toBe(true);
+      expect(Array.isArray(granular.streams)).toBe(true);
+      expect(granular.streams[0]).toHaveProperty("streamId");
+      expect(granular.streams[0]).toHaveProperty("streamCid");
+      expect(granular.streams[0]).toHaveProperty("eventIds");
     });
 
     it("should be inverse of extractSignableData", () => {
-      const signable = extractSignableData(sampleInternal);
-      const backToInternal = createInternalFormat(
+      const signable = extractSignableData(sampleGranular);
+      const backToGranular = createInternalFormat(
         signable,
-        sampleInternal.signature,
+        sampleGranular.signature,
       );
 
-      expect(backToInternal).toEqual(sampleInternal);
+      expect(backToGranular).toEqual(sampleGranular);
     });
   });
 
   describe("isValidInternalFormat", () => {
-    it("should validate correct internal format", () => {
-      expect(isValidInternalFormat(sampleInternal)).toBe(true);
+    it("should validate correct granular format", () => {
+      expect(isValidInternalFormat(sampleGranular)).toBe(true);
     });
 
     it("should reject invalid formats", () => {
@@ -111,48 +125,48 @@ describe("Transformations", () => {
     });
 
     it("should reject missing required fields", () => {
-      const missingIdentity = { ...sampleInternal };
-      delete (missingIdentity as Record<string, unknown>).identity;
-      expect(isValidInternalFormat(missingIdentity)).toBe(false);
+      const missingNodeId = { ...sampleGranular };
+      delete (missingNodeId as Record<string, unknown>).nodeId;
+      expect(isValidInternalFormat(missingNodeId)).toBe(false);
 
-      const missingSummary = { ...sampleInternal };
-      delete (missingSummary as Record<string, unknown>).summary;
-      expect(isValidInternalFormat(missingSummary)).toBe(false);
+      const missingPeerId = { ...sampleGranular };
+      delete (missingPeerId as Record<string, unknown>).peerId;
+      expect(isValidInternalFormat(missingPeerId)).toBe(false);
 
-      const missingSignature = { ...sampleInternal };
+      const missingSignature = { ...sampleGranular };
       delete (missingSignature as Record<string, unknown>).signature;
       expect(isValidInternalFormat(missingSignature)).toBe(false);
     });
 
     it("should reject wrong field types", () => {
-      const badIdentity = { ...sampleInternal, identity: "not an object" };
-      expect(isValidInternalFormat(badIdentity)).toBe(false);
+      const badManifests = { ...sampleGranular, manifests: "not an array" };
+      expect(isValidInternalFormat(badManifests)).toBe(false);
 
-      const badSummary = { ...sampleInternal, summary: "not an object" };
-      expect(isValidInternalFormat(badSummary)).toBe(false);
+      const badStreams = { ...sampleGranular, streams: "not an array" };
+      expect(isValidInternalFormat(badStreams)).toBe(false);
 
-      const badEnvironment = { ...sampleInternal, environment: "invalid" };
+      const badEnvironment = { ...sampleGranular, environment: "invalid" };
       expect(isValidInternalFormat(badEnvironment)).toBe(false);
     });
 
     it("should reject invalid signature format", () => {
-      const badSig1 = { ...sampleInternal, signature: "not array" };
+      const badSig1 = { ...sampleGranular, signature: "not array" };
       expect(isValidInternalFormat(badSig1)).toBe(false);
 
-      const badSig2 = { ...sampleInternal, signature: [1, "two", 3] };
+      const badSig2 = { ...sampleGranular, signature: [1, "two", 3] };
       expect(isValidInternalFormat(badSig2)).toBe(false);
     });
   });
 
   describe("cloneMetrics", () => {
-    it("should create deep copy of internal metrics", () => {
-      const cloned = cloneMetrics(sampleInternal);
+    it("should create deep copy of granular metrics", () => {
+      const cloned = cloneMetrics(sampleGranular);
 
-      expect(cloned).toEqual(sampleInternal);
-      expect(cloned).not.toBe(sampleInternal);
-      expect(cloned.identity).not.toBe(sampleInternal.identity);
-      expect(cloned.summary).not.toBe(sampleInternal.summary);
-      expect(cloned.signature).not.toBe(sampleInternal.signature);
+      expect(cloned).toEqual(sampleGranular);
+      expect(cloned).not.toBe(sampleGranular);
+      expect(cloned.manifests).not.toBe(sampleGranular.manifests);
+      expect(cloned.streams).not.toBe(sampleGranular.streams);
+      expect(cloned.signature).not.toBe(sampleGranular.signature);
     });
 
     it("should create deep copy of signable metrics", () => {
@@ -163,12 +177,12 @@ describe("Transformations", () => {
     });
 
     it("should prevent mutations on the original", () => {
-      const cloned = cloneMetrics(sampleInternal);
-      cloned.identity.ipfs = "modified";
-      cloned.summary.totalStreams = 999;
+      const cloned = cloneMetrics(sampleGranular);
+      cloned.nodeId = "modified";
+      cloned.manifests.push("newcid");
 
-      expect(sampleInternal.identity.ipfs).toBe("12D3KooWIPFS");
-      expect(sampleInternal.summary.totalStreams).toBe(42);
+      expect(sampleGranular.nodeId).toBe("node-12D3KooW");
+      expect(sampleGranular.manifests).toHaveLength(2);
     });
   });
 });

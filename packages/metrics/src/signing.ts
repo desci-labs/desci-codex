@@ -1,5 +1,5 @@
 import type { Ed25519PrivateKey } from "@libp2p/interface";
-import type { NodeMetricsSignable, NodeMetricsInternal } from "./types.js";
+import type { NodeMetricsSignable, NodeMetricsGranular } from "./types.js";
 import { NodeMetricsSignableSchema } from "./schemas.js";
 import { canonicalJsonSerialize } from "./serialization.js";
 import { createInternalFormat } from "./transformations.js";
@@ -14,7 +14,7 @@ import { createInternalFormat } from "./transformations.js";
 export async function signMetrics(
   data: NodeMetricsSignable,
   privateKey: Ed25519PrivateKey,
-): Promise<NodeMetricsInternal> {
+): Promise<NodeMetricsGranular> {
   // Validate input data first
   const validatedData = NodeMetricsSignableSchema.parse(data);
 
