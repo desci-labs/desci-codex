@@ -27,7 +27,7 @@ function show_usage() {
 
 function run_dev() {
     echo "Starting development services (ceramic + codex-node)..."
-    docker compose -f compose.dev.yaml up -d
+    docker compose -f compose.dev.yaml up --build -d
     echo "✅ Development services started!"
     echo "  - Ceramic: http://localhost:5101"
     echo "  - Codex Node: http://localhost:3000"
@@ -35,7 +35,7 @@ function run_dev() {
 
 function run_dev_metrics() {
     echo "Starting development services with metrics..."
-    docker compose -f compose.dev-with-metrics.yaml up -d
+    docker compose -f compose.dev-with-metrics.yaml up --build -d
     echo "✅ Development services with metrics started!"
     echo "  - Ceramic: http://localhost:5101"
     echo "  - Codex Node: http://localhost:3000"
@@ -45,7 +45,7 @@ function run_dev_metrics() {
 
 function run_metrics() {
     echo "Starting metrics stack only..."
-    docker compose -f compose.metrics.yml up -d
+    docker compose -f compose.metrics.yml up --build -d
     echo "✅ Metrics stack started!"
     echo "  - Metrics Server: http://localhost:3001"
     echo "  - Grafana: http://localhost:3002 (admin/admin)"
@@ -53,7 +53,7 @@ function run_metrics() {
 
 function run_local() {
     echo "Starting local development (inmemory)..."
-    docker compose -f compose.yaml up -d
+    docker compose -f compose.yaml up --build -d
     echo "✅ Local development services started!"
     echo "  - Ceramic: http://localhost:5101"
     echo "  - Codex Node: http://localhost:3000"

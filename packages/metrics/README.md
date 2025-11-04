@@ -1,4 +1,4 @@
-# @codex/metrics
+# @desci-labs/desci-codex-metrics
 
 Shared metrics library for node data collection and server validation in the Codex P2P network.
 
@@ -18,7 +18,7 @@ Before this library, we had duplicate type definitions and manual signing logic 
 ## Installation
 
 ```bash
-pnpm add @codex/metrics
+pnpm add @desci-labs/desci-codex-metrics
 ```
 
 ## How it works
@@ -35,7 +35,7 @@ The key insight is that libp2p peer IDs contain public keys, so we can verify th
 ### For the node package (producing metrics)
 
 ```typescript
-import { signMetrics } from "@codex/metrics";
+import { signMetrics } from "@desci-labs/desci-codex-metrics";
 
 const metricsData = {
   ipfsPeerId: peerId.toString(),
@@ -53,7 +53,7 @@ const signedMetrics = await signMetrics(metricsData, privateKey);
 ### For the metrics server (consuming metrics)
 
 ```typescript
-import { validateMetricsSignature } from "@codex/metrics";
+import { validateMetricsSignature } from "@desci-labs/desci-codex-metrics";
 
 const result = await validateMetricsSignature(receivedMetrics);
 if (result.isValid) {
@@ -71,7 +71,7 @@ import type {
   NodeMetricsSignable,   // Just the data that gets signed (no signature field)
   Environment,           // "testnet" | "mainnet" | "local"
   ValidationResult,      // { isValid: boolean; error?: string }
-} from "@codex/metrics";
+} from "@desci-labs/desci-codex-metrics";
 ```
 
 ## Other utilities
@@ -82,7 +82,7 @@ import {
   extractSignableData,       // Get data without signature 
   createInternalFormat,      // Build complete metrics object
   validateMetricsStructure,  // Just structure validation (no crypto)
-} from "@codex/metrics";
+} from "@desci-labs/desci-codex-metrics";
 ```
 
 ## Complete examples
@@ -90,7 +90,7 @@ import {
 ### Node package integration
 
 ```typescript
-import { signMetrics, type NodeMetricsSignable } from "@codex/metrics";
+import { signMetrics, type NodeMetricsSignable } from "@desci-labs/desci-codex-metrics";
 
 async function collectAndSendMetrics() {
   // Gather your metrics data
@@ -121,7 +121,7 @@ async function collectAndSendMetrics() {
 ### Metrics server integration
 
 ```typescript
-import { validateMetricsSignature, NodeMetricsInternalSchema } from "@codex/metrics";
+import { validateMetricsSignature, NodeMetricsInternalSchema } from "@desci-labs/desci-codex-metrics";
 
 app.post('/api/v1/metrics/node', async (req, res) => {
   try {

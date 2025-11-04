@@ -6,7 +6,7 @@ import {
   type NodeMetricsSignable,
   type NodeMetricsGranular,
   type Stream,
-} from "@codex/metrics";
+} from "@desci-labs/desci-codex-metrics";
 import type { Ed25519PrivateKey } from "@libp2p/interface";
 
 const log = logger.child({ module: "metrics" });
@@ -37,7 +37,7 @@ export function createMetricsService(
         const pinnedCids = await config.ipfsNode.listPins();
 
         const ipfsPeerId = (await config.ipfsNode.libp2pInfo()).peerId;
-        const nodeId = `node-${ipfsPeerId.slice(0, 8)}`;
+        const nodeId = ipfsPeerId;
 
         // Transform pinned CIDs into manifests (now just strings)
         const manifests: string[] = pinnedCids.map((cid) => cid.toString());
@@ -59,7 +59,7 @@ export function createMetricsService(
           collectedAt: new Date().toISOString(),
         };
 
-        // Sign the metrics using the @codex/metrics library
+        // Sign the metrics using the @desci-labs/desci-codex-metrics library
         const signedMetrics = await signMetrics(
           signableData,
           config.privateKey,

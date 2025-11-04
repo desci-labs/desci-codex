@@ -6,7 +6,7 @@ import {
   extractSignableData,
   type NodeMetricsSignable,
   type NodeMetricsGranular,
-} from "@codex/metrics";
+} from "@desci-labs/desci-codex-metrics";
 import { generateKeyPair } from "@libp2p/crypto/keys";
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
 import type { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
@@ -14,7 +14,7 @@ import type { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
 /**
  * Tests for metrics_server processing pipeline and API contract compliance.
  * Focuses on server-specific data processing, schema validation, and database preparation.
- * Security validation is thoroughly tested in \@codex/metrics library.
+ * Security validation is thoroughly tested in \@desci-labs/desci-codex-metrics library.
  */
 describe("Metrics Server Processing", () => {
   let privateKey: Ed25519PrivateKey;

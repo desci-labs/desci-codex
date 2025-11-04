@@ -38,4 +38,4 @@ jobs:
           cache-dependency-path: "pnpm-lock.yaml"
           check-latest: false
       - run: pnpm i --frozen-lockfile
-      - run: pnpm --filter @codex/metrics test
+      - run: pnpm --filter @desci-labs/desci-codex-metrics test

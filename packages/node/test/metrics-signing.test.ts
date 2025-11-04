@@ -9,7 +9,7 @@ import { metricsToPayload } from "../src/metrics-pusher.js";
 
 /**
  * Tests for node-specific metrics collection and service integration.
- * Cryptographic validation is handled by \@codex/metrics library tests.
+ * Cryptographic validation is handled by \@desci-labs/desci-codex-metrics library tests.
  * These tests focus on service integration and data collection accuracy.
  */
 describe("Node Metrics Service", () => {
@@ -75,7 +75,7 @@ describe("Node Metrics Service", () => {
 
       // Verify granular service integration - data comes from mocked services
       expect(metrics.peerId).toBe(peerId.toString());
-      expect(metrics.nodeId).toContain("node-");
+      expect(metrics.nodeId).toBe(peerId.toString());
       expect(metrics.environment).toBe("mainnet");
       expect(metrics.manifests).toHaveLength(3); // From mockIpfsNode.listPins
       expect(metrics.streams).toHaveLength(2); // From mockEventsService

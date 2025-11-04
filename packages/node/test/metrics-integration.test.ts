@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createMetricsService } from "../src/metrics.js";
 import { metricsToPayload } from "../src/metrics-pusher.js";
-import { NodeMetricsGranularSchema } from "@codex/metrics";
+import { NodeMetricsGranularSchema } from "@desci-labs/desci-codex-metrics";
 import type { CeramicEventsService, CeramicNodeStats } from "../src/events.js";
 import type { IPFSNode } from "../src/ipfs.js";
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
@@ -9,9 +9,9 @@ import { generateKeyPair } from "@libp2p/crypto/keys";
 import { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
 
 /**
- * API contract tests to ensure node package remains compatible with \@codex/metrics.
+ * API contract tests to ensure node package remains compatible with \@desci-labs/desci-codex-metrics.
  * Focuses on schema compatibility and format expectations.
- * Cryptographic validation is thoroughly tested in \@codex/metrics library.
+ * Cryptographic validation is thoroughly tested in \@desci-labs/desci-codex-metrics library.
  */
 describe("Metrics API Contract", () => {
   let mockEventsService: CeramicEventsService;
@@ -66,7 +66,7 @@ describe("Metrics API Contract", () => {
       // Verify structure matches expected granular contract
       const parsed = NodeMetricsGranularSchema.parse(payload);
       expect(parsed.peerId).toBe(peerId.toString());
-      expect(parsed.nodeId).toContain("node-");
+      expect(parsed.nodeId).toBe(peerId.toString());
       expect(parsed.environment).toBe("testnet");
       expect(parsed.manifests).toHaveLength(2); // 2 pinned CIDs
       expect(parsed.streams).toHaveLength(1); // 1 stream

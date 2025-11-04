@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:15
+    container_name: codex-metrics-db
     environment:
       POSTGRES_DB: codex_metrics
       POSTGRES_USER: postgres
@@ -17,6 +18,7 @@ services:
       retries: 5
 
   metrics-server:
+    container_name: codex-metrics-server
     build:
       context: ..
       dockerfile: packages/metrics_server/Dockerfile
@@ -38,6 +40,7 @@ services:
         condition: service_healthy
 
   grafana:
+    container_name: codex-metrics-grafana
     build:
       context: ../packages/metrics_server
       dockerfile: Dockerfile.grafana

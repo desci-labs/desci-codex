@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import type { NodeMetricsGranular } from "@codex/metrics";
+import type { NodeMetricsGranular } from "@desci-labs/desci-codex-metrics";
 import {
   nodes,
   manifests,

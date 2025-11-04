@@ -1,5 +1,5 @@
 {
-  "name": "@codex/metrics",
+  "name": "@desci-labs/desci-codex-metrics",
   "version": "2.0.0",
   "description": "Shared metrics types and utilities for Codex",
   "license": "MIT",
@@ -16,7 +16,7 @@
     "clean": "tsc --build --clean",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "doPublish": "pnpm run build && cd ../.. && pnpm publish --access public --filter @codex/metrics --no-git-checks"
+    "doPublish": "pnpm run build && cd ../.. && pnpm publish --access public --filter @desci-labs/desci-codex-metrics --no-git-checks"
   },
   "devDependencies": {
     "@libp2p/crypto": "^5.0.0",

@@ -6,7 +6,7 @@ import { validateMetricsSignature } from "./validation.js";
 import {
   NodeMetricsGranularSchema,
   type NodeMetricsGranular,
-} from "@codex/metrics";
+} from "@desci-labs/desci-codex-metrics";
 import logger from "./logger.js";
 
 const app = express();

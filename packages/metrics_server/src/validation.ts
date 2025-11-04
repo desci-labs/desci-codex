@@ -1,7 +1,7 @@
 import {
   validateMetricsSignature as validateSignature,
   validateMetricsStructure as validateStructure,
-} from "@codex/metrics";
+} from "@desci-labs/desci-codex-metrics";
 
 // Re-export the library functions for backwards compatibility
 export const validateMetricsSignature = validateSignature;

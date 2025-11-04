@@ -20,7 +20,7 @@ export interface MetricsPusher {
 export const metricsToPayload = (
   metrics: Awaited<ReturnType<MetricsService["getMetrics"]>>,
 ) => {
-  // The metrics are already in the correct format from @codex/metrics
+  // The metrics are already in the correct format from @desci-labs/desci-codex-metrics
   return metrics;
 };
 
