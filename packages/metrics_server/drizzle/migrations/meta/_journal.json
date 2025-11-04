@@ -8,6 +8,13 @@
       "when": 1762256783019,
       "tag": "0000_hot_dust",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1762279277040,
+      "tag": "0001_mature_puppet_master",
+      "breakpoints": true
     }
   ]
 }
