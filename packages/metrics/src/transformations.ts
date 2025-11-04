@@ -11,7 +11,7 @@ export function extractSignableData(
 ): NodeMetricsSignable {
   return {
     nodeId: granular.nodeId,
-    peerId: granular.peerId,
+    ceramicPeerId: granular.ceramicPeerId,
     environment: granular.environment,
     manifests: granular.manifests,
     streams: granular.streams,
@@ -32,7 +32,7 @@ export function createInternalFormat(
 ): NodeMetricsGranular {
   return {
     nodeId: signable.nodeId,
-    peerId: signable.peerId,
+    ceramicPeerId: signable.ceramicPeerId,
     environment: signable.environment,
     manifests: signable.manifests,
     streams: signable.streams,
@@ -58,7 +58,7 @@ export function isValidInternalFormat(
 
   return (
     typeof obj.nodeId === "string" &&
-    typeof obj.peerId === "string" &&
+    typeof obj.ceramicPeerId === "string" &&
     ["testnet", "mainnet", "local"].includes(obj.environment as string) &&
     Array.isArray(obj.manifests) &&
     obj.manifests.every((m: unknown) => typeof m === "string") &&

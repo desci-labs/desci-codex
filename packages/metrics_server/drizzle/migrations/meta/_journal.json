@@ -15,6 +15,13 @@
       "when": 1762279277040,
       "tag": "0001_mature_puppet_master",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1762282080422,
+      "tag": "0002_tearful_vindicator",
+      "breakpoints": true
     }
   ]
 }

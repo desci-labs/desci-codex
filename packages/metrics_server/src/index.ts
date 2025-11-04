@@ -58,7 +58,7 @@ apiV1.post("/metrics/node", async (req, res) => {
       log.warn(
         {
           nodeId: metrics.nodeId,
-          peerId: metrics.peerId,
+          ceramicPeerId: metrics.ceramicPeerId,
           error: validationResult.error,
         },
         "Rejected metrics submission due to invalid signature",
@@ -75,7 +75,7 @@ apiV1.post("/metrics/node", async (req, res) => {
     log.info(
       {
         nodeId: metrics.nodeId,
-        peerId: metrics.peerId,
+        ceramicPeerId: metrics.ceramicPeerId,
         environment: metrics.environment,
         manifestCount: metrics.manifests.length,
         streamCount: metrics.streams.length,

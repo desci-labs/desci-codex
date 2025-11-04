@@ -38,6 +38,7 @@ export function createMetricsService(
 
         const ipfsPeerId = (await config.ipfsNode.libp2pInfo()).peerId;
         const nodeId = ipfsPeerId;
+        const ceramicPeerId = ceramicStats.peerId;
 
         // Transform pinned CIDs into manifests (now just strings)
         const manifests: string[] = pinnedCids.map((cid) => cid.toString());
@@ -52,7 +53,7 @@ export function createMetricsService(
         // Create the signable granular metrics data
         const signableData: NodeMetricsSignable = {
           nodeId: nodeId,
-          peerId: ipfsPeerId,
+          ceramicPeerId: ceramicPeerId,
           environment: config.environment,
           manifests: manifests,
           streams: streams,
@@ -68,7 +69,7 @@ export function createMetricsService(
         log.info(
           {
             nodeId,
-            peerId: ipfsPeerId,
+            ceramicPeerId: ceramicPeerId,
             manifestCount: manifests.length,
             streamCount: streams.length,
             totalEvents: streams.reduce((sum, s) => sum + s.eventIds.length, 0),

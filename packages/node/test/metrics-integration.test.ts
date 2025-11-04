@@ -65,7 +65,7 @@ describe("Metrics API Contract", () => {
 
       // Verify structure matches expected granular contract
       const parsed = NodeMetricsGranularSchema.parse(payload);
-      expect(parsed.peerId).toBe(peerId.toString());
+      expect(parsed.ceramicPeerId).toBe(peerId.toString());
       expect(parsed.nodeId).toBe(peerId.toString());
       expect(parsed.environment).toBe("testnet");
       expect(parsed.manifests).toHaveLength(2); // 2 pinned CIDs
@@ -107,7 +107,7 @@ describe("Metrics API Contract", () => {
 
       // Verify structure matches what granular metrics_server expects
       expect(metrics).toHaveProperty("nodeId");
-      expect(metrics).toHaveProperty("peerId");
+      expect(metrics).toHaveProperty("ceramicPeerId");
       expect(metrics).toHaveProperty("environment");
       expect(metrics).toHaveProperty("manifests");
       expect(metrics).toHaveProperty("streams");
@@ -116,7 +116,7 @@ describe("Metrics API Contract", () => {
 
       // Verify types for safe processing
       expect(typeof metrics.nodeId).toBe("string");
-      expect(typeof metrics.peerId).toBe("string");
+      expect(typeof metrics.ceramicPeerId).toBe("string");
       expect(typeof metrics.environment).toBe("string");
       expect(Array.isArray(metrics.manifests)).toBe(true);
       expect(Array.isArray(metrics.streams)).toBe(true);

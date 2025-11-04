@@ -26,7 +26,7 @@ describe("Metrics Server Validation", () => {
     it("should correctly re-export @desci-labs/desci-codex-metrics validation function", async () => {
       const metricsData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: ["cid1", "cid2"],
         streams: [
@@ -49,7 +49,7 @@ describe("Metrics Server Validation", () => {
     it("should handle validation errors gracefully", async () => {
       const invalidMetrics = {
         nodeId: "node-123",
-        peerId: "invalid-peer-id",
+        ceramicPeerId: "invalid-peer-id",
         environment: "testnet" as const,
         manifests: [],
         streams: [],
@@ -70,7 +70,7 @@ describe("Metrics Server Validation", () => {
       for (const environment of environments) {
         const metricsData: NodeMetricsSignable = {
           nodeId: `node-${peerId.toString().slice(0, 8)}`,
-          peerId: peerId.toString(),
+          ceramicPeerId: peerId.toString(),
           environment,
           manifests: ["cid1"],
           streams: [

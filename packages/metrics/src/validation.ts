@@ -34,7 +34,7 @@ export async function validateMetricsSignature(
     // Parse the peer ID to get the public key
     let peerId;
     try {
-      peerId = peerIdFromString(metrics.peerId);
+      peerId = peerIdFromString(metrics.nodeId);
     } catch (error) {
       return {
         isValid: false,

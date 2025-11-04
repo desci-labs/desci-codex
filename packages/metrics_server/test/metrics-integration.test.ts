@@ -29,7 +29,7 @@ describe("Metrics Server Processing", () => {
     it("should parse incoming metrics with NodeMetricsGranularSchema", async () => {
       const signableData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [
           "bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
@@ -53,7 +53,7 @@ describe("Metrics Server Processing", () => {
       ).not.toThrow();
 
       const parsed = NodeMetricsGranularSchema.parse(signedMetrics);
-      expect(parsed.peerId).toBe(peerId.toString());
+      expect(parsed.ceramicPeerId).toBe(peerId.toString());
       expect(parsed.environment).toBe("testnet");
       expect(parsed.manifests).toHaveLength(1);
       expect(parsed.streams).toHaveLength(1);
@@ -62,7 +62,7 @@ describe("Metrics Server Processing", () => {
     it("should extract data for database storage", async () => {
       const signableData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "mainnet",
         manifests: ["cid1", "cid2"],
         streams: [
@@ -85,14 +85,14 @@ describe("Metrics Server Processing", () => {
       // Simulate database format transformation (as done in index.ts)
       const dbFormat = {
         nodeId: extractedData.nodeId,
-        peerId: extractedData.peerId,
+        ceramicPeerId: extractedData.ceramicPeerId,
         environment: extractedData.environment,
         manifests: extractedData.manifests,
         streams: extractedData.streams,
         collectedAt: extractedData.collectedAt,
       };
 
-      expect(dbFormat.peerId).toBe(peerId.toString());
+      expect(dbFormat.ceramicPeerId).toBe(peerId.toString());
       expect(dbFormat.environment).toBe("mainnet");
       expect(dbFormat.manifests).toHaveLength(2);
       expect(dbFormat.streams).toHaveLength(1);
@@ -101,7 +101,7 @@ describe("Metrics Server Processing", () => {
     it("should validate complete request-to-storage flow", async () => {
       const signableData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "local",
         manifests: ["cid1", "cid2", "cid3"],
         streams: [
@@ -130,7 +130,7 @@ describe("Metrics Server Processing", () => {
 
       // Step 3: Extract for database storage (simulating storage preparation)
       const dbData = extractSignableData(parsedMetrics);
-      expect(dbData.peerId).toBe(peerId.toString());
+      expect(dbData.ceramicPeerId).toBe(peerId.toString());
       expect(dbData.environment).toBe("local");
     });
   });
@@ -143,7 +143,7 @@ describe("Metrics Server Processing", () => {
         // Wrong field types
         {
           nodeId: "node-123",
-          peerId: peerId.toString(),
+          ceramicPeerId: peerId.toString(),
           environment: "invalid-env",
           manifests: "not-an-array",
           streams: [],
@@ -153,7 +153,7 @@ describe("Metrics Server Processing", () => {
         // Invalid signature format
         {
           nodeId: "node-123",
-          peerId: peerId.toString(),
+          ceramicPeerId: peerId.toString(),
           environment: "testnet",
           manifests: [],
           streams: [],
@@ -170,7 +170,7 @@ describe("Metrics Server Processing", () => {
     it("should handle validation failures gracefully", async () => {
       const metricsWithBadPeerId = {
         nodeId: "node-123",
-        peerId: "invalid-peer-id-format",
+        ceramicPeerId: "invalid-peer-id-format",
         environment: "testnet" as const,
         manifests: [],
         streams: [],
@@ -191,7 +191,7 @@ describe("Metrics Server Processing", () => {
       for (const environment of environments) {
         const signableData: NodeMetricsSignable = {
           nodeId: `node-${peerId.toString().slice(0, 8)}`,
-          peerId: peerId.toString(),
+          ceramicPeerId: peerId.toString(),
           environment,
           manifests: ["cid1"],
           streams: [
@@ -220,7 +220,7 @@ describe("Metrics Server Processing", () => {
       // Simulate the exact format sent by node package
       const nodeOutput: NodeMetricsGranular = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: ["cid1", "cid2"],
         streams: [
@@ -239,7 +239,7 @@ describe("Metrics Server Processing", () => {
 
       // Verify server can extract data for storage
       const extracted = extractSignableData(nodeOutput);
-      expect(extracted.peerId).toBe(peerId.toString());
+      expect(extracted.ceramicPeerId).toBe(peerId.toString());
       expect(extracted.environment).toBe("testnet");
       expect(extracted.manifests).toHaveLength(2);
       expect(extracted.streams).toHaveLength(1);

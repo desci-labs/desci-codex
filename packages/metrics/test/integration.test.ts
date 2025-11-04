@@ -30,7 +30,7 @@ describe("End-to-End Integration Tests", () => {
       // Step 1: Producer creates signable metrics data (simulating node package)
       const signableData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [
           "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -61,7 +61,7 @@ describe("End-to-End Integration Tests", () => {
       expect(validationResult.error).toBeUndefined();
 
       // Verify data integrity
-      expect(received.peerId).toBe(peerId.toString());
+      expect(received.ceramicPeerId).toBe(peerId.toString());
       expect(received.manifests).toHaveLength(2);
       expect(received.streams).toHaveLength(1);
       expect(received.streams[0].eventIds).toHaveLength(2);
@@ -71,7 +71,7 @@ describe("End-to-End Integration Tests", () => {
       // This test explicitly demonstrates that libp2p peer IDs contain public keys
       const metricsData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [],
         streams: [
@@ -117,7 +117,7 @@ describe("End-to-End Integration Tests", () => {
       // This test ensures our canonical serialization produces deterministic output
       const metricsData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [
           "bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
@@ -149,7 +149,7 @@ describe("End-to-End Integration Tests", () => {
     it("should reject tampered data", async () => {
       const metricsData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "mainnet",
         manifests: [],
         streams: [
@@ -187,7 +187,7 @@ describe("End-to-End Integration Tests", () => {
       // Attacker tries to sign metrics claiming to be the victim
       const metricsData: NodeMetricsSignable = {
         nodeId: `node-${victimPeerId.toString().slice(0, 8)}`,
-        peerId: victimPeerId.toString(), // Claiming to be victim
+        ceramicPeerId: victimPeerId.toString(), // Claiming to be victim
         environment: "local",
         manifests: [],
         streams: [],
@@ -218,7 +218,7 @@ describe("End-to-End Integration Tests", () => {
       for (const env of environments) {
         const metricsData: NodeMetricsSignable = {
           nodeId: `node-${peerId.toString().slice(0, 8)}`,
-          peerId: peerId.toString(),
+          ceramicPeerId: peerId.toString(),
           environment: env,
           manifests: [],
           streams: [],
@@ -238,7 +238,7 @@ describe("End-to-End Integration Tests", () => {
     it("should produce deterministic output for the same data", () => {
       const data: NodeMetricsSignable = {
         nodeId: "node-123",
-        peerId: "peer123",
+        ceramicPeerId: "peer123",
         environment: "testnet",
         manifests: [
           "bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku",
@@ -255,7 +255,7 @@ describe("End-to-End Integration Tests", () => {
 
       // Should be valid JSON
       const parsed = JSON.parse(serialized1);
-      expect(parsed.peerId).toBe("peer123");
+      expect(parsed.ceramicPeerId).toBe("peer123");
       expect(parsed.environment).toBe("testnet");
     });
   });

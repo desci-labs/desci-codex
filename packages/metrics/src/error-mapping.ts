@@ -40,7 +40,7 @@ function getFieldSpecificErrorMap(): Record<
 > {
   return {
     nodeId: (error) => handleStringFieldError(error, "nodeId"),
-    peerId: (error) => handleStringFieldError(error, "peerId"),
+    ceramicPeerId: (error) => handleStringFieldError(error, "ceramicPeerId"),
     collectedAt: (error) => handleCollectedAtError(error),
     manifests: (error) => handleArrayFieldError(error, "manifests"),
     streams: (error) => handleArrayFieldError(error, "streams"),

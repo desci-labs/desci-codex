@@ -59,7 +59,7 @@ export class DatabaseService {
           .insert(nodes)
           .values({
             nodeId: metrics.nodeId,
-            peerId: metrics.peerId,
+            ceramicPeerId: metrics.ceramicPeerId,
             firstSeenAt: new Date(metrics.collectedAt),
             lastSeenAt: new Date(metrics.collectedAt),
           })
@@ -142,7 +142,7 @@ export class DatabaseService {
       log.info(
         {
           nodeId: metrics.nodeId,
-          peerId: metrics.peerId,
+          ceramicPeerId: metrics.ceramicPeerId,
           environment: metrics.environment,
           manifestCount: metrics.manifests.length,
           streamCount: metrics.streams.length,

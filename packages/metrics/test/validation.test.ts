@@ -22,7 +22,7 @@ describe("Validation", () => {
     it("should validate legitimate signatures", async () => {
       const metricsData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [
           "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -48,7 +48,7 @@ describe("Validation", () => {
     it("should reject missing signature", async () => {
       const metrics: NodeMetricsGranular = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [],
         streams: [],
@@ -64,7 +64,7 @@ describe("Validation", () => {
     it("should reject invalid peer ID format", async () => {
       const metrics: NodeMetricsGranular = {
         nodeId: "node-invalid",
-        peerId: "not-a-valid-peer-id",
+        ceramicPeerId: "not-a-valid-peer-id",
         environment: "testnet",
         manifests: [],
         streams: [],
@@ -82,7 +82,7 @@ describe("Validation", () => {
       // This is a synthetic test case
       const metrics: NodeMetricsGranular = {
         nodeId: "node-old",
-        peerId: "QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N", // Old style peer ID without key
+        ceramicPeerId: "QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N", // Old style peer ID without key
         environment: "testnet",
         manifests: [],
         streams: [],
@@ -98,7 +98,7 @@ describe("Validation", () => {
     it("should reject tampered data", async () => {
       const metricsData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [],
         streams: [
@@ -126,7 +126,7 @@ describe("Validation", () => {
 
       const metricsData: NodeMetricsSignable = {
         nodeId: `node-${peerId.toString().slice(0, 8)}`,
-        peerId: peerId.toString(), // Victim's peer ID
+        ceramicPeerId: peerId.toString(), // Victim's peer ID
         environment: "testnet",
         manifests: [],
         streams: [],
@@ -147,7 +147,7 @@ describe("Validation", () => {
       for (const env of environments) {
         const metricsData: NodeMetricsSignable = {
           nodeId: `node-${peerId.toString().slice(0, 8)}`,
-          peerId: peerId.toString(),
+          ceramicPeerId: peerId.toString(),
           environment: env,
           manifests: [],
           streams: [],
@@ -164,7 +164,7 @@ describe("Validation", () => {
     it("should handle validation errors gracefully", async () => {
       const metrics = {
         nodeId: "node-test",
-        peerId: peerId.toString(),
+        ceramicPeerId: peerId.toString(),
         // Missing other required fields
       } as Record<string, unknown>;
 
@@ -177,7 +177,7 @@ describe("Validation", () => {
   describe("validateMetricsStructure", () => {
     const validMetrics: NodeMetricsGranular = {
       nodeId: "node-12D3KooW",
-      peerId: "12D3KooWExample",
+      ceramicPeerId: "12D3KooWExample",
       environment: "testnet",
       manifests: [
         "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -218,7 +218,7 @@ describe("Validation", () => {
     it("should reject missing required fields", () => {
       const fields = [
         "nodeId",
-        "peerId",
+        "ceramicPeerId",
         "environment",
         "manifests",
         "streams",
@@ -249,7 +249,7 @@ describe("Validation", () => {
           error: "Expected string",
         },
         {
-          field: "peerId",
+          field: "ceramicPeerId",
           value: "",
           error: "non-empty string",
         },

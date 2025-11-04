@@ -61,7 +61,7 @@ export function createMetricsPusher(
       log.info(
         {
           nodeId: metrics.nodeId,
-          peerId: metrics.peerId,
+          ceramicPeerId: metrics.ceramicPeerId,
           environment: metrics.environment,
         },
         "Successfully pushed granular metrics to backend",

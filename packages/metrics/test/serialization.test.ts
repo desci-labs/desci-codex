@@ -7,7 +7,7 @@ describe("Serialization", () => {
     it("should serialize metrics data deterministically", () => {
       const data: NodeMetricsSignable = {
         nodeId: "node-123",
-        peerId: "peer123",
+        ceramicPeerId: "peer123",
         environment: "testnet",
         manifests: [
           "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -25,7 +25,7 @@ describe("Serialization", () => {
     it("should produce identical output for the same data structure", () => {
       const data: NodeMetricsSignable = {
         nodeId: "node-123",
-        peerId: "peer123",
+        ceramicPeerId: "peer123",
         environment: "testnet",
         manifests: [],
         streams: [
@@ -48,7 +48,7 @@ describe("Serialization", () => {
     it("should produce valid JSON", () => {
       const data: NodeMetricsSignable = {
         nodeId: "node-123",
-        peerId: "peer123",
+        ceramicPeerId: "peer123",
         environment: "mainnet",
         manifests: [
           "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -62,7 +62,7 @@ describe("Serialization", () => {
 
       // Verify data integrity
       expect(parsed.nodeId).toBe("node-123");
-      expect(parsed.peerId).toBe("peer123");
+      expect(parsed.ceramicPeerId).toBe("peer123");
       expect(parsed.environment).toBe("mainnet");
       expect(parsed.manifests).toHaveLength(1);
       expect(parsed.streams).toHaveLength(0);
@@ -71,7 +71,7 @@ describe("Serialization", () => {
 
     it("should validate input data using schema", () => {
       const invalidData = {
-        peerId: "peer123",
+        ceramicPeerId: "peer123",
         // Missing required fields
       };
 

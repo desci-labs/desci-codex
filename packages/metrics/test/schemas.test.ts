@@ -74,7 +74,7 @@ describe("Zod Schemas", () => {
   describe("NodeMetricsSignableSchema", () => {
     const validSignableData = {
       nodeId: "node-12D3KooW",
-      peerId: "12D3KooWExample",
+      ceramicPeerId: "12D3KooWExample",
       environment: "testnet" as const,
       manifests: [
         "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -105,7 +105,7 @@ describe("Zod Schemas", () => {
     it("should validate field types", () => {
       const invalidTypes = [
         { ...validSignableData, nodeId: "" },
-        { ...validSignableData, peerId: "" },
+        { ...validSignableData, ceramicPeerId: "" },
         { ...validSignableData, manifests: "not an array" },
         { ...validSignableData, streams: ["not a stream object"] },
         { ...validSignableData, environment: "invalid" },
@@ -146,7 +146,7 @@ describe("Zod Schemas", () => {
   describe("NodeMetricsGranularSchema", () => {
     const validGranularData = {
       nodeId: "node-12D3KooW",
-      peerId: "12D3KooWIPFS",
+      ceramicPeerId: "12D3KooWIPFS",
       environment: "local" as const,
       manifests: [
         "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -196,7 +196,7 @@ describe("Zod Schemas", () => {
     it("should infer correct TypeScript types", () => {
       const granularData = NodeMetricsGranularSchema.parse({
         nodeId: "node123",
-        peerId: "peer123",
+        ceramicPeerId: "peer123",
         environment: "testnet",
         manifests: ["cid1"],
         streams: [
@@ -212,13 +212,13 @@ describe("Zod Schemas", () => {
 
       // TypeScript should infer these types correctly
       const nodeId: string = granularData.nodeId;
-      const peerId: string = granularData.peerId;
+      const ceramicPeerId: string = granularData.ceramicPeerId;
       const env: "testnet" | "mainnet" | "local" = granularData.environment;
       const manifests: string[] = granularData.manifests;
       const sig: number[] = granularData.signature;
 
       expect(nodeId).toBe("node123");
-      expect(peerId).toBe("peer123");
+      expect(ceramicPeerId).toBe("peer123");
       expect(env).toBe("testnet");
       expect(manifests[0]).toBe("cid1");
       expect(sig).toEqual([1, 2, 3]);

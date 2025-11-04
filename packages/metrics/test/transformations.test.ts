@@ -10,7 +10,7 @@ import type { NodeMetricsGranular, NodeMetricsSignable } from "../src/types.js";
 describe("Transformations", () => {
   const sampleGranular: NodeMetricsGranular = {
     nodeId: "node-12D3KooW",
-    peerId: "12D3KooWIPFS",
+    ceramicPeerId: "12D3KooWIPFS",
     environment: "testnet",
     manifests: [
       "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -30,7 +30,7 @@ describe("Transformations", () => {
 
   const sampleSignable: NodeMetricsSignable = {
     nodeId: "node-12D3KooW",
-    peerId: "12D3KooWIPFS",
+    ceramicPeerId: "12D3KooWIPFS",
     environment: "testnet",
     manifests: [
       "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -52,7 +52,7 @@ describe("Transformations", () => {
       const signable = extractSignableData(sampleGranular);
 
       expect(signable.nodeId).toBe(sampleGranular.nodeId);
-      expect(signable.peerId).toBe(sampleGranular.peerId);
+      expect(signable.ceramicPeerId).toBe(sampleGranular.ceramicPeerId);
       expect(signable.environment).toBe(sampleGranular.environment);
       expect(signable.manifests).toEqual(sampleGranular.manifests);
       expect(signable.streams).toEqual(sampleGranular.streams);
@@ -77,7 +77,7 @@ describe("Transformations", () => {
       const granular = createInternalFormat(sampleSignable, signature);
 
       expect(granular.nodeId).toBe(sampleSignable.nodeId);
-      expect(granular.peerId).toBe(sampleSignable.peerId);
+      expect(granular.ceramicPeerId).toBe(sampleSignable.ceramicPeerId);
       expect(granular.environment).toBe(sampleSignable.environment);
       expect(granular.manifests).toEqual(sampleSignable.manifests);
       expect(granular.streams).toEqual(sampleSignable.streams);
@@ -90,7 +90,7 @@ describe("Transformations", () => {
       const granular = createInternalFormat(sampleSignable, signature);
 
       expect(granular).toHaveProperty("nodeId");
-      expect(granular).toHaveProperty("peerId");
+      expect(granular).toHaveProperty("ceramicPeerId");
       expect(granular).toHaveProperty("manifests");
       expect(granular).toHaveProperty("streams");
       expect(Array.isArray(granular.manifests)).toBe(true);
@@ -130,7 +130,7 @@ describe("Transformations", () => {
       expect(isValidInternalFormat(missingNodeId)).toBe(false);
 
       const missingPeerId = { ...sampleGranular };
-      delete (missingPeerId as Record<string, unknown>).peerId;
+      delete (missingPeerId as Record<string, unknown>).ceramicPeerId;
       expect(isValidInternalFormat(missingPeerId)).toBe(false);
 
       const missingSignature = { ...sampleGranular };

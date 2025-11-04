@@ -27,7 +27,7 @@ export const StreamSchema = z.object({
  */
 export const NodeMetricsGranularSchema = z.object({
   nodeId: z.string().min(1),
-  peerId: z.string().min(1),
+  ceramicPeerId: z.string().min(1),
   environment: EnvironmentSchema,
   manifests: z.array(z.string().min(1)),
   streams: z.array(StreamSchema),
@@ -40,7 +40,7 @@ export const NodeMetricsGranularSchema = z.object({
  */
 export const NodeMetricsSignableSchema = z.object({
   nodeId: z.string().min(1),
-  peerId: z.string().min(1),
+  ceramicPeerId: z.string().min(1),
   environment: EnvironmentSchema,
   manifests: z.array(z.string().min(1)),
   streams: z.array(StreamSchema),

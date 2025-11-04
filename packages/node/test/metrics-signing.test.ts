@@ -74,7 +74,7 @@ describe("Node Metrics Service", () => {
       const metrics = await metricsService.getMetrics();
 
       // Verify granular service integration - data comes from mocked services
-      expect(metrics.peerId).toBe(peerId.toString());
+      expect(metrics.ceramicPeerId).toBe(peerId.toString());
       expect(metrics.nodeId).toBe(peerId.toString());
       expect(metrics.environment).toBe("mainnet");
       expect(metrics.manifests).toHaveLength(3); // From mockIpfsNode.listPins
@@ -187,7 +187,7 @@ describe("Node Metrics Service", () => {
       // Verify payload is ready for granular metrics_server consumption
       expect(payload).toBe(metrics); // Should be identity function now
       expect(payload).toHaveProperty("nodeId");
-      expect(payload).toHaveProperty("peerId");
+      expect(payload).toHaveProperty("ceramicPeerId");
       expect(payload).toHaveProperty("environment");
       expect(payload).toHaveProperty("manifests");
       expect(payload).toHaveProperty("streams");

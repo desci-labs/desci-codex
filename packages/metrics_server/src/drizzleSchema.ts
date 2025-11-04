@@ -10,13 +10,13 @@ import { relations } from "drizzle-orm";
 /**
  * Tracks individual Codex nodes in the network.
  * Each node represents a unique participant that can store and serve data.
- * Nodes are identified by a unique nodeId and their libp2p peerId.
+ * Nodes are identified by a unique nodeId (libp2p peerId of the Codex node) and their Ceramic node's libp2p peerId.
  */
 export const nodes = pgTable(
   "nodes",
   {
     nodeId: text("node_id").primaryKey(),
-    peerId: text("peer_id").notNull(),
+    ceramicPeerId: text("ceramic_peer_id").notNull(),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -25,7 +25,7 @@ export const nodes = pgTable(
       .defaultNow(),
   },
   (table) => [
-    index("idx_nodes_peer").on(table.peerId),
+    index("idx_nodes_peer").on(table.ceramicPeerId),
     index("idx_nodes_first_seen").on(table.firstSeenAt.desc()),
     index("idx_nodes_last_seen").on(table.lastSeenAt.desc()),
   ],

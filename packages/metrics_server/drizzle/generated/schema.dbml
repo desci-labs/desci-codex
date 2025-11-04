@@ -58,12 +58,12 @@ table node_streams {
 
 table nodes {
   node_id text [pk, not null]
-  peer_id text [not null]
+  ceramic_peer_id text [not null]
   first_seen_at "timestamp with time zone" [not null, default: `now()`]
   last_seen_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
-    peer_id [name: 'idx_nodes_peer']
+    ceramic_peer_id [name: 'idx_nodes_peer']
     first_seen_at [name: 'idx_nodes_first_seen']
     last_seen_at [name: 'idx_nodes_last_seen']
   }

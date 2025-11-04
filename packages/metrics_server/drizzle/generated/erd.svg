@@ -155,7 +155,7 @@
 <text text-anchor="start" x="1680.93" y="-582.31" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="32.00" fill="#29235c">(!)</text>
 <polygon fill="#e7e2dd" stroke="transparent" points="1082.13,-501.11 1082.13,-561.11 1722.13,-561.11 1722.13,-501.11 1082.13,-501.11"/>
 <polygon fill="none" stroke="#29235c" points="1082.13,-501.11 1082.13,-561.11 1722.13,-561.11 1722.13,-501.11 1082.13,-501.11"/>
-<text text-anchor="start" x="1093.13" y="-521.31" font-family="Helvetica,sans-Serif" font-size="32.00" fill="#29235c">peer_id &#160;&#160;&#160;</text>
+<text text-anchor="start" x="1093.13" y="-521.31" font-family="Helvetica,sans-Serif" font-size="32.00" fill="#29235c">ceramic_peer_id &#160;&#160;&#160;</text>
 <text text-anchor="start" x="1620.46" y="-522.31" font-family="Helvetica,sans-Serif" font-style="italic" font-size="32.00" fill="#29235c">text</text>
 <text text-anchor="start" x="1672.04" y="-522.31" font-family="Helvetica,sans-Serif" font-size="32.00" fill="#29235c"> </text>
 <text text-anchor="start" x="1680.93" y="-522.31" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="32.00" fill="#29235c">(!)</text>
