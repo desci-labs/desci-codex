@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createMetricsService } from "../src/metrics.js";
 import { metricsToPayload } from "../src/metrics-pusher.js";
-import { NodeMetricsInternalSchema } from "@codex/metrics";
+import { NodeMetricsGranularSchema } from "@codex/metrics";
 import type { CeramicEventsService, CeramicNodeStats } from "../src/events.js";
 import type { IPFSNode } from "../src/ipfs.js";
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
@@ -49,7 +49,7 @@ describe("Metrics API Contract", () => {
   });
 
   describe("Schema Compliance", () => {
-    it("should produce metrics compatible with NodeMetricsInternalSchema", async () => {
+    it("should produce metrics compatible with NodeMetricsGranularSchema", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
@@ -61,14 +61,16 @@ describe("Metrics API Contract", () => {
       const payload = metricsToPayload(metrics);
 
       // This will throw if the schema doesn't match
-      expect(() => NodeMetricsInternalSchema.parse(payload)).not.toThrow();
+      expect(() => NodeMetricsGranularSchema.parse(payload)).not.toThrow();
 
-      // Verify structure matches expected contract
-      const parsed = NodeMetricsInternalSchema.parse(payload);
-      expect(parsed.identity.ipfs).toBe(peerId.toString());
+      // Verify structure matches expected granular contract
+      const parsed = NodeMetricsGranularSchema.parse(payload);
+      expect(parsed.peerId).toBe(peerId.toString());
+      expect(parsed.nodeId).toContain("node-");
       expect(parsed.environment).toBe("testnet");
-      expect(parsed.summary.totalStreams).toBe(1);
-      expect(parsed.summary.totalPinnedCids).toBe(2);
+      expect(parsed.manifests).toHaveLength(2); // 2 pinned CIDs
+      expect(parsed.streams).toHaveLength(1); // 1 stream
+      expect(parsed.streams[0].eventIds).toHaveLength(2); // 2 versions/events
       expect(parsed.signature).toBeInstanceOf(Array);
     });
 
@@ -86,14 +88,14 @@ describe("Metrics API Contract", () => {
         const metrics = await metricsService.getMetrics();
 
         // Schema validation should pass for all environments
-        expect(() => NodeMetricsInternalSchema.parse(metrics)).not.toThrow();
+        expect(() => NodeMetricsGranularSchema.parse(metrics)).not.toThrow();
         expect(metrics.environment).toBe(environment);
       }
     });
   });
 
   describe("Data Format Contract", () => {
-    it("should maintain expected structure for metrics_server processing", async () => {
+    it("should maintain expected granular structure for metrics_server processing", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
@@ -103,26 +105,35 @@ describe("Metrics API Contract", () => {
 
       const metrics = await metricsService.getMetrics();
 
-      // Verify structure matches what metrics_server expects
-      expect(metrics).toHaveProperty("identity");
+      // Verify structure matches what granular metrics_server expects
+      expect(metrics).toHaveProperty("nodeId");
+      expect(metrics).toHaveProperty("peerId");
       expect(metrics).toHaveProperty("environment");
-      expect(metrics).toHaveProperty("summary");
+      expect(metrics).toHaveProperty("manifests");
+      expect(metrics).toHaveProperty("streams");
+      expect(metrics).toHaveProperty("collectedAt");
       expect(metrics).toHaveProperty("signature");
 
-      expect(metrics.identity).toHaveProperty("ipfs");
-      expect(metrics.identity).toHaveProperty("ceramic");
-      expect(metrics.summary).toHaveProperty("totalStreams");
-      expect(metrics.summary).toHaveProperty("totalPinnedCids");
-      expect(metrics.summary).toHaveProperty("collectedAt");
-
       // Verify types for safe processing
-      expect(typeof metrics.identity.ipfs).toBe("string");
-      expect(typeof metrics.identity.ceramic).toBe("string");
+      expect(typeof metrics.nodeId).toBe("string");
+      expect(typeof metrics.peerId).toBe("string");
       expect(typeof metrics.environment).toBe("string");
-      expect(typeof metrics.summary.totalStreams).toBe("number");
-      expect(typeof metrics.summary.totalPinnedCids).toBe("number");
-      expect(typeof metrics.summary.collectedAt).toBe("string");
+      expect(Array.isArray(metrics.manifests)).toBe(true);
+      expect(Array.isArray(metrics.streams)).toBe(true);
+      expect(typeof metrics.collectedAt).toBe("string");
       expect(Array.isArray(metrics.signature)).toBe(true);
+
+      // Verify granular structure details
+      if (metrics.manifests.length > 0) {
+        expect(typeof metrics.manifests[0]).toBe("string");
+      }
+
+      if (metrics.streams.length > 0) {
+        expect(metrics.streams[0]).toHaveProperty("streamId");
+        expect(metrics.streams[0]).toHaveProperty("streamCid");
+        expect(metrics.streams[0]).toHaveProperty("eventIds");
+        expect(Array.isArray(metrics.streams[0].eventIds)).toBe(true);
+      }
     });
 
     it("should produce valid ISO timestamp", async () => {
@@ -136,9 +147,9 @@ describe("Metrics API Contract", () => {
       const metrics = await metricsService.getMetrics();
 
       // Verify timestamp is valid ISO string
-      expect(() => new Date(metrics.summary.collectedAt)).not.toThrow();
-      expect(new Date(metrics.summary.collectedAt).toISOString()).toBe(
-        metrics.summary.collectedAt,
+      expect(() => new Date(metrics.collectedAt)).not.toThrow();
+      expect(new Date(metrics.collectedAt).toISOString()).toBe(
+        metrics.collectedAt,
       );
     });
   });

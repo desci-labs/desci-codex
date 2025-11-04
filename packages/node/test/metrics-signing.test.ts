@@ -63,7 +63,7 @@ describe("Node Metrics Service", () => {
       expect(typeof metricsService.getMetrics).toBe("function");
     });
 
-    it("should collect accurate metrics from integrated services", async () => {
+    it("should collect accurate granular metrics from integrated services", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
@@ -73,14 +73,16 @@ describe("Node Metrics Service", () => {
 
       const metrics = await metricsService.getMetrics();
 
-      // Verify service integration - data comes from mocked services
-      expect(metrics.identity.ipfs).toBe(peerId.toString());
-      expect(metrics.identity.ceramic).toBe(peerId.toString());
+      // Verify granular service integration - data comes from mocked services
+      expect(metrics.peerId).toBe(peerId.toString());
+      expect(metrics.nodeId).toContain("node-");
       expect(metrics.environment).toBe("mainnet");
-      expect(metrics.summary.totalStreams).toBe(2); // From mockEventsService
-      expect(metrics.summary.totalPinnedCids).toBe(3); // From mockIpfsNode
-      expect(metrics.summary.collectedAt).toBeDefined();
-      expect(new Date(metrics.summary.collectedAt)).toBeInstanceOf(Date);
+      expect(metrics.manifests).toHaveLength(3); // From mockIpfsNode.listPins
+      expect(metrics.streams).toHaveLength(2); // From mockEventsService
+      expect(metrics.streams[0].eventIds).toEqual(["v1", "v2"]); // First stream versions
+      expect(metrics.streams[1].eventIds).toEqual(["v1"]); // Second stream versions
+      expect(metrics.collectedAt).toBeDefined();
+      expect(new Date(metrics.collectedAt)).toBeInstanceOf(Date);
     });
 
     it("should handle different environments correctly", async () => {
@@ -130,11 +132,18 @@ describe("Node Metrics Service", () => {
         });
 
         const metrics = await metricsService.getMetrics();
-        expect(metrics.summary.totalStreams).toBe(testCase.expectedCount);
+        expect(metrics.streams).toHaveLength(testCase.expectedCount);
+
+        // Verify granular stream details
+        if (testCase.expectedCount > 0) {
+          expect(metrics.streams[0]).toHaveProperty("streamId");
+          expect(metrics.streams[0]).toHaveProperty("streamCid");
+          expect(metrics.streams[0]).toHaveProperty("eventIds");
+        }
       }
     });
 
-    it("should accurately reflect changes in pinned CIDs", async () => {
+    it("should accurately reflect changes in pinned CIDs as manifests", async () => {
       // Test with different pin counts
       const testCases = [
         { pins: [], expectedCount: 0 },
@@ -153,13 +162,18 @@ describe("Node Metrics Service", () => {
         });
 
         const metrics = await metricsService.getMetrics();
-        expect(metrics.summary.totalPinnedCids).toBe(testCase.expectedCount);
+        expect(metrics.manifests).toHaveLength(testCase.expectedCount);
+
+        // Verify manifest structure
+        if (testCase.expectedCount > 0) {
+          expect(typeof metrics.manifests[0]).toBe("string");
+        }
       }
     });
   });
 
   describe("metricsToPayload Integration", () => {
-    it("should transform metrics correctly for transmission", async () => {
+    it("should transform granular metrics correctly for transmission", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
@@ -170,11 +184,14 @@ describe("Node Metrics Service", () => {
       const metrics = await metricsService.getMetrics();
       const payload = metricsToPayload(metrics);
 
-      // Verify payload is ready for metrics_server consumption
+      // Verify payload is ready for granular metrics_server consumption
       expect(payload).toBe(metrics); // Should be identity function now
-      expect(payload).toHaveProperty("identity");
+      expect(payload).toHaveProperty("nodeId");
+      expect(payload).toHaveProperty("peerId");
       expect(payload).toHaveProperty("environment");
-      expect(payload).toHaveProperty("summary");
+      expect(payload).toHaveProperty("manifests");
+      expect(payload).toHaveProperty("streams");
+      expect(payload).toHaveProperty("collectedAt");
       expect(payload).toHaveProperty("signature");
     });
   });

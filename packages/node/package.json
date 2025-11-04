@@ -1,6 +1,6 @@
 {
   "name": "@desci-labs/desci-codex-node",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Codex node package",
   "license": "MIT",
   "type": "module",

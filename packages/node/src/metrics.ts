@@ -4,14 +4,15 @@ import type { IPFSNode } from "./ipfs.js";
 import {
   signMetrics,
   type NodeMetricsSignable,
-  type NodeMetricsInternal,
+  type NodeMetricsGranular,
+  type Stream,
 } from "@codex/metrics";
 import type { Ed25519PrivateKey } from "@libp2p/interface";
 
 const log = logger.child({ module: "metrics" });
 
 export interface MetricsService {
-  getMetrics: () => Promise<NodeMetricsInternal>;
+  getMetrics: () => Promise<NodeMetricsGranular>;
 }
 
 export interface MetricsServiceConfig {
@@ -27,7 +28,7 @@ export function createMetricsService(
   return {
     async getMetrics() {
       try {
-        log.info("Collecting metrics from services");
+        log.info("Collecting granular metrics from services");
 
         // Get events from the events service
         const ceramicStats = await config.eventsService.stats();
@@ -35,22 +36,27 @@ export function createMetricsService(
         // Get pinned CIDs from the IPFS service
         const pinnedCids = await config.ipfsNode.listPins();
 
-        const summary = {
-          totalStreams: ceramicStats.streams.length,
-          totalPinnedCids: pinnedCids.length,
-          collectedAt: new Date().toISOString(),
-        };
-
         const ipfsPeerId = (await config.ipfsNode.libp2pInfo()).peerId;
+        const nodeId = `node-${ipfsPeerId.slice(0, 8)}`;
 
-        // Create the signable metrics data
+        // Transform pinned CIDs into manifests (now just strings)
+        const manifests: string[] = pinnedCids.map((cid) => cid.toString());
+
+        // Transform ceramic streams into granular streams with events
+        const streams: Stream[] = ceramicStats.streams.map((streamData) => ({
+          streamId: streamData.id,
+          streamCid: streamData.id, // In the future, this might be different
+          eventIds: streamData.versions, // Using versions as event IDs
+        }));
+
+        // Create the signable granular metrics data
         const signableData: NodeMetricsSignable = {
-          ipfsPeerId: ipfsPeerId,
-          ceramicPeerId: ceramicStats.peerId,
+          nodeId: nodeId,
+          peerId: ipfsPeerId,
           environment: config.environment,
-          totalStreams: summary.totalStreams,
-          totalPinnedCids: summary.totalPinnedCids,
-          collectedAt: summary.collectedAt,
+          manifests: manifests,
+          streams: streams,
+          collectedAt: new Date().toISOString(),
         };
 
         // Sign the metrics using the @codex/metrics library
@@ -59,9 +65,20 @@ export function createMetricsService(
           config.privateKey,
         );
 
+        log.info(
+          {
+            nodeId,
+            peerId: ipfsPeerId,
+            manifestCount: manifests.length,
+            streamCount: streams.length,
+            totalEvents: streams.reduce((sum, s) => sum + s.eventIds.length, 0),
+          },
+          "Collected granular metrics",
+        );
+
         return signedMetrics;
       } catch (error) {
-        log.error(error, "Error collecting metrics");
+        log.error(error, "Error collecting granular metrics");
         throw error;
       }
     },

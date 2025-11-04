@@ -59,8 +59,12 @@ export function createMetricsPusher(
       }
 
       log.info(
-        { ipfsPeerId: metrics.identity.ipfs, environment: metrics.environment },
-        "Successfully pushed metrics to backend",
+        {
+          nodeId: metrics.nodeId,
+          peerId: metrics.peerId,
+          environment: metrics.environment,
+        },
+        "Successfully pushed granular metrics to backend",
       );
     } catch (error) {
       log.error(error, "Error pushing metrics to backend");
