@@ -4,6 +4,7 @@ import {
   timestamp,
   index,
   primaryKey,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -17,6 +18,7 @@ export const nodes = pgTable(
   {
     nodeId: text("node_id").primaryKey(),
     ceramicPeerId: text("ceramic_peer_id").notNull(),
+    metadata: jsonb("metadata"),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

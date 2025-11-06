@@ -51,23 +51,36 @@ export class DatabaseService {
     }
   }
 
-  async writeNodeMetrics(metrics: NodeMetricsGranular): Promise<void> {
+  async writeNodeMetrics(
+    metrics: NodeMetricsGranular,
+    metadata?: { ip?: string; country?: string; city?: string },
+  ): Promise<void> {
     try {
       await this.db.transaction(async (tx) => {
-        // Upsert node
+        // Upsert node - only update metadata if it's provided
+        const updateFields: {
+          lastSeenAt: Date;
+          metadata?: { ip?: string; country?: string; city?: string };
+        } = {
+          lastSeenAt: new Date(metrics.collectedAt),
+        };
+
+        // Only update metadata if it's provided (not undefined)
+        if (metadata !== undefined) {
+          updateFields.metadata = metadata;
+        }
         await tx
           .insert(nodes)
           .values({
             nodeId: metrics.nodeId,
             ceramicPeerId: metrics.ceramicPeerId,
+            metadata: metadata || null,
             firstSeenAt: new Date(metrics.collectedAt),
             lastSeenAt: new Date(metrics.collectedAt),
           })
           .onConflictDoUpdate({
             target: nodes.nodeId,
-            set: {
-              lastSeenAt: new Date(metrics.collectedAt),
-            },
+            set: updateFields,
           });
 
         // Upsert manifests

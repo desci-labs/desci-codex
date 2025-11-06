@@ -69,8 +69,28 @@ apiV1.post("/metrics/node", async (req, res) => {
       });
     }
 
+    // Get geographical information from Cloudflare headers (if available)
+    // CF-Connecting-IP: The actual client IP
+    // CF-IPCountry: Two-letter country code (e.g., "US", "GB")
+    // CF-IPCity: City name
+    const clientIp =
+      req.headers["cf-connecting-ip"] ||
+      req.headers["x-forwarded-for"] ||
+      req.socket.remoteAddress;
+    const ip = Array.isArray(clientIp) ? clientIp[0] : clientIp?.toString();
+    const country = req.headers["cf-ipcountry"] as string | undefined;
+    const city = req.headers["cf-ipcity"] as string | undefined;
+    // Only create metadata object if we have at least one field
+    let metadata: { ip?: string; country?: string; city?: string } | undefined;
+    if (ip || country || city) {
+      metadata = {};
+      if (ip) metadata.ip = ip;
+      if (country) metadata.country = country;
+      if (city) metadata.city = city;
+    }
+
     // Store granular metrics directly in database using drizzle
-    await databaseService.writeNodeMetrics(metrics);
+    await databaseService.writeNodeMetrics(metrics, metadata);
 
     log.info(
       {
