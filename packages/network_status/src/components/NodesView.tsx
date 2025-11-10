@@ -16,10 +16,13 @@ import {
   Database,
   FileCode,
   Activity,
+  MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/uiStore";
 import { NodesViewSkeleton } from "./NodesViewSkeleton";
+import { NodesMap } from "./NodesMap";
+import { getDemoNodes } from "@/data/demo-nodes";
 
 export function NodesView() {
   const { data: nodes, isLoading } = useNodes();
@@ -31,6 +34,12 @@ export function NodesView() {
     storeSelectedNodeId,
   );
   const { data: nodeDetail } = useNodeDetail(selectedNodeId);
+
+  // Get demo nodes (only in development)
+  const demoNodes = getDemoNodes();
+
+  // Merge demo data with actual nodes
+  const displayNodes = nodes ? [...demoNodes, ...nodes] : demoNodes;
 
   // Update local state when store state changes (from navigation)
   useEffect(() => {
@@ -49,7 +58,7 @@ export function NodesView() {
     const lastSeen = new Date(lastSeenAt);
     const now = new Date();
     const diffMinutes = (now.getTime() - lastSeen.getTime()) / (1000 * 60);
-    return diffMinutes < 5;
+    return diffMinutes < 60;
   };
 
   return (
@@ -58,12 +67,36 @@ export function NodesView() {
         <h2 className="text-3xl font-bold tracking-tight">Network Nodes</h2>
         <div className="flex items-center space-x-4">
           <Badge variant="outline">
-            {nodes?.filter((n) => isNodeActive(n.lastSeenAt)).length || 0}{" "}
+            {displayNodes?.filter((n) => isNodeActive(n.lastSeenAt)).length ||
+              0}{" "}
             Active
           </Badge>
-          <Badge variant="outline">{nodes?.length || 0} Total</Badge>
+          <Badge variant="outline">{displayNodes?.length || 0} Total</Badge>
         </div>
       </div>
+
+      {/* Map Section */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              <CardTitle>Node Locations</CardTitle>
+            </div>
+            <Badge variant="outline">
+              {displayNodes?.filter((n) => n.location?.country).length || 0}{" "}
+              with location data
+            </Badge>
+          </div>
+          <CardDescription>
+            Geographic distribution of nodes across the network. For preserving
+            privacy, the locations are not exact.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NodesMap nodes={displayNodes || []} />
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
@@ -74,7 +107,7 @@ export function NodesView() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
-                {nodes?.map((node) => {
+                {displayNodes?.map((node) => {
                   const active = isNodeActive(node.lastSeenAt);
                   return (
                     <div

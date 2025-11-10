@@ -34,7 +34,7 @@ app.use(express.json());
 app.get("/api/stats", async (req, res) => {
   try {
     const now = new Date();
-    const activeThreshold = new Date(now.getTime() - 5 * 60 * 1000); // 5 minutes ago
+    const activeThreshold = new Date(now.getTime() - 60 * 60 * 1000); // 1 hour ago
 
     // Get basic stats
     const statsQuery = `
@@ -125,7 +125,7 @@ app.get("/api/stats", async (req, res) => {
 app.get("/api/nodes", async (req, res) => {
   try {
     const query = `
-      SELECT node_id, ceramic_peer_id, first_seen_at, last_seen_at
+      SELECT node_id, ceramic_peer_id, metadata, first_seen_at, last_seen_at
       FROM nodes
       ORDER BY last_seen_at DESC
     `;
@@ -135,6 +135,13 @@ app.get("/api/nodes", async (req, res) => {
       result.rows.map((row) => ({
         nodeId: row.node_id,
         ceramicPeerId: row.ceramic_peer_id,
+        // Only send country and city for privacy - no IP or coordinates
+        location: row.metadata
+          ? {
+              country: row.metadata.country || null,
+              city: row.metadata.city || null,
+            }
+          : null,
         firstSeenAt: row.first_seen_at,
         lastSeenAt: row.last_seen_at,
       })),
@@ -152,7 +159,7 @@ app.get("/api/nodes/:nodeId", async (req, res) => {
 
     // Get node info
     const nodeQuery = `
-      SELECT node_id, ceramic_peer_id, first_seen_at, last_seen_at
+      SELECT node_id, ceramic_peer_id, metadata, first_seen_at, last_seen_at
       FROM nodes
       WHERE node_id = $1
     `;
@@ -194,6 +201,13 @@ app.get("/api/nodes/:nodeId", async (req, res) => {
     res.json({
       nodeId: node.node_id,
       ceramicPeerId: node.ceramic_peer_id,
+      // Only send country and city for privacy
+      location: node.metadata
+        ? {
+            country: node.metadata.country || null,
+            city: node.metadata.city || null,
+          }
+        : null,
       firstSeenAt: node.first_seen_at,
       lastSeenAt: node.last_seen_at,
       manifests: manifestsResult.rows.map((row) => ({

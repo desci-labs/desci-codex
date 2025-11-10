@@ -1,6 +1,10 @@
 export interface Node {
   nodeId: string;
   ceramicPeerId: string;
+  location?: {
+    country?: string | null;
+    city?: string | null;
+  } | null;
   firstSeenAt: string;
   lastSeenAt: string;
 }

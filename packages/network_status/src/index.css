@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom Map Styles */
+.leaflet-container {
+  background: #0f172a !important;
+  font-family: inherit;
+}
+
+.leaflet-tooltip {
+  background: #0f172a !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+  padding: 0 !important;
+}
+
+.leaflet-tooltip-top:before {
+  border-top-color: #334155 !important;
+}
+
+/* Hide map controls we don't need */
+.leaflet-control-container .leaflet-top,
+.leaflet-control-container .leaflet-bottom {
+  display: none;
+}
+
+/* Smooth animations for circle markers */
+.leaflet-interactive {
+  transition: all 0.2s ease-in-out;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
