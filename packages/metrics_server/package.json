@@ -30,7 +30,8 @@
     "drizzle-kit": "^0.31.6",
     "tsx": "^4.7.1",
     "typescript": "^5.2.2",
-    "vitest": "^1.0.0"
+    "vitest": "^1.0.0",
+    "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
     "@desci-labs/desci-codex-metrics": "workspace:*",

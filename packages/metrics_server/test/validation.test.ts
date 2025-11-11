@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { validateMetricsSignature } from "../src/validation.js";
 import {
   signMetrics,
+  validateMetricsSignature,
   type NodeMetricsSignable,
 } from "@desci-labs/desci-codex-metrics";
 import { generateKeyPair } from "@libp2p/crypto/keys";
@@ -25,7 +25,7 @@ describe("Metrics Server Validation", () => {
   describe("Validation Module Integration", () => {
     it("should correctly re-export @desci-labs/desci-codex-metrics validation function", async () => {
       const metricsData: NodeMetricsSignable = {
-        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: ["cid1", "cid2"],
@@ -69,7 +69,7 @@ describe("Metrics Server Validation", () => {
 
       for (const environment of environments) {
         const metricsData: NodeMetricsSignable = {
-          nodeId: `node-${peerId.toString().slice(0, 8)}`,
+          nodeId: peerId.toString(),
           ceramicPeerId: peerId.toString(),
           environment,
           manifests: ["cid1"],

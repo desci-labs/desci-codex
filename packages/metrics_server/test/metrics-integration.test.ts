@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { validateMetricsSignature } from "../src/validation.js";
 import {
   signMetrics,
   NodeMetricsGranularSchema,
   extractSignableData,
   type NodeMetricsSignable,
   type NodeMetricsGranular,
+  validateMetricsSignature,
 } from "@desci-labs/desci-codex-metrics";
 import { generateKeyPair } from "@libp2p/crypto/keys";
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
@@ -28,7 +28,7 @@ describe("Metrics Server Processing", () => {
   describe("Request Processing Pipeline", () => {
     it("should parse incoming metrics with NodeMetricsGranularSchema", async () => {
       const signableData: NodeMetricsSignable = {
-        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [
@@ -61,7 +61,7 @@ describe("Metrics Server Processing", () => {
 
     it("should extract data for database storage", async () => {
       const signableData: NodeMetricsSignable = {
-        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
         environment: "mainnet",
         manifests: ["cid1", "cid2"],
@@ -100,7 +100,7 @@ describe("Metrics Server Processing", () => {
 
     it("should validate complete request-to-storage flow", async () => {
       const signableData: NodeMetricsSignable = {
-        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
         environment: "local",
         manifests: ["cid1", "cid2", "cid3"],
@@ -190,7 +190,7 @@ describe("Metrics Server Processing", () => {
 
       for (const environment of environments) {
         const signableData: NodeMetricsSignable = {
-          nodeId: `node-${peerId.toString().slice(0, 8)}`,
+          nodeId: peerId.toString(),
           ceramicPeerId: peerId.toString(),
           environment,
           manifests: ["cid1"],
@@ -219,7 +219,7 @@ describe("Metrics Server Processing", () => {
     it("should maintain compatibility with node package output format", async () => {
       // Simulate the exact format sent by node package
       const nodeOutput: NodeMetricsGranular = {
-        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: ["cid1", "cid2"],

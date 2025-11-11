@@ -1,13 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { canonicalJsonSerialize } from "../src/serialization.js";
 import type { NodeMetricsSignable } from "../src/types.js";
+import { newPeerIdString } from "./test-utils.js";
 
 describe("Serialization", () => {
   describe("canonicalJsonSerialize", () => {
-    it("should serialize metrics data deterministically", () => {
+    it("should serialize metrics data deterministically", async () => {
       const data: NodeMetricsSignable = {
-        nodeId: "node-123",
-        ceramicPeerId: "peer123",
+        nodeId: await newPeerIdString(),
+        ceramicPeerId: await newPeerIdString(),
         environment: "testnet",
         manifests: [
           "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -22,10 +23,12 @@ describe("Serialization", () => {
       expect(json1).toBe(json2);
     });
 
-    it("should produce identical output for the same data structure", () => {
+    it("should produce identical output for the same data structure", async () => {
+      const nodeId = await newPeerIdString();
+      const ceramicPeerId = await newPeerIdString();
       const data: NodeMetricsSignable = {
-        nodeId: "node-123",
-        ceramicPeerId: "peer123",
+        nodeId,
+        ceramicPeerId,
         environment: "testnet",
         manifests: [],
         streams: [
@@ -45,10 +48,12 @@ describe("Serialization", () => {
       expect(json1).toBe(json2);
     });
 
-    it("should produce valid JSON", () => {
+    it("should produce valid JSON", async () => {
+      const nodeId = await newPeerIdString();
+      const ceramicPeerId = await newPeerIdString();
       const data: NodeMetricsSignable = {
-        nodeId: "node-123",
-        ceramicPeerId: "peer123",
+        nodeId,
+        ceramicPeerId,
         environment: "mainnet",
         manifests: [
           "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
@@ -61,8 +66,8 @@ describe("Serialization", () => {
       const parsed = JSON.parse(json);
 
       // Verify data integrity
-      expect(parsed.nodeId).toBe("node-123");
-      expect(parsed.ceramicPeerId).toBe("peer123");
+      expect(parsed.nodeId).toBe(nodeId);
+      expect(parsed.ceramicPeerId).toBe(ceramicPeerId);
       expect(parsed.environment).toBe("mainnet");
       expect(parsed.manifests).toHaveLength(1);
       expect(parsed.streams).toHaveLength(0);

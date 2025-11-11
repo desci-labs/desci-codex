@@ -6,6 +6,7 @@ import {
   EnvironmentSchema,
   SignatureSchema,
 } from "../src/schemas.js";
+import { newPeerIdString } from "./test-utils.js";
 
 describe("Zod Schemas", () => {
   describe("EnvironmentSchema", () => {
@@ -72,37 +73,75 @@ describe("Zod Schemas", () => {
   });
 
   describe("NodeMetricsSignableSchema", () => {
-    const validSignableData = {
-      nodeId: "node-12D3KooW",
-      ceramicPeerId: "12D3KooWExample",
-      environment: "testnet" as const,
-      manifests: [
-        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-      ],
-      streams: [
-        {
-          streamId: "stream1",
-          streamCid:
-            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-          eventIds: ["event1", "event2"],
-        },
-      ],
-      collectedAt: "2024-01-01T00:00:00.000Z",
-    };
+    it("should validate valid signable data", async () => {
+      const validSignableData = {
+        nodeId: await newPeerIdString(),
+        ceramicPeerId: await newPeerIdString(),
+        environment: "testnet" as const,
+        manifests: [
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        ],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1", "event2"],
+          },
+        ],
+        collectedAt: "2024-01-01T00:00:00.000Z",
+      };
 
-    it("should validate valid signable data", () => {
       const result = NodeMetricsSignableSchema.parse(validSignableData);
       expect(result).toEqual(validSignableData);
     });
 
-    it("should require all fields", () => {
+    it("should require all fields", async () => {
+      const validSignableData = {
+        nodeId: await newPeerIdString(),
+        ceramicPeerId: await newPeerIdString(),
+        environment: "testnet" as const,
+        manifests: [
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        ],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1", "event2"],
+          },
+        ],
+        collectedAt: "2024-01-01T00:00:00.000Z",
+      };
+
       const incomplete = { ...validSignableData };
       delete (incomplete as Record<string, unknown>).nodeId;
       expect(() => NodeMetricsSignableSchema.parse(incomplete)).toThrow();
     });
 
-    it("should validate field types", () => {
+    it("should validate field types", async () => {
+      const nodeId = await newPeerIdString();
+      const ceramicPeerId = await newPeerIdString();
+      const validSignableData = {
+        nodeId,
+        ceramicPeerId,
+        environment: "testnet" as const,
+        manifests: [
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        ],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1", "event2"],
+          },
+        ],
+        collectedAt: "2024-01-01T00:00:00.000Z",
+      };
+
       const invalidTypes = [
         { ...validSignableData, nodeId: "" },
         { ...validSignableData, ceramicPeerId: "" },
@@ -117,7 +156,10 @@ describe("Zod Schemas", () => {
       }
     });
 
-    it("should validate ISO date strings", () => {
+    it("should validate ISO date strings", async () => {
+      const nodeId = await newPeerIdString();
+      const ceramicPeerId = await newPeerIdString();
+
       const validDates = [
         "2024-01-01T00:00:00.000Z",
         "2024-12-31T23:59:59.999Z",
@@ -125,7 +167,16 @@ describe("Zod Schemas", () => {
       ];
 
       for (const date of validDates) {
-        const data = { ...validSignableData, collectedAt: date };
+        const data = {
+          nodeId,
+          ceramicPeerId,
+          environment: "testnet" as const,
+          manifests: [
+            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+          ],
+          streams: [],
+          collectedAt: date,
+        };
         expect(() => NodeMetricsSignableSchema.parse(data)).not.toThrow();
       }
 
@@ -137,38 +188,66 @@ describe("Zod Schemas", () => {
       ];
 
       for (const date of invalidDates) {
-        const data = { ...validSignableData, collectedAt: date };
+        const data = {
+          nodeId,
+          ceramicPeerId,
+          environment: "testnet" as const,
+          manifests: [
+            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+          ],
+          streams: [],
+          collectedAt: date,
+        };
         expect(() => NodeMetricsSignableSchema.parse(data)).toThrow();
       }
     });
   });
 
   describe("NodeMetricsGranularSchema", () => {
-    const validGranularData = {
-      nodeId: "node-12D3KooW",
-      ceramicPeerId: "12D3KooWIPFS",
-      environment: "local" as const,
-      manifests: [
-        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-      ],
-      streams: [
-        {
-          streamId: "stream1",
-          streamCid:
-            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-          eventIds: ["event1", "event2"],
-        },
-      ],
-      collectedAt: "2024-01-01T00:00:00.000Z",
-      signature: [1, 2, 3, 4, 5],
-    };
+    it("should validate valid granular data", async () => {
+      const validGranularData = {
+        nodeId: await newPeerIdString(),
+        ceramicPeerId: await newPeerIdString(),
+        environment: "local" as const,
+        manifests: [
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        ],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1", "event2"],
+          },
+        ],
+        collectedAt: "2024-01-01T00:00:00.000Z",
+        signature: [1, 2, 3, 4, 5],
+      };
 
-    it("should validate valid granular data", () => {
       const result = NodeMetricsGranularSchema.parse(validGranularData);
       expect(result).toEqual(validGranularData);
     });
 
-    it("should require all fields", () => {
+    it("should require all fields", async () => {
+      const validGranularData = {
+        nodeId: await newPeerIdString(),
+        ceramicPeerId: await newPeerIdString(),
+        environment: "local" as const,
+        manifests: [
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        ],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1", "event2"],
+          },
+        ],
+        collectedAt: "2024-01-01T00:00:00.000Z",
+        signature: [1, 2, 3, 4, 5],
+      };
+
       const missingNodeId = { ...validGranularData };
       delete (missingNodeId as Record<string, unknown>).nodeId;
       expect(() => NodeMetricsGranularSchema.parse(missingNodeId)).toThrow();
@@ -178,7 +257,26 @@ describe("Zod Schemas", () => {
       expect(() => NodeMetricsGranularSchema.parse(missingSignature)).toThrow();
     });
 
-    it("should validate arrays", () => {
+    it("should validate arrays", async () => {
+      const validGranularData = {
+        nodeId: await newPeerIdString(),
+        ceramicPeerId: await newPeerIdString(),
+        environment: "local" as const,
+        manifests: [
+          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        ],
+        streams: [
+          {
+            streamId: "stream1",
+            streamCid:
+              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+            eventIds: ["event1", "event2"],
+          },
+        ],
+        collectedAt: "2024-01-01T00:00:00.000Z",
+        signature: [1, 2, 3, 4, 5],
+      };
+
       const invalidArrays = [
         { ...validGranularData, manifests: null },
         { ...validGranularData, streams: null },

@@ -23,7 +23,7 @@ jobs:
           sleep 5
           pnpm --filter @desci-labs/desci-codex-lib run test:c1
 
-  test-metrics:
+  test-unit:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -38,4 +38,4 @@ jobs:
           cache-dependency-path: "pnpm-lock.yaml"
           check-latest: false
       - run: pnpm i --frozen-lockfile
-      - run: pnpm --filter @desci-labs/desci-codex-metrics test
+      - run: pnpm --filter '@desci-labs/*' test

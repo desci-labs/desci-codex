@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import {
   extractSignableData,
   createInternalFormat,
@@ -6,46 +6,57 @@ import {
   cloneMetrics,
 } from "../src/transformations.js";
 import type { NodeMetricsGranular, NodeMetricsSignable } from "../src/types.js";
+import { newPeerIdString } from "./test-utils.js";
 
 describe("Transformations", () => {
-  const sampleGranular: NodeMetricsGranular = {
-    nodeId: "node-12D3KooW",
-    ceramicPeerId: "12D3KooWIPFS",
-    environment: "testnet",
-    manifests: [
-      "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-      "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-    ],
-    streams: [
-      {
-        streamId: "stream1",
-        streamCid:
-          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-        eventIds: ["event1", "event2"],
-      },
-    ],
-    collectedAt: "2024-01-01T00:00:00.000Z",
-    signature: [1, 2, 3, 4, 5],
-  };
+  let sampleGranular: NodeMetricsGranular;
+  let sampleSignable: NodeMetricsSignable;
+  let testNodeId: string;
+  let testCeramicPeerId: string;
 
-  const sampleSignable: NodeMetricsSignable = {
-    nodeId: "node-12D3KooW",
-    ceramicPeerId: "12D3KooWIPFS",
-    environment: "testnet",
-    manifests: [
-      "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-      "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-    ],
-    streams: [
-      {
-        streamId: "stream1",
-        streamCid:
-          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-        eventIds: ["event1", "event2"],
-      },
-    ],
-    collectedAt: "2024-01-01T00:00:00.000Z",
-  };
+  beforeAll(async () => {
+    testNodeId = await newPeerIdString();
+    testCeramicPeerId = await newPeerIdString();
+
+    sampleGranular = {
+      nodeId: testNodeId,
+      ceramicPeerId: testCeramicPeerId,
+      environment: "testnet",
+      manifests: [
+        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      ],
+      streams: [
+        {
+          streamId: "stream1",
+          streamCid:
+            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+          eventIds: ["event1", "event2"],
+        },
+      ],
+      collectedAt: "2024-01-01T00:00:00.000Z",
+      signature: [1, 2, 3, 4, 5],
+    };
+
+    sampleSignable = {
+      nodeId: testNodeId,
+      ceramicPeerId: testCeramicPeerId,
+      environment: "testnet",
+      manifests: [
+        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      ],
+      streams: [
+        {
+          streamId: "stream1",
+          streamCid:
+            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+          eventIds: ["event1", "event2"],
+        },
+      ],
+      collectedAt: "2024-01-01T00:00:00.000Z",
+    };
+  });
 
   describe("extractSignableData", () => {
     it("should extract signable data by removing signature", () => {
@@ -181,7 +192,7 @@ describe("Transformations", () => {
       cloned.nodeId = "modified";
       cloned.manifests.push("newcid");
 
-      expect(sampleGranular.nodeId).toBe("node-12D3KooW");
+      expect(sampleGranular.nodeId).toBe(testNodeId);
       expect(sampleGranular.manifests).toHaveLength(2);
     });
   });

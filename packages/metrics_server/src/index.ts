@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { DatabaseService } from "./database.js";
-import { validateMetricsSignature } from "./validation.js";
 import {
   NodeMetricsGranularSchema,
+  validateMetricsSignature,
   type NodeMetricsGranular,
 } from "@desci-labs/desci-codex-metrics";
 import logger from "./logger.js";

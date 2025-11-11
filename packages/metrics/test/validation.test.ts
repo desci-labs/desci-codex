@@ -8,6 +8,7 @@ import {
 } from "../src/validation.js";
 import { signMetrics } from "../src/signing.js";
 import type { NodeMetricsGranular, NodeMetricsSignable } from "../src/types.js";
+import { generateIncorrectNodeId } from "./test-utils.js";
 
 describe("Validation", () => {
   let privateKey: Ed25519PrivateKey;
@@ -21,7 +22,7 @@ describe("Validation", () => {
   describe("validateMetricsSignature", () => {
     it("should validate legitimate signatures", async () => {
       const metricsData: NodeMetricsSignable = {
-        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [
@@ -47,7 +48,7 @@ describe("Validation", () => {
 
     it("should reject missing signature", async () => {
       const metrics: NodeMetricsGranular = {
-        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [],
@@ -81,8 +82,8 @@ describe("Validation", () => {
       // Create a peer ID string that's valid but doesn't encode a public key
       // This is a synthetic test case
       const metrics: NodeMetricsGranular = {
-        nodeId: "node-old",
-        ceramicPeerId: "QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N", // Old style peer ID without key
+        nodeId: "QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N", // Invalid peer ID format
+        ceramicPeerId: "QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N",
         environment: "testnet",
         manifests: [],
         streams: [],
@@ -92,12 +93,12 @@ describe("Validation", () => {
 
       const result = await validateMetricsSignature(metrics);
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe("Peer ID does not contain a public key");
+      expect(result.error).toContain("public key");
     });
 
     it("should reject tampered data", async () => {
       const metricsData: NodeMetricsSignable = {
-        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
         environment: "testnet",
         manifests: [],
@@ -125,7 +126,7 @@ describe("Validation", () => {
       const attackerKey = await generateKeyPair("Ed25519");
 
       const metricsData: NodeMetricsSignable = {
-        nodeId: `node-${peerId.toString().slice(0, 8)}`,
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(), // Victim's peer ID
         environment: "testnet",
         manifests: [],
@@ -146,7 +147,7 @@ describe("Validation", () => {
 
       for (const env of environments) {
         const metricsData: NodeMetricsSignable = {
-          nodeId: `node-${peerId.toString().slice(0, 8)}`,
+          nodeId: peerId.toString(),
           ceramicPeerId: peerId.toString(),
           environment: env,
           manifests: [],
@@ -163,12 +164,14 @@ describe("Validation", () => {
 
     it("should handle validation errors gracefully", async () => {
       const metrics = {
-        nodeId: "node-test",
+        nodeId: generateIncorrectNodeId("test"),
         ceramicPeerId: peerId.toString(),
         // Missing other required fields
       } as Record<string, unknown>;
 
-      const result = await validateMetricsSignature(metrics);
+      const result = await validateMetricsSignature(
+        metrics as NodeMetricsGranular,
+      );
       expect(result.isValid).toBe(false);
       expect(result.error).toBe("Missing or invalid signature");
     });
@@ -176,7 +179,7 @@ describe("Validation", () => {
 
   describe("validateMetricsStructure", () => {
     const validMetrics: NodeMetricsGranular = {
-      nodeId: "node-12D3KooW",
+      nodeId: generateIncorrectNodeId("12D3KooW"),
       ceramicPeerId: "12D3KooWExample",
       environment: "testnet",
       manifests: [
