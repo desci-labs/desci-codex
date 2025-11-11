@@ -74,6 +74,7 @@ export class DatabaseService {
           .values({
             nodeId: metrics.nodeId,
             ceramicPeerId: metrics.ceramicPeerId,
+            environment: metrics.environment,
             metadata: metadata || null,
             firstSeenAt: new Date(metrics.collectedAt),
             lastSeenAt: new Date(metrics.collectedAt),
@@ -89,6 +90,7 @@ export class DatabaseService {
             .insert(manifests)
             .values({
               manifestCid: manifestCid,
+              environment: metrics.environment,
               firstSeenAt: new Date(metrics.collectedAt),
             })
             .onConflictDoNothing();
@@ -99,6 +101,7 @@ export class DatabaseService {
             .values({
               nodeId: metrics.nodeId,
               manifestCid: manifestCid,
+              environment: metrics.environment,
               firstSeenAt: new Date(metrics.collectedAt),
             })
             .onConflictDoNothing();
@@ -112,6 +115,7 @@ export class DatabaseService {
             .values({
               streamId: stream.streamId,
               streamCid: stream.streamCid,
+              environment: metrics.environment,
               firstSeenAt: new Date(metrics.collectedAt),
             })
             .onConflictDoNothing();
@@ -122,6 +126,7 @@ export class DatabaseService {
             .values({
               nodeId: metrics.nodeId,
               streamId: stream.streamId,
+              environment: metrics.environment,
               firstSeenAt: new Date(metrics.collectedAt),
             })
             .onConflictDoNothing();
@@ -135,6 +140,7 @@ export class DatabaseService {
                 eventId: eventId,
                 streamId: stream.streamId,
                 eventCid: `${eventId}-cid`, // Placeholder - actual implementation would have real CID
+                environment: metrics.environment,
                 firstSeenAt: new Date(metrics.collectedAt),
               })
               .onConflictDoNothing();
@@ -145,6 +151,7 @@ export class DatabaseService {
               .values({
                 nodeId: metrics.nodeId,
                 eventId: eventId,
+                environment: metrics.environment,
                 firstSeenAt: new Date(metrics.collectedAt),
               })
               .onConflictDoNothing();

@@ -10,20 +10,21 @@ interface GetStreamsInput {
 export const getStreams = createServerFn({ method: "GET" })
   .inputValidator((data: GetStreamsInput) => data)
   .handler(async ({ data }) => {
-      const input = {
-        page: Math.max(1, data?.page || 1),
-        limit: Math.min(100, Math.max(10, data?.limit || 25)),
-      };
-      const { page = 1, limit = 25 } = input;
-      const offset = (page - 1) * limit;
+    const input = {
+      page: Math.max(1, data?.page || 1),
+      limit: Math.min(100, Math.max(10, data?.limit || 25)),
+    };
+    const { page = 1, limit = 25 } = input;
+    const offset = (page - 1) * limit;
 
-      // Get total count
-      const countQuery = "SELECT COUNT(*) as total FROM streams WHERE environment = $1";
-      const countResult = await pool.query(countQuery, [data.environment]);
-      const total = Number(countResult.rows[0].total);
+    // Get total count
+    const countQuery =
+      "SELECT COUNT(*) as total FROM streams WHERE environment = $1";
+    const countResult = await pool.query(countQuery, [data.environment]);
+    const total = Number(countResult.rows[0].total);
 
-      // Get paginated results
-      const query = `
+    // Get paginated results
+    const query = `
         SELECT 
           s.stream_id,
           s.stream_cid,
@@ -38,32 +39,33 @@ export const getStreams = createServerFn({ method: "GET" })
         ORDER BY s.first_seen_at DESC
         LIMIT $1 OFFSET $2
       `;
-      const result = await pool.query(query, [limit, offset, data.environment]);
+    const result = await pool.query(query, [limit, offset, data.environment]);
 
-      const totalPages = Math.ceil(total / limit);
+    const totalPages = Math.ceil(total / limit);
 
-      return {
-        data: result.rows.map((row) => ({
-          streamId: row.stream_id,
-          streamCid: row.stream_cid,
-          firstSeenAt: row.first_seen_at,
-          eventCount: Number(row.event_count),
-          nodeCount: Number(row.node_count),
-        })),
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1,
-        },
-      };
-    }
-  );
+    return {
+      data: result.rows.map((row) => ({
+        streamId: row.stream_id,
+        streamCid: row.stream_cid,
+        firstSeenAt: row.first_seen_at,
+        eventCount: Number(row.event_count),
+        nodeCount: Number(row.node_count),
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  });
 
 export const getStreamEvents = createServerFn({ method: "GET" })
-  .inputValidator((data: { streamId: string; environment: "testnet" | "mainnet" }) => data)
+  .inputValidator(
+    (data: { streamId: string; environment: "testnet" | "mainnet" }) => data,
+  )
   .handler(async ({ data }) => {
     const query = `
       SELECT event_id, event_cid, first_seen_at

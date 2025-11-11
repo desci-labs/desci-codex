@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+type Environment = "testnet" | "mainnet";
+
 interface UIStore {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
@@ -8,6 +10,8 @@ interface UIStore {
   setSelectedNodeId: (nodeId: string | null) => void;
   refreshInterval: number;
   setRefreshInterval: (interval: number) => void;
+  environment: Environment;
+  setEnvironment: (environment: Environment) => void;
   initializeTheme: () => void;
 }
 
@@ -30,6 +34,8 @@ export const useUIStore = create<UIStore>()(
       setSelectedNodeId: (nodeId) => set({ selectedNodeId: nodeId }),
       refreshInterval: 30000,
       setRefreshInterval: (interval) => set({ refreshInterval: interval }),
+      environment: "testnet",
+      setEnvironment: (environment) => set({ environment }),
       initializeTheme: () => {
         const stored = localStorage.getItem("theme");
         const isDark =
@@ -49,6 +55,7 @@ export const useUIStore = create<UIStore>()(
       partialize: (state) => ({
         isDarkMode: state.isDarkMode,
         refreshInterval: state.refreshInterval,
+        environment: state.environment,
       }),
     },
   ),

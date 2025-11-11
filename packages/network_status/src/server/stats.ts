@@ -16,7 +16,10 @@ export const getNetworkStats = createServerFn({ method: "GET" })
         (SELECT COUNT(*) FROM streams WHERE environment = $2) as total_streams,
         (SELECT COUNT(*) FROM events WHERE environment = $2) as total_events
     `;
-    const statsResult = await pool.query(statsQuery, [activeThreshold, data.environment]);
+    const statsResult = await pool.query(statsQuery, [
+      activeThreshold,
+      data.environment,
+    ]);
     const stats = statsResult.rows[0];
 
     // Get active nodes over time (last 7 days, daily buckets, filled with zeros)
@@ -50,7 +53,9 @@ export const getNetworkStats = createServerFn({ method: "GET" })
       LEFT JOIN daily_activity da ON ds.date = da.activity_date
       ORDER BY ds.date ASC
     `;
-    const nodesOverTimeResult = await pool.query(nodesOverTimeQuery, [data.environment]);
+    const nodesOverTimeResult = await pool.query(nodesOverTimeQuery, [
+      data.environment,
+    ]);
 
     // Get manifest activity over time (last 7 days, daily buckets, filled with zeros)
     // Shows how many nodes interacted with manifests each day
@@ -77,7 +82,9 @@ export const getNetworkStats = createServerFn({ method: "GET" })
       LEFT JOIN daily_manifest_activity dma ON ds.date = dma.activity_date
       ORDER BY ds.date ASC
     `;
-    const manifestsOverTimeResult = await pool.query(manifestsOverTimeQuery, [data.environment]);
+    const manifestsOverTimeResult = await pool.query(manifestsOverTimeQuery, [
+      data.environment,
+    ]);
 
     return {
       totalNodes: Number(stats.total_nodes),

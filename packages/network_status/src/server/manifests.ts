@@ -10,20 +10,21 @@ interface GetManifestsInput {
 export const getManifests = createServerFn({ method: "GET" })
   .inputValidator((data: GetManifestsInput) => data)
   .handler(async ({ data }) => {
-      const input = {
-        page: Math.max(1, data?.page || 1),
-        limit: Math.min(100, Math.max(10, data?.limit || 25)),
-      };
-      const { page = 1, limit = 25 } = input;
-      const offset = (page - 1) * limit;
+    const input = {
+      page: Math.max(1, data?.page || 1),
+      limit: Math.min(100, Math.max(10, data?.limit || 25)),
+    };
+    const { page = 1, limit = 25 } = input;
+    const offset = (page - 1) * limit;
 
-      // Get total count
-      const countQuery = "SELECT COUNT(*) as total FROM manifests WHERE environment = $1";
-      const countResult = await pool.query(countQuery, [data.environment]);
-      const total = Number(countResult.rows[0].total);
+    // Get total count
+    const countQuery =
+      "SELECT COUNT(*) as total FROM manifests WHERE environment = $1";
+    const countResult = await pool.query(countQuery, [data.environment]);
+    const total = Number(countResult.rows[0].total);
 
-      // Get paginated results
-      const query = `
+    // Get paginated results
+    const query = `
         SELECT 
           m.manifest_cid,
           m.first_seen_at,

@@ -18,6 +18,7 @@ export const nodes = pgTable(
   {
     nodeId: text("node_id").primaryKey(),
     ceramicPeerId: text("ceramic_peer_id").notNull(),
+    environment: text("environment").notNull(),
     metadata: jsonb("metadata"),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
@@ -42,6 +43,7 @@ export const manifests = pgTable(
   "manifests",
   {
     manifestCid: text("manifest_cid").primaryKey(),
+    environment: text("environment").notNull(),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -59,6 +61,7 @@ export const streams = pgTable(
   {
     streamId: text("stream_id").primaryKey(),
     streamCid: text("stream_cid").notNull(),
+    environment: text("environment").notNull(),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -82,6 +85,7 @@ export const events = pgTable(
       .notNull()
       .references(() => streams.streamId),
     eventCid: text("event_cid").notNull(),
+    environment: text("environment").notNull(),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -107,6 +111,7 @@ export const nodeManifests = pgTable(
     manifestCid: text("manifest_cid")
       .notNull()
       .references(() => manifests.manifestCid),
+    environment: text("environment").notNull(),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -132,6 +137,7 @@ export const nodeStreams = pgTable(
     streamId: text("stream_id")
       .notNull()
       .references(() => streams.streamId),
+    environment: text("environment").notNull(),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -157,6 +163,7 @@ export const nodeEvents = pgTable(
     eventId: text("event_id")
       .notNull()
       .references(() => events.eventId),
+    environment: text("environment").notNull(),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

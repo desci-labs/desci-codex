@@ -33,7 +33,9 @@ export function useNodeDetail(nodeId: string | null) {
   return useQuery({
     queryKey: ["node", nodeId, environment],
     queryFn: () =>
-      nodeId ? getNodeDetail({ data: { nodeId, environment } }) : Promise.resolve(null),
+      nodeId
+        ? getNodeDetail({ data: { nodeId, environment } })
+        : Promise.resolve(null),
     enabled: !!nodeId,
   });
 }
@@ -66,7 +68,9 @@ export function useStreamEvents(streamId: string | null) {
   return useQuery({
     queryKey: ["streamEvents", streamId, environment],
     queryFn: () =>
-      streamId ? getStreamEvents({ data: { streamId, environment } }) : Promise.resolve([]),
+      streamId
+        ? getStreamEvents({ data: { streamId, environment } })
+        : Promise.resolve([]),
     enabled: !!streamId,
   });
 }

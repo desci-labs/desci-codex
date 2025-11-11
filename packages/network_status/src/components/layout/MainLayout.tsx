@@ -3,6 +3,7 @@ import { useUIStore } from "@/store/uiStore";
 import { Activity, Network, Moon, Sun, Database, FileCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
+import { EnvironmentSwitch } from "@/components/EnvironmentSwitch";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -62,17 +63,19 @@ export function MainLayout({ children }: MainLayoutProps) {
                 })}
               </nav>
             </div>
-            <button
-              onClick={toggleDarkMode}
-              className="rounded-md p-2 hover:bg-accent"
-            >
-              {isDarkMode ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </button>
+            <div className="flex items-center space-x-3">
               <EnvironmentSwitch />
+              <button
+                onClick={toggleDarkMode}
+                className="rounded-md p-2 hover:bg-accent"
+              >
+                {isDarkMode ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </header>
