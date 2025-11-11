@@ -9,7 +9,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "@/components/ui/copy-button";
 import { format, formatDistanceToNow } from "date-fns";
-import { useState, useEffect } from "react";
 import {
   ChevronRight,
   Network,
@@ -26,13 +25,7 @@ import { getDemoNodes } from "@/data/demo-nodes";
 
 export function NodesView() {
   const { data: nodes, isLoading } = useNodes();
-  const {
-    selectedNodeId: storeSelectedNodeId,
-    setSelectedNodeId: setStoreSelectedNodeId,
-  } = useUIStore();
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(
-    storeSelectedNodeId,
-  );
+  const { selectedNodeId, setSelectedNodeId } = useUIStore();
   const { data: nodeDetail } = useNodeDetail(selectedNodeId);
 
   // Get demo nodes (only in development)
@@ -40,15 +33,6 @@ export function NodesView() {
 
   // Merge demo data with actual nodes
   const displayNodes = nodes ? [...demoNodes, ...nodes] : demoNodes;
-
-  // Update local state when store state changes (from navigation)
-  useEffect(() => {
-    if (storeSelectedNodeId) {
-      setSelectedNodeId(storeSelectedNodeId);
-      // Clear the store after using it
-      setStoreSelectedNodeId(null);
-    }
-  }, [storeSelectedNodeId, setStoreSelectedNodeId]);
 
   if (isLoading) {
     return <NodesViewSkeleton />;

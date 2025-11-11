@@ -1,7 +1,7 @@
-import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import { useEffect, useState } from "react";
 import { useGeocoding, getLocationKey } from "@/hooks/useGeocoding";
 import { useUIStore } from "@/store/uiStore";
+import type { LeafletMouseEvent } from "leaflet";
 
 interface NodesMapProps {
   nodes: Array<{
@@ -17,14 +17,54 @@ interface NodesMapProps {
 
 export function NodesMap({ nodes }: NodesMapProps) {
   const { isDarkMode } = useUIStore();
+  const [isClient, setIsClient] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [leafletComponents, setLeafletComponents] = useState<any>(null);
 
-  // Extract unique locations from nodes
+  // Extract unique locations from nodes (always call this)
   const locations = nodes
     .filter((node) => node.location?.country)
     .map((node) => node.location!);
 
-  // Geocode locations to get coordinates
+  // Geocode locations to get coordinates (always call hooks)
   const { geocodedLocations, isLoading } = useGeocoding(locations);
+
+  // Only load on client side
+  useEffect(() => {
+    setIsClient(true);
+
+    // Dynamic import of Leaflet components
+    const loadLeaflet = async () => {
+      const [{ MapContainer, TileLayer, CircleMarker, Tooltip }] =
+        await Promise.all([
+          import("react-leaflet"),
+          import("leaflet/dist/leaflet.css"),
+        ]);
+
+      setLeafletComponents({
+        MapContainer,
+        TileLayer,
+        CircleMarker,
+        Tooltip,
+      });
+    };
+
+    loadLeaflet();
+  }, []);
+
+  if (!isClient || !leafletComponents) {
+    return (
+      <div
+        className={`relative h-[500px] w-full rounded-lg overflow-hidden border ${isDarkMode ? "border-slate-800 bg-slate-950" : "border-gray-200 bg-gray-50"} flex items-center justify-center`}
+      >
+        <p className={isDarkMode ? "text-slate-400" : "text-gray-600"}>
+          Loading map...
+        </p>
+      </div>
+    );
+  }
+
+  const { MapContainer, TileLayer, CircleMarker, Tooltip } = leafletComponents;
 
   // Group nodes by location
   const nodesByLocation = nodes.reduce(
@@ -214,13 +254,13 @@ export function NodesMap({ nodes }: NodesMapProps) {
                   opacity: 0.8,
                 }}
                 eventHandlers={{
-                  mouseover: (e) => {
+                  mouseover: (e: LeafletMouseEvent) => {
                     e.target.setStyle({
                       fillOpacity: 0.9,
                       weight: 3,
                     });
                   },
-                  mouseout: (e) => {
+                  mouseout: (e: LeafletMouseEvent) => {
                     e.target.setStyle({
                       fillOpacity: 0.6,
                       weight: 2,

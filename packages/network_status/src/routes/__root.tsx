@@ -1,8 +1,16 @@
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
-import type { QueryClient } from "@tanstack/react-query";
+/// <reference types="vite/client" />
+import type { ReactNode } from "react";
+import {
+  Outlet,
+  createRootRoute,
+  HeadContent,
+  Scripts,
+} from "@tanstack/react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { RouteLoader } from "@/components/RouteLoader";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import appCss from "../index.css?url";
 
 // Lazy load devtools only in development
 const TanStackRouterDevtools = import.meta.env.DEV
@@ -13,23 +21,103 @@ const TanStackRouterDevtools = import.meta.env.DEV
     )
   : () => null;
 
-interface RouteContext {
-  queryClient: QueryClient;
+const ReactQueryDevtools = import.meta.env.DEV
+  ? lazy(() =>
+      import("@tanstack/react-query-devtools").then((module) => ({
+        default: module.ReactQueryDevtools,
+      })),
+    )
+  : () => null;
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 10, // 10 seconds
+      refetchInterval: 1000 * 30, // 30 seconds
+    },
+  },
+});
+
+export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      {
+        charSet: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      },
+      {
+        title: "DeSci Codex Network Status",
+      },
+      {
+        name: "description",
+        content: "Real-time network status dashboard for DeSci Codex",
+      },
+    ],
+    links: [
+      {
+        rel: "stylesheet",
+        href: appCss,
+      },
+      {
+        rel: "icon",
+        type: "image/svg+xml",
+        href: "/static/DeSci_Protocol_A_Black_v01.svg",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        rel: "icon",
+        type: "image/svg+xml",
+        href: "/static/DeSci_Protocol_A_White_v01.svg",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  }),
+  component: RootComponent,
+});
+
+function RootComponent() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  return (
+    <RootDocument>
+      <QueryClientProvider client={queryClient}>
+        <MainLayout>
+          <Suspense fallback={<RouteLoader />}>
+            <Outlet />
+          </Suspense>
+        </MainLayout>
+        {import.meta.env.DEV && isClient && (
+          <>
+            <Suspense fallback={null}>
+              <TanStackRouterDevtools />
+            </Suspense>
+            <Suspense fallback={null}>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </Suspense>
+          </>
+        )}
+      </QueryClientProvider>
+    </RootDocument>
+  );
 }
 
-export const Route = createRootRouteWithContext<RouteContext>()({
-  component: () => (
-    <>
-      <MainLayout>
-        <Suspense fallback={<RouteLoader />}>
-          <Outlet />
-        </Suspense>
-      </MainLayout>
-      {import.meta.env.DEV && (
-        <Suspense fallback={null}>
-          <TanStackRouterDevtools />
-        </Suspense>
-      )}
-    </>
-  ),
-});
+function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <html>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  );
+}

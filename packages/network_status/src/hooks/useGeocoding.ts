@@ -17,6 +17,11 @@ const CACHE_VERSION = "v1";
 
 // Load cache from localStorage on module initialization
 const loadCache = (): LocationCache => {
+  // Check if we're in a browser environment
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return {};
+  }
+
   try {
     const stored = localStorage.getItem(CACHE_KEY);
     if (stored) {
@@ -34,6 +39,11 @@ const loadCache = (): LocationCache => {
 
 // Save cache to localStorage
 const saveCache = (cache: LocationCache) => {
+  // Check if we're in a browser environment
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return;
+  }
+
   try {
     localStorage.setItem(
       CACHE_KEY,

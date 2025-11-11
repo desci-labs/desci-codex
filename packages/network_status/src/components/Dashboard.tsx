@@ -120,8 +120,8 @@ export function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Nodes Activity (7 days)</CardTitle>
-            <CardDescription>Number of new nodes over time</CardDescription>
+            <CardTitle>Node Activity (7 days)</CardTitle>
+            <CardDescription>Number of nodes active each day</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
@@ -155,8 +155,10 @@ export function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Manifests Activity (7 days)</CardTitle>
-            <CardDescription>Number of new manifests over time</CardDescription>
+            <CardTitle>Manifest Activity (7 days)</CardTitle>
+            <CardDescription>
+              Number of nodes interacting with manifests
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
