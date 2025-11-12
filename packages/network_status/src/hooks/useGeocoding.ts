@@ -1,3 +1,12 @@
+/**
+ * This module is responsible for converting (country,city) pairs to lat/lon
+ * coordinates for use in the node distribution map component. For privacy reasons,
+ * the metrics server doesn't send IP or exact location so we get it on a city granularity.
+ *
+ * The city coordinates are pulled from Nominatim, the OpenStreetMap API. This is free and
+ * has a low rate limit, and to stay withing the ToS we cache the locations in localstorage
+ * on the client side.
+ */
 import { useEffect, useState } from "react";
 
 interface GeoLocation {
@@ -9,13 +18,9 @@ interface LocationCache {
   [key: string]: GeoLocation | null;
 }
 
-// Cache key for localStorage
 const CACHE_KEY = "codex_geocoding_cache";
 const CACHE_VERSION = "v1";
-// Unlimited TTL - city coordinates don't change
-// Cache will only be invalidated by version change
 
-// Load cache from localStorage on module initialization
 const loadCache = (): LocationCache => {
   // Check if we're in a browser environment
   if (typeof window === "undefined" || typeof localStorage === "undefined") {
@@ -26,7 +31,7 @@ const loadCache = (): LocationCache => {
     const stored = localStorage.getItem(CACHE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Only check version, ignore timestamp for unlimited TTL
+      // Only check version, ignore timestamp for unlimited TTL as cities don't generally move around a lot
       if (parsed.version === CACHE_VERSION) {
         return parsed.data || {};
       }
@@ -37,7 +42,6 @@ const loadCache = (): LocationCache => {
   return {};
 };
 
-// Save cache to localStorage
 const saveCache = (cache: LocationCache) => {
   // Check if we're in a browser environment
   if (typeof window === "undefined" || typeof localStorage === "undefined") {
@@ -58,12 +62,18 @@ const saveCache = (cache: LocationCache) => {
   }
 };
 
-// Initialize cache from localStorage
-const locationCache: LocationCache = loadCache();
+// Initialize cache lazily on first use to avoid SSR issues
+let locationCache: LocationCache | null = null;
+
+const getCache = (): LocationCache => {
+  if (locationCache === null) {
+    locationCache = loadCache();
+  }
+  return locationCache;
+};
 
 /**
  * Custom hook to geocode country+city to coordinates using Nominatim (OpenStreetMap)
- * This maintains user privacy by not exposing IPs or exact coordinates from the database
  */
 export function useGeocoding(
   locations:
@@ -75,8 +85,6 @@ export function useGeocoding(
   >(new Map());
   const [isLoading, setIsLoading] = useState(false);
 
-  // React Compiler will automatically memoize this stable computation
-  // No need for useMemo - the compiler handles it
   const locationsKey = !locations
     ? ""
     : locations
@@ -100,14 +108,14 @@ export function useGeocoding(
         const locationKey = `${location.city || ""}::${location.country}`;
 
         // Check cache first
-        if (locationCache[locationKey] !== undefined) {
-          if (locationCache[locationKey]) {
-            newLocations.set(locationKey, locationCache[locationKey]!);
+        const cache = getCache();
+        if (cache[locationKey] !== undefined) {
+          if (cache[locationKey]) {
+            newLocations.set(locationKey, cache[locationKey]!);
           }
           continue;
         }
 
-        // Mark that we have new requests to make
         hasNewRequests = true;
 
         try {
@@ -122,6 +130,7 @@ export function useGeocoding(
               `q=${encodeURIComponent(query)}&format=json&limit=1`,
             {
               headers: {
+                // ToS require a custom user-agent header
                 "User-Agent": "Codex Network Status Dashboard",
               },
             },
@@ -136,12 +145,14 @@ export function useGeocoding(
               };
 
               // Cache the result
-              locationCache[locationKey] = coords;
+              const cache = getCache();
+              cache[locationKey] = coords;
               newLocations.set(locationKey, coords);
               cacheUpdated = true;
             } else {
               // No results found, cache as null to avoid repeated lookups
-              locationCache[locationKey] = null;
+              const cache = getCache();
+              cache[locationKey] = null;
               cacheUpdated = true;
             }
           }
@@ -151,19 +162,19 @@ export function useGeocoding(
             error,
           );
           // Cache as null on error
-          locationCache[locationKey] = null;
+          const cache = getCache();
+          cache[locationKey] = null;
           cacheUpdated = true;
         }
 
-        // Add a small delay between requests to be respectful to the free API
+        // Add a delay between requests to be respectful to the free API
         if (hasNewRequests) {
           await new Promise((resolve) => setTimeout(resolve, 100));
         }
       }
 
-      // Save cache to localStorage if it was updated
       if (cacheUpdated) {
-        saveCache(locationCache);
+        saveCache(getCache());
       }
 
       setGeocodedLocations(newLocations);
@@ -176,9 +187,6 @@ export function useGeocoding(
   return { geocodedLocations, isLoading };
 }
 
-/**
- * Helper function to create a location key
- */
 export function getLocationKey(location: {
   country?: string | null;
   city?: string | null;

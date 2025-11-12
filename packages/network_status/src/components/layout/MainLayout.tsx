@@ -4,6 +4,8 @@ import { Activity, Network, Moon, Sun, Database, FileCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { EnvironmentSwitch } from "@/components/EnvironmentSwitch";
+import blackLogo from "@/static/DeSci_Protocol_A_Black_v01.svg";
+import whiteLogo from "@/static/DeSci_Protocol_A_White_v01.svg";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -32,11 +34,7 @@ export function MainLayout({ children }: MainLayoutProps) {
             <div className="flex items-center space-x-8">
               <div className="flex items-center space-x-3">
                 <img
-                  src={
-                    isDarkMode
-                      ? "/static/DeSci_Protocol_A_White_v01.svg"
-                      : "/static/DeSci_Protocol_A_Black_v01.svg"
-                  }
+                  src={isDarkMode ? whiteLogo : blackLogo}
                   alt="Codex Network Logo"
                   className="h-12 w-12"
                 />

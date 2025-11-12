@@ -13,6 +13,10 @@ export function CopyButton({ text, className, size = "sm" }: CopyButtonProps) {
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      // Fallback for environments without clipboard API
+      return;
+    }
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

@@ -33,6 +33,7 @@ import { DashboardSkeleton } from "./DashboardSkeleton";
 export function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useNetworkStats();
   const { data: nodes, isLoading: nodesLoading } = useNodes();
+
   const navigate = useNavigate();
   const { setSelectedNodeId } = useUIStore();
 

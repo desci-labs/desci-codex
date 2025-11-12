@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { pool } from "@/lib/db";
+import { createClient } from "@/lib/db";
 
 interface HealthStatus {
   status: "healthy" | "unhealthy";
@@ -9,8 +9,10 @@ interface HealthStatus {
 
 export const getHealthStatus = createServerFn().handler(
   async (): Promise<HealthStatus> => {
+    const client = createClient();
     try {
-      await pool.query("SELECT 1");
+      await client.connect();
+      await client.query("SELECT 1");
       return { status: "healthy", timestamp: new Date().toISOString() };
     } catch (error) {
       return {
@@ -18,6 +20,8 @@ export const getHealthStatus = createServerFn().handler(
         timestamp: new Date().toISOString(),
         error: "Database connection failed",
       };
+    } finally {
+      await client.end();
     }
   },
 );

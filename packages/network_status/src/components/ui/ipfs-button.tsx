@@ -10,7 +10,9 @@ interface IPFSButtonProps {
 export function IPFSButton({ cid, className, size = "sm" }: IPFSButtonProps) {
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(`https://ipfs.desci.com/ipfs/${cid}`, "_blank");
+    if (typeof window !== "undefined") {
+      window.open(`https://ipfs.desci.com/ipfs/${cid}`, "_blank");
+    }
   };
 
   const iconSize = size === "sm" ? "h-3 w-3" : "h-4 w-4";

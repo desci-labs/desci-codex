@@ -22,12 +22,16 @@ export const useUIStore = create<UIStore>()(
       toggleDarkMode: () =>
         set((state) => {
           const newMode = !state.isDarkMode;
-          if (newMode) {
-            document.documentElement.classList.add("dark");
-          } else {
-            document.documentElement.classList.remove("dark");
+          if (typeof document !== "undefined") {
+            if (newMode) {
+              document.documentElement.classList.add("dark");
+            } else {
+              document.documentElement.classList.remove("dark");
+            }
           }
-          localStorage.setItem("theme", newMode ? "dark" : "light");
+          if (typeof localStorage !== "undefined") {
+            localStorage.setItem("theme", newMode ? "dark" : "light");
+          }
           return { isDarkMode: newMode };
         }),
       selectedNodeId: null,
@@ -37,6 +41,9 @@ export const useUIStore = create<UIStore>()(
       environment: "testnet",
       setEnvironment: (environment) => set({ environment }),
       initializeTheme: () => {
+        if (typeof window === "undefined") {
+          return;
+        }
         const stored = localStorage.getItem("theme");
         const isDark =
           stored === "dark" ||
@@ -57,6 +64,22 @@ export const useUIStore = create<UIStore>()(
         refreshInterval: state.refreshInterval,
         environment: state.environment,
       }),
+      storage: {
+        getItem: (name) => {
+          if (typeof window === "undefined") return null;
+          const str = localStorage.getItem(name);
+          if (!str) return null;
+          return JSON.parse(str);
+        },
+        setItem: (name, value) => {
+          if (typeof window === "undefined") return;
+          localStorage.setItem(name, JSON.stringify(value));
+        },
+        removeItem: (name) => {
+          if (typeof window === "undefined") return;
+          localStorage.removeItem(name);
+        },
+      },
     },
   ),
 );

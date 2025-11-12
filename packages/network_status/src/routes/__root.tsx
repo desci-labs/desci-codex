@@ -11,6 +11,8 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { RouteLoader } from "@/components/RouteLoader";
 import { lazy, Suspense, useEffect, useState } from "react";
 import appCss from "../index.css?url";
+import blackLogoUrl from "@/static/DeSci_Protocol_A_Black_v01.svg?url";
+import whiteLogoUrl from "@/static/DeSci_Protocol_A_White_v01.svg?url";
 
 // Lazy load devtools only in development
 const TanStackRouterDevtools = import.meta.env.DEV
@@ -64,13 +66,13 @@ export const Route = createRootRoute({
       {
         rel: "icon",
         type: "image/svg+xml",
-        href: "/static/DeSci_Protocol_A_Black_v01.svg",
+        href: blackLogoUrl,
         media: "(prefers-color-scheme: light)",
       },
       {
         rel: "icon",
         type: "image/svg+xml",
-        href: "/static/DeSci_Protocol_A_White_v01.svg",
+        href: whiteLogoUrl,
         media: "(prefers-color-scheme: dark)",
       },
     ],
