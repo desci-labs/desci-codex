@@ -6,5 +6,26 @@
     "nodejs_compat"
   ],
   "main": "@tanstack/react-start/server-entry",
-  "upload_source_maps": true
+  "upload_source_maps": true,
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    }
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "1b95e321bce24e089e96c3fcdae1e82f",
+      "localConnectionString": "postgres://postgres:postgres@localhost:5432/codex_metrics"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "codex-status.desci.com",
+      "custom_domain": true
+    }
+  ]
 }

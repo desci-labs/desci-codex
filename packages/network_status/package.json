@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",
-    "cf-typegen": "wrangler types",
+    "cf-typegen": "wrangler types src/worker-configuration.gen.d.ts",
     "typecheck": "tsc --noEmit",
     "routes": "tsr generate"
   },
