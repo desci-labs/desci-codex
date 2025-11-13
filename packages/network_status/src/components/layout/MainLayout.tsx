@@ -65,7 +65,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               <EnvironmentSwitch />
               <button
                 onClick={toggleDarkMode}
-                className="rounded-md p-2 hover:bg-accent"
+                className="rounded-md p-2 hover:bg-accent cursor-pointer"
               >
                 {isDarkMode ? (
                   <Sun className="h-5 w-5" />
