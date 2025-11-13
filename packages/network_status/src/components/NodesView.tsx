@@ -21,18 +21,11 @@ import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/uiStore";
 import { NodesViewSkeleton } from "./NodesViewSkeleton";
 import { NodesMap } from "./NodesMap";
-import { getDemoNodes } from "@/data/demo-nodes";
 
 export function NodesView() {
   const { data: nodes, isLoading } = useNodes();
   const { selectedNodeId, setSelectedNodeId } = useUIStore();
   const { data: nodeDetail } = useNodeDetail(selectedNodeId);
-
-  // Get demo nodes (only in development)
-  const demoNodes = getDemoNodes();
-
-  // Merge demo data with actual nodes
-  const displayNodes = nodes ? [...demoNodes, ...nodes] : demoNodes;
 
   if (isLoading) {
     return <NodesViewSkeleton />;
@@ -51,11 +44,10 @@ export function NodesView() {
         <h2 className="text-3xl font-bold tracking-tight">Network Nodes</h2>
         <div className="flex items-center space-x-4">
           <Badge variant="outline">
-            {displayNodes?.filter((n) => isNodeActive(n.lastSeenAt)).length ||
-              0}{" "}
+            {nodes?.filter((n) => isNodeActive(n.lastSeenAt)).length || 0}{" "}
             Active
           </Badge>
-          <Badge variant="outline">{displayNodes?.length || 0} Total</Badge>
+          <Badge variant="outline">{nodes?.length || 0} Total</Badge>
         </div>
       </div>
 
@@ -68,8 +60,8 @@ export function NodesView() {
               <CardTitle>Node Locations</CardTitle>
             </div>
             <Badge variant="outline">
-              {displayNodes?.filter((n) => n.location?.country).length || 0}{" "}
-              with location data
+              {nodes?.filter((n) => n.location?.country).length || 0} with
+              location data
             </Badge>
           </div>
           <CardDescription>
@@ -78,7 +70,7 @@ export function NodesView() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <NodesMap nodes={displayNodes || []} />
+          <NodesMap nodes={nodes || []} />
         </CardContent>
       </Card>
 
@@ -91,7 +83,7 @@ export function NodesView() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
-                {displayNodes?.map((node) => {
+                {nodes?.map((node) => {
                   const active = isNodeActive(node.lastSeenAt);
                   return (
                     <div
