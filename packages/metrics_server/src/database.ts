@@ -10,6 +10,7 @@ import {
   nodeManifests,
   nodeStreams,
   nodeEvents,
+  nodeActivity,
 } from "./drizzleSchema.js";
 import logger from "./logger.js";
 
@@ -157,6 +158,19 @@ export class DatabaseService {
               .onConflictDoNothing();
           }
         }
+
+        // Upsert daily node activity
+        const currentDay = new Date(metrics.collectedAt)
+          .toISOString()
+          .split("T")[0]; // Format: YYYY-MM-DD
+        await tx
+          .insert(nodeActivity)
+          .values({
+            nodeId: metrics.nodeId,
+            day: currentDay,
+            environment: metrics.environment,
+          })
+          .onConflictDoNothing();
       });
 
       log.info(

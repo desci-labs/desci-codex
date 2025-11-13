@@ -5,6 +5,7 @@ import {
   index,
   primaryKey,
   jsonb,
+  date,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -176,6 +177,28 @@ export const nodeEvents = pgTable(
 );
 
 /**
+ * Tracks daily node activity to provide historical data for activity charts.
+ * Each row represents that a node was active on a specific day.
+ * This table is upserted when nodes send metrics to avoid duplicate rows
+ * and provides efficient querying for activity graphs.
+ */
+export const nodeActivity = pgTable(
+  "node_activity",
+  {
+    nodeId: text("node_id")
+      .notNull()
+      .references(() => nodes.nodeId),
+    day: date("day").notNull(),
+    environment: text("environment").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.nodeId, table.day] }),
+    index("idx_node_activity_day").on(table.day.desc()),
+    index("idx_node_activity_node").on(table.nodeId),
+  ],
+);
+
+/**
  * Relations definitions for Drizzle ORM query API.
  * These define the relationships between tables for use with Drizzle's
  * relational query builder, enabling nested queries and joins.
@@ -186,6 +209,7 @@ export const nodesRelations = relations(nodes, ({ many }) => ({
   manifests: many(nodeManifests),
   streams: many(nodeStreams),
   events: many(nodeEvents),
+  activity: many(nodeActivity),
 }));
 
 // Manifest relations - a manifest can be stored by many nodes
@@ -241,5 +265,13 @@ export const nodeEventsRelations = relations(nodeEvents, ({ one }) => ({
   event: one(events, {
     fields: [nodeEvents.eventId],
     references: [events.eventId],
+  }),
+}));
+
+// NodeActivity table relations
+export const nodeActivityRelations = relations(nodeActivity, ({ one }) => ({
+  node: one(nodes, {
+    fields: [nodeActivity.nodeId],
+    references: [nodes.nodeId],
   }),
 }));
