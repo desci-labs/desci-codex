@@ -25,7 +25,7 @@ export const getNetworkStats = createServerFn({ method: "GET" })
       const stats = statsResult.rows[0];
 
       // Get active nodes over time (last 7 days, daily buckets, filled with zeros)
-      // Nodes are considered active if they interacted with manifests, streams, or events
+      // Uses the node_activity table which tracks daily node activity efficiently
       const nodesOverTimeResult = await client.query(
         `
         WITH date_series AS (
@@ -33,35 +33,22 @@ export const getNetworkStats = createServerFn({ method: "GET" })
             DATE_TRUNC('day', NOW() - INTERVAL '7 days'),
             DATE_TRUNC('day', NOW()),
             INTERVAL '1 day'
-          ) AS date
-        ),
-        daily_activity AS (
-          SELECT 
-            DATE_TRUNC('day', first_seen_at) as activity_date,
-            COUNT(DISTINCT node_id) as active_nodes
-          FROM (
-            SELECT node_id, first_seen_at FROM node_manifests WHERE environment = $1
-            UNION 
-            SELECT node_id, first_seen_at FROM node_streams WHERE environment = $1
-            UNION 
-            SELECT node_id, first_seen_at FROM node_events WHERE environment = $1
-          ) activities
-          WHERE first_seen_at >= NOW() - INTERVAL '7 days'
-          GROUP BY DATE_TRUNC('day', first_seen_at)
+          )::date AS date
         )
         SELECT 
           ds.date,
-          COALESCE(da.active_nodes, 0) as count
+          COALESCE(COUNT(na.node_id), 0) as count
         FROM date_series ds
-        LEFT JOIN daily_activity da ON ds.date = da.activity_date
+        LEFT JOIN node_activity na ON ds.date = na.day AND na.environment = $1
+        GROUP BY ds.date
         ORDER BY ds.date ASC
       `,
         [data.environment],
       );
 
-      // Get manifest activity over time (last 7 days, daily buckets, filled with zeros)
-      // Shows how many nodes interacted with manifests each day
-      const manifestsOverTimeResult = await client.query(
+      // Get discovery activity over time (last 7 days, daily buckets, filled with zeros)
+      // Shows how many new events and streams were discovered each day
+      const discoveryOverTimeResult = await client.query(
         `
         WITH date_series AS (
           SELECT generate_series(
@@ -70,19 +57,29 @@ export const getNetworkStats = createServerFn({ method: "GET" })
             INTERVAL '1 day'
           ) AS date
         ),
-        daily_manifest_activity AS (
+        daily_event_discovery AS (
           SELECT 
-            DATE_TRUNC('day', first_seen_at) as activity_date,
-            COUNT(DISTINCT node_id) as active_nodes
-          FROM node_manifests
+            DATE_TRUNC('day', first_seen_at) as discovery_date,
+            COUNT(*) as new_events
+          FROM events
+          WHERE first_seen_at >= NOW() - INTERVAL '7 days' AND environment = $1
+          GROUP BY DATE_TRUNC('day', first_seen_at)
+        ),
+        daily_stream_discovery AS (
+          SELECT 
+            DATE_TRUNC('day', first_seen_at) as discovery_date,
+            COUNT(*) as new_streams
+          FROM streams
           WHERE first_seen_at >= NOW() - INTERVAL '7 days' AND environment = $1
           GROUP BY DATE_TRUNC('day', first_seen_at)
         )
         SELECT 
           ds.date,
-          COALESCE(dma.active_nodes, 0) as count
+          COALESCE(ded.new_events, 0) as events,
+          COALESCE(dsd.new_streams, 0) as streams
         FROM date_series ds
-        LEFT JOIN daily_manifest_activity dma ON ds.date = dma.activity_date
+        LEFT JOIN daily_event_discovery ded ON ds.date = ded.discovery_date
+        LEFT JOIN daily_stream_discovery dsd ON ds.date = dsd.discovery_date
         ORDER BY ds.date ASC
       `,
         [data.environment],
@@ -98,9 +95,10 @@ export const getNetworkStats = createServerFn({ method: "GET" })
           date: row.date,
           count: Number(row.count),
         })),
-        manifestsOverTime: manifestsOverTimeResult.rows.map((row) => ({
+        discoveryOverTime: discoveryOverTimeResult.rows.map((row) => ({
           date: row.date,
-          count: Number(row.count),
+          events: Number(row.events),
+          streams: Number(row.streams),
         })),
       };
     } finally {

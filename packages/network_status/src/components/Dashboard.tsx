@@ -20,6 +20,8 @@ import { format } from "date-fns";
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -156,14 +158,14 @@ export function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Manifest Activity (7 days)</CardTitle>
+            <CardTitle>Content Discovery (7 days)</CardTitle>
             <CardDescription>
-              Number of nodes interacting with manifests
+              New events and streams discovered each day
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={stats?.manifestsOverTime || []}>
+              <BarChart data={stats?.discoveryOverTime || []}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="date"
@@ -172,21 +174,26 @@ export function Dashboard() {
                 />
                 <YAxis className="fill-muted-foreground" />
                 <Tooltip
+                  cursor={{ fill: "rgba(255, 255, 255, 0.1)", stroke: "none" }}
                   content={
                     <ChartTooltip
                       labelFormatter={(value) => format(new Date(value), "PPP")}
                     />
                   }
                 />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke="hsl(var(--destructive))"
-                  strokeWidth={2}
-                  dot={{ fill: "hsl(var(--destructive))", strokeWidth: 2 }}
-                  activeDot={{ r: 4, fill: "hsl(var(--destructive))" }}
+                <Bar
+                  dataKey="streams"
+                  fill="hsl(142, 60%, 65%)"
+                  radius={[2, 2, 0, 0]}
+                  name="Streams"
                 />
-              </LineChart>
+                <Bar
+                  dataKey="events"
+                  fill="hsl(217, 70%, 70%)"
+                  radius={[2, 2, 0, 0]}
+                  name="Events"
+                />
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
