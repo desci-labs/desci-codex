@@ -91,7 +91,7 @@ export function NodesView() {
               <CardDescription>Click on a node to view details</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 max-h-[600px] overflow-y-auto">
+              <div className="space-y-2 max-h-[600px] overflow-y-auto custom-scrollbar">
                 {nodes?.map((node) => {
                   const active = isNodeActive(node.lastSeenAt);
                   return (
@@ -225,7 +225,7 @@ export function NodesView() {
                 {nodeDetail.manifests && nodeDetail.manifests.length > 0 && (
                   <div className="pt-4 border-t">
                     <p className="text-sm font-medium mb-2">Recent Manifests</p>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                    <div className="space-y-2 max-h-32 overflow-y-auto custom-scrollbar">
                       {nodeDetail.manifests.slice(0, 5).map((manifest) => (
                         <div
                           key={manifest.manifestCid}

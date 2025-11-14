@@ -162,7 +162,7 @@ export function StreamsView() {
                             </motion.div>
                           ) : streamEvents && streamEvents.length > 0 ? (
                             <motion.div
-                              className="space-y-2 max-h-48 overflow-y-auto"
+                              className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar"
                               initial={{ opacity: 0, y: -10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: 0.1, duration: 0.2 }}
