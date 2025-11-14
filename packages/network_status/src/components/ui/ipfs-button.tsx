@@ -22,7 +22,7 @@ export function IPFSButton({ cid, className, size = "sm" }: IPFSButtonProps) {
     <button
       onClick={handleClick}
       className={cn(
-        "inline-flex items-center justify-center rounded hover:bg-accent transition-colors",
+        "inline-flex items-center justify-center rounded hover:bg-accent transition-colors cursor-pointer",
         buttonSize,
         className,
       )}
