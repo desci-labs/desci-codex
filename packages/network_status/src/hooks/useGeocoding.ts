@@ -137,7 +137,7 @@ export function useGeocoding(
           );
 
           if (response.ok) {
-            const data = await response.json();
+            const data = await response.json<[{ lat: string; lon: string }]>();
             if (data && data.length > 0) {
               const coords: GeoLocation = {
                 lat: parseFloat(data[0].lat),

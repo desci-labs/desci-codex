@@ -375,9 +375,6 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.17
         version: 4.1.17(vite@7.2.2(@types/node@22.19.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.3))
-      '@tanstack/router-cli':
-        specifier: ^1.134.12
-        version: 1.136.1
       '@types/node':
         specifier: ^22.10.2
         version: 22.19.0
@@ -397,7 +394,7 @@ importers:
         specifier: ^4.1.17
         version: 4.1.17
       typescript:
-        specifier: ^5.7.2
+        specifier: ^5.9.3
         version: 5.9.3
       vite:
         specifier: ^7.1.12
@@ -3992,11 +3989,6 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  '@tanstack/router-cli@1.136.1':
-    resolution: {integrity: sha512-YMw1la5aL+uyxZtwsNiYG4dCTuOaTEdb/THYdZD7xwX6ush8bcYERdLmhdTTKEqhNaky3tvKayK7QIqlno21rQ==}
-    engines: {node: '>=12'}
-    hasBin: true
 
   '@tanstack/router-core@1.136.1':
     resolution: {integrity: sha512-+X3Z99w4g2MpZuB2ZgK5q5bSi7Egp3N88Ee+ZyLw8kMvOk+NRlXBVkEyq92Qn/hEl5LX8jYsv6RhChm2yRs/6A==}
@@ -16091,14 +16083,6 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       use-sync-external-store: 1.6.0(react@19.2.0)
-
-  '@tanstack/router-cli@1.136.1':
-    dependencies:
-      '@tanstack/router-generator': 1.136.1
-      chokidar: 3.6.0
-      yargs: 17.7.2
-    transitivePeerDependencies:
-      - supports-color
 
   '@tanstack/router-core@1.136.1':
     dependencies:

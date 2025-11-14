@@ -26,9 +26,7 @@ export function createRouter() {
   return createTanStackRouter({
     routeTree,
     defaultPreload: "intent",
-    scrollRestoration: {
-      getKey: (location) => location.href,
-    },
+    scrollRestoration: true,
     defaultNotFoundComponent: NotFound,
   });
 }

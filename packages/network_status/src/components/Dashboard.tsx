@@ -137,11 +137,12 @@ export function Dashboard() {
                 />
                 <YAxis className="fill-muted-foreground" />
                 <Tooltip
-                  content={
+                  content={(props) => (
                     <ChartTooltip
+                      {...props}
                       labelFormatter={(value) => format(new Date(value), "PPP")}
                     />
-                  }
+                  )}
                 />
                 <Line
                   type="monotone"
@@ -175,11 +176,12 @@ export function Dashboard() {
                 <YAxis className="fill-muted-foreground" />
                 <Tooltip
                   cursor={{ fill: "rgba(255, 255, 255, 0.1)", stroke: "none" }}
-                  content={
+                  content={(props) => (
                     <ChartTooltip
+                      {...props}
                       labelFormatter={(value) => format(new Date(value), "PPP")}
                     />
-                  }
+                  )}
                 />
                 <Bar
                   dataKey="streams"
