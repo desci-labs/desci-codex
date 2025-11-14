@@ -1,5 +1,4 @@
 import { Client } from "pg";
-import "dotenv/config";
 import { env } from "cloudflare:workers";
 
 // Cloudflare workers doesn't allow sharing between invocations,

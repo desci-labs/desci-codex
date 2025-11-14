@@ -95,7 +95,3 @@ src/
 ├── types/        # TypeScript type definitions
 └── lib/          # Utility functions
 ```
-
-## Environment Variables
-
-Currently, no environment variables are required. The API server uses hardcoded database credentials that match the devenv setup. In production, these should be configurable via environment variables.

@@ -14,7 +14,7 @@ export default defineConfig({
     tailwindcss(),
     react({
       babel: {
-        plugins: [["babel-plugin-react-compiler"]],
+        plugins: ["babel-plugin-react-compiler"],
       },
     }),
     ...(process.env.ANALYZE ? [analyzer()] : []),
@@ -23,7 +23,7 @@ export default defineConfig({
     noExternal: ["@tanstack/react-start", "@tanstack/react-router"],
   },
   optimizeDeps: {
-    exclude: ["pg", "dotenv"],
+    exclude: ["pg"],
   },
   build: {
     rollupOptions: {
