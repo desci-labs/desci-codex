@@ -145,18 +145,20 @@ export function StreamsView() {
                               animate={{ opacity: 1 }}
                               transition={{ delay: 0.1 }}
                             >
-                              {[...Array(3)].map((_, i) => (
-                                <div
-                                  key={i}
-                                  className="flex items-center justify-between p-2 bg-background rounded"
-                                >
-                                  <div className="flex-1 min-w-0">
-                                    <Skeleton className="h-3 w-48 mb-1" />
-                                    <Skeleton className="h-3 w-64" />
+                              {[...Array(Math.min(stream.eventCount, 3))].map(
+                                (_, i) => (
+                                  <div
+                                    key={i}
+                                    className="flex items-center justify-between p-2 bg-background rounded"
+                                  >
+                                    <div className="flex-1 min-w-0">
+                                      <Skeleton className="h-3 w-48 mb-1" />
+                                      <Skeleton className="h-3 w-64" />
+                                    </div>
+                                    <Skeleton className="h-3 w-20 ml-2 flex-shrink-0" />
                                   </div>
-                                  <Skeleton className="h-3 w-20 ml-2 flex-shrink-0" />
-                                </div>
-                              ))}
+                                ),
+                              )}
                             </motion.div>
                           ) : streamEvents && streamEvents.length > 0 ? (
                             <motion.div
