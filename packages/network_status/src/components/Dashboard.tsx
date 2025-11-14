@@ -141,6 +141,7 @@ export function Dashboard() {
                     <ChartTooltip
                       {...props}
                       labelFormatter={(value) => format(new Date(value), "PPP")}
+                      pluralizeKeys={{ count: "node" }}
                     />
                   )}
                 />
@@ -180,6 +181,7 @@ export function Dashboard() {
                     <ChartTooltip
                       {...props}
                       labelFormatter={(value) => format(new Date(value), "PPP")}
+                      pluralizeKeys={{ streams: "stream", events: "event" }}
                     />
                   )}
                 />

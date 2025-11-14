@@ -4,23 +4,44 @@ import type {
   NameType,
 } from "recharts/types/component/DefaultTooltipContent";
 
+interface ChartTooltipProps extends TooltipContentProps<ValueType, NameType> {
+  pluralizeKeys?: Record<string, string>;
+}
+
 export function ChartTooltip({
   active,
   payload,
   label,
   labelFormatter,
-}: TooltipContentProps<ValueType, NameType>) {
+  pluralizeKeys = {},
+}: ChartTooltipProps) {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg border bg-background p-2 shadow-md">
         <div className="text-sm font-medium">
           {labelFormatter && label ? labelFormatter(label, payload) : label}
         </div>
-        {payload.map((entry, index) => (
-          <div key={index} className="text-sm text-muted-foreground">
-            <span style={{ color: entry.color }}>●</span> {entry.value}
-          </div>
-        ))}
+        {payload.map((entry, index) => {
+          const value = entry.value as number;
+          const dataKey = entry.dataKey as string;
+
+          let displayText: string;
+          if (pluralizeKeys[dataKey]) {
+            const baseWord = pluralizeKeys[dataKey];
+            const pluralizedWord = value === 1 ? baseWord : `${baseWord}s`;
+            displayText = `${value} ${pluralizedWord}`;
+          } else if (entry.name) {
+            displayText = `${entry.name}: ${value}`;
+          } else {
+            displayText = String(value);
+          }
+
+          return (
+            <div key={index} className="text-sm text-muted-foreground">
+              <span style={{ color: entry.color }}>●</span> {displayText}
+            </div>
+          );
+        })}
       </div>
     );
   }
