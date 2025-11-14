@@ -5,11 +5,13 @@ import {
   createRootRoute,
   HeadContent,
   Scripts,
+  useLocation,
 } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { RouteLoader } from "@/components/RouteLoader";
 import { lazy, Suspense, useEffect, useState } from "react";
+import { motion } from "motion/react";
 import appCss from "../index.css?url";
 import blackLogoUrl from "@/static/DeSci_Protocol_A_Black_v01.svg?url";
 import whiteLogoUrl from "@/static/DeSci_Protocol_A_White_v01.svg?url";
@@ -82,6 +84,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const [isClient, setIsClient] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     setIsClient(true);
@@ -91,9 +94,16 @@ function RootComponent() {
     <RootDocument>
       <QueryClientProvider client={queryClient}>
         <MainLayout>
-          <Suspense fallback={<RouteLoader />}>
-            <Outlet />
-          </Suspense>
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <Suspense fallback={<RouteLoader />}>
+              <Outlet />
+            </Suspense>
+          </motion.div>
         </MainLayout>
         {import.meta.env.DEV && isClient && (
           <>

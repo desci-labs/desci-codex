@@ -14,11 +14,17 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { Database, Users } from "lucide-react";
 import { ManifestsViewSkeleton } from "./ManifestsViewSkeleton";
+import { PageContainer } from "./layout/PageContainer";
+import { FetchIndicator } from "./animations/FetchIndicator";
 
 export function ManifestsView() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(25);
-  const { data: manifestsResponse, isLoading } = useManifests(page, limit);
+  const {
+    data: manifestsResponse,
+    isLoading,
+    isFetching,
+  } = useManifests(page, limit);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -30,16 +36,23 @@ export function ManifestsView() {
   };
 
   if (isLoading) {
-    return <ManifestsViewSkeleton />;
+    return (
+      <PageContainer>
+        <ManifestsViewSkeleton />
+      </PageContainer>
+    );
   }
 
   const manifests = manifestsResponse?.data || [];
   const pagination = manifestsResponse?.pagination;
 
   return (
-    <div className="space-y-6">
+    <PageContainer>
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Manifests</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-3xl font-bold tracking-tight">Manifests</h2>
+          <FetchIndicator isVisible={isFetching && !isLoading} />
+        </div>
         <Badge variant="outline">
           <Database className="h-3 w-3 mr-1" />
           {pagination?.total.toLocaleString() || 0} Total
@@ -97,6 +110,6 @@ export function ManifestsView() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   );
 }

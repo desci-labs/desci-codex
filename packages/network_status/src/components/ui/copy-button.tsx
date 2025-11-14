@@ -33,7 +33,7 @@ export function CopyButton({ text, className, size = "sm" }: CopyButtonProps) {
     <button
       onClick={handleCopy}
       className={cn(
-        "inline-flex items-center justify-center rounded hover:bg-accent transition-colors",
+        "inline-flex items-center justify-center rounded hover:bg-accent transition-colors cursor-pointer",
         buttonSize,
         className,
       )}

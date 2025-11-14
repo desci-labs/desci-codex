@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export function ManifestsViewSkeleton() {
   return (
-    <div className="space-y-6">
+    <>
       <div className="flex items-center justify-between">
         <Skeleton className="h-9 w-32" />
         <Skeleton className="h-8 w-24" />
@@ -56,6 +56,6 @@ export function ManifestsViewSkeleton() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }

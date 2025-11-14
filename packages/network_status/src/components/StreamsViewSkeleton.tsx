@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export function StreamsViewSkeleton() {
   return (
-    <div className="space-y-6">
+    <>
       <div className="flex items-center justify-between">
         <Skeleton className="h-9 w-28" />
         <Skeleton className="h-8 w-24" />
@@ -56,6 +56,6 @@ export function StreamsViewSkeleton() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }

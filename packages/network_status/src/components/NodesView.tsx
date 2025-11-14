@@ -21,14 +21,20 @@ import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/uiStore";
 import { NodesViewSkeleton } from "./NodesViewSkeleton";
 import { NodesMap } from "./NodesMap";
+import { PageContainer } from "./layout/PageContainer";
+import { FetchIndicator } from "./animations/FetchIndicator";
 
 export function NodesView() {
-  const { data: nodes, isLoading } = useNodes();
+  const { data: nodes, isLoading, isFetching } = useNodes();
   const { selectedNodeId, setSelectedNodeId } = useUIStore();
   const { data: nodeDetail } = useNodeDetail(selectedNodeId);
 
   if (isLoading) {
-    return <NodesViewSkeleton />;
+    return (
+      <PageContainer>
+        <NodesViewSkeleton />
+      </PageContainer>
+    );
   }
 
   const isNodeActive = (lastSeenAt: string) => {
@@ -39,9 +45,12 @@ export function NodesView() {
   };
 
   return (
-    <div className="space-y-6">
+    <PageContainer>
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Network Nodes</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-3xl font-bold tracking-tight">Network Nodes</h2>
+          <FetchIndicator isVisible={isFetching && !isLoading} />
+        </div>
         <div className="flex items-center space-x-4">
           <Badge variant="outline">
             {nodes?.filter((n) => isNodeActive(n.lastSeenAt)).length || 0}{" "}
@@ -248,6 +257,6 @@ export function NodesView() {
           )}
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
