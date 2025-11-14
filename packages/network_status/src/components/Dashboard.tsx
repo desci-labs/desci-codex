@@ -130,17 +130,19 @@ export function Dashboard() {
                   <div className="text-2xl font-bold">
                     {stat.value.toLocaleString()}
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {stat.description}
-                  </p>
-                  {stat.trend && (
-                    <div className="flex items-center mt-2">
-                      <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
-                      <span className="text-xs text-green-500">
-                        {stat.trend}
-                      </span>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">
+                      {stat.description}
+                    </p>
+                    {stat.trend && (
+                      <div className="flex items-center">
+                        <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
+                        <span className="text-xs text-green-500">
+                          {stat.trend}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </StaggeredItem>
