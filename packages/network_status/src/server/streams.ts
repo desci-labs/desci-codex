@@ -34,7 +34,7 @@ export const getStreams = createServerFn({ method: "GET" })
           s.stream_id,
           s.stream_cid,
           s.first_seen_at,
-          COUNT(e.event_id) as event_count,
+          COUNT(DISTINCT e.event_id) as event_count,
           COUNT(DISTINCT ns.node_id) as node_count
         FROM streams s
         LEFT JOIN events e ON s.stream_id = e.stream_id AND e.environment = $1
