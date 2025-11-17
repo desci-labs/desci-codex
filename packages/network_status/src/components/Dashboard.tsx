@@ -102,13 +102,11 @@ export function Dashboard() {
           transition={{ duration: 0.4, delay: 0.3 }}
         >
           <Badge variant="success" className="px-3 py-1">
-            <motion.span
-              className="mr-2"
+            <motion.div
+              className="mr-2 w-2 h-2 bg-current rounded-full"
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
-            >
-              ●
-            </motion.span>
+            />
             Network Online
           </Badge>
         </motion.div>

@@ -37,8 +37,15 @@ export function ChartTooltip({
           }
 
           return (
-            <div key={index} className="text-sm text-muted-foreground">
-              <span style={{ color: entry.color }}>●</span> {displayText}
+            <div
+              key={index}
+              className="flex items-center gap-1 text-sm text-muted-foreground"
+            >
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: entry.color }}
+              />
+              {displayText}
             </div>
           );
         })}

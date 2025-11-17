@@ -94,6 +94,9 @@ export function MainLayout({ children }: MainLayoutProps) {
               <AnimatedButton
                 onClick={toggleDarkMode}
                 className="rounded-md p-2 hover:bg-accent cursor-pointer"
+                aria-label={
+                  isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+                }
               >
                 {isDarkMode ? (
                   <Sun className="h-5 w-5" />

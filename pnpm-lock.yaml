@@ -48,7 +48,7 @@ importers:
     devDependencies:
       '@ceramicnetwork/cli':
         specifier: ^5.2.0
-        version: 5.16.0(@polkadot/util@7.9.2)(@types/express@5.0.5)(encoding@0.1.13)(pg@8.16.3)(typescript@5.8.3)(zod@3.25.76)
+        version: 5.16.0(@polkadot/util@7.9.2)(@types/express@5.0.5)(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
       '@ceramicnetwork/http-client':
         specifier: ^5.2.0
         version: 5.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
@@ -9924,6 +9924,7 @@ packages:
   wrangler@4.48.0:
     resolution: {integrity: sha512-qkcwysx96XNDWXl4w/5VjAZjqWatxAq9chMXVeqv/etL9e06ouPaZ+Hwwbe5XYV2GYf/XhZVZ3fHJcTBrq60gQ==}
     engines: {node: '>=18.0.0'}
+    deprecated: Unexpected API fields cause wrangler deploy to crash in some code paths. Downgrade to wrangler@4.47
     hasBin: true
     peerDependencies:
       '@cloudflare/workers-types': ^4.20251109.0
@@ -11494,7 +11495,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@ceramicnetwork/cli@5.16.0(@polkadot/util@7.9.2)(@types/express@5.0.5)(encoding@0.1.13)(pg@8.16.3)(typescript@5.8.3)(zod@3.25.76)':
+  '@ceramicnetwork/cli@5.16.0(@polkadot/util@7.9.2)(@types/express@5.0.5)(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)':
     dependencies:
       '@awaitjs/express': 0.9.0(@types/express@5.0.5)(express@4.21.2)
       '@ceramicnetwork/3id-did-resolver': 5.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
