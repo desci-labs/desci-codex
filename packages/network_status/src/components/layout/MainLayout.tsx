@@ -39,7 +39,10 @@ export function MainLayout({ children }: MainLayoutProps) {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-3">
+              <Link
+                to="/"
+                className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+              >
                 <motion.img
                   src={isDarkMode ? whiteLogo : blackLogo}
                   alt="Codex Network Logo"
@@ -59,7 +62,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                   }}
                 />
                 <h1 className="text-xl font-bold">Codex Network Status</h1>
-              </div>
+              </Link>
               <motion.nav
                 className="flex space-x-6"
                 initial={{ opacity: 0 }}

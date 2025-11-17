@@ -12,7 +12,7 @@ A modern web application for visualizing the health and status of the Codex Netw
 
 ## Tech Stack
 
-- **React 18** with TypeScript
+- **React 19** with TypeScript
 - **Vite** for fast development and building
 - **TanStack Query** for efficient data fetching and caching
 - **TanStack Router** for type-safe routing
@@ -24,7 +24,7 @@ A modern web application for visualizing the health and status of the Codex Netw
 
 - Node.js >= 20
 - pnpm >= 10
-- PostgreSQL database with Codex metrics data (using devenv credentials from metrics_server/.env)
+- PostgreSQL database with Codex metrics data
 
 ## Installation
 
@@ -36,12 +36,7 @@ pnpm install
 ## Development
 
 ```bash
-# Start both API server and client (recommended)
 pnpm dev
-
-# Or start them separately:
-pnpm dev:api    # API server on port 3004
-pnpm dev:client # Vite dev server on port 3000
 ```
 
 The application will be available at http://localhost:3000
@@ -57,14 +52,19 @@ pnpm build
 pnpm preview
 ```
 
+## Deploying
+The app deploys to a Cloudflare Worker. This can be done with:
+
+```bash
+# Note: different than `pnpm deploy`
+pnpm run deploy
+```
+
 ## Configuration
 
-The app includes its own API server that connects directly to the PostgreSQL database using the credentials:
-- Host: localhost
-- Port: 5432  
-- Database: codex_metrics
-- User: postgres
-- Password: postgres
+The app includes its own API server that connects directly to the PostgreSQL database.
+During local development, this tries to automatically connect to the postgres container
+used by the metrics_server in the compose cluster.
 
 The Vite dev server proxies `/api` requests to the API server on port 3004.
 
