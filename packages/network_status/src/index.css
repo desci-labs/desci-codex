@@ -262,4 +262,32 @@
   .custom-scrollbar::-webkit-scrollbar-corner {
     background: transparent;
   }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+
+    /* Ensure better touch targets on mobile */
+    .mobile-touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Improve readability on small screens */
+    .recharts-cartesian-axis-tick-value {
+      font-size: 10px !important;
+    }
+
+    /* Ensure proper spacing for mobile */
+    .container {
+      max-width: 100% !important;
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+  }
+
+  /* Prevent horizontal overflow */
+  .prevent-overflow {
+    overflow-x: hidden;
+    word-break: break-word;
+  }
 }

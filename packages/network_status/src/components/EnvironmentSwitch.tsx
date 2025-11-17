@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 import { motion } from "motion/react";
 
 const environmentButtonVariants = cva(
-  "px-3 py-1 rounded-md text-xs font-medium transition-all",
+  "px-3 py-1 rounded-md text-xs font-medium transition-all whitespace-nowrap",
   {
     variants: {
       variant: {
@@ -44,7 +44,7 @@ export function EnvironmentSwitch() {
   const { environment, setEnvironment } = useUIStore();
 
   return (
-    <div className="relative flex rounded-lg border p-1 bg-muted/50">
+    <div className="relative flex rounded-lg border p-1 bg-muted/50 min-w-fit whitespace-nowrap">
       <motion.button
         onClick={() => setEnvironment("testnet")}
         className={environmentButtonVariants({

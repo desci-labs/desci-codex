@@ -90,18 +90,20 @@ export function Dashboard() {
       transition={{ duration: 0.6 }}
     >
       <motion.div
-        className="flex items-center justify-between"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
-        <h2 className="text-3xl font-bold tracking-tight">Network Overview</h2>
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+          Network Overview
+        </h2>
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.3 }}
         >
-          <Badge variant="success" className="px-3 py-1">
+          <Badge variant="success" className="px-3 py-1 w-fit">
             <motion.div
               className="mr-2 w-2 h-2 bg-current rounded-full"
               animate={{ opacity: [0.5, 1, 0.5] }}
@@ -112,28 +114,28 @@ export function Dashboard() {
         </motion.div>
       </motion.div>
 
-      <StaggeredList className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <StaggeredList className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
             <StaggeredItem key={stat.title}>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
+              <Card className="h-full">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm md:text-base font-medium">
                     {stat.title}
                   </CardTitle>
-                  <Icon className="h-4 w-4 text-muted-foreground" />
+                  <Icon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
+                <CardContent className="pt-0">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-2">
                     {stat.value.toLocaleString()}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {stat.description}
                     </p>
                     {stat.trend && (
-                      <div className="flex items-center">
+                      <div className="flex items-center w-fit">
                         <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
                         <span className="text-xs text-green-500">
                           {stat.trend}
@@ -149,7 +151,7 @@ export function Dashboard() {
       </StaggeredList>
 
       <motion.div
-        className="grid gap-4 md:grid-cols-2"
+        className="grid gap-4 lg:grid-cols-2"
         initial="hidden"
         animate="visible"
         variants={{
@@ -175,7 +177,7 @@ export function Dashboard() {
               <CardDescription>Number of nodes active each day</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={stats?.nodesOverTime || []}>
                   <CartesianGrid
                     strokeDasharray="3 3"
@@ -184,9 +186,13 @@ export function Dashboard() {
                   <XAxis
                     dataKey="date"
                     tickFormatter={(value) => format(new Date(value), "MMM d")}
-                    className="fill-muted-foreground"
+                    className="fill-muted-foreground text-xs"
+                    tick={{ fontSize: 12 }}
                   />
-                  <YAxis className="fill-muted-foreground" />
+                  <YAxis
+                    className="fill-muted-foreground text-xs"
+                    tick={{ fontSize: 12 }}
+                  />
                   <Tooltip
                     content={(props) => (
                       <ChartTooltip
@@ -203,7 +209,7 @@ export function Dashboard() {
                     dataKey="count"
                     stroke="hsl(var(--primary))"
                     strokeWidth={2}
-                    dot={{ fill: "hsl(var(--primary))", strokeWidth: 2 }}
+                    dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 3 }}
                     activeDot={{ r: 4, fill: "hsl(var(--primary))" }}
                   />
                 </LineChart>
@@ -226,7 +232,7 @@ export function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={stats?.discoveryOverTime || []}>
                   <CartesianGrid
                     strokeDasharray="3 3"
@@ -235,9 +241,13 @@ export function Dashboard() {
                   <XAxis
                     dataKey="date"
                     tickFormatter={(value) => format(new Date(value), "MMM d")}
-                    className="fill-muted-foreground"
+                    className="fill-muted-foreground text-xs"
+                    tick={{ fontSize: 12 }}
                   />
-                  <YAxis className="fill-muted-foreground" />
+                  <YAxis
+                    className="fill-muted-foreground text-xs"
+                    tick={{ fontSize: 12 }}
+                  />
                   <Tooltip
                     cursor={{
                       fill: "rgba(255, 255, 255, 0.1)",
@@ -283,34 +293,40 @@ export function Dashboard() {
             <CardDescription>Latest nodes to join the network</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {recentNodes.map((node) => (
                 <div
                   key={node.nodeId}
-                  className="flex items-center justify-between p-2 rounded-lg hover:bg-accent cursor-pointer transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer transition-colors gap-3"
                   onClick={() => handleNodeClick(node.nodeId)}
                 >
-                  <div className="flex items-center space-x-4">
-                    <div className="h-2 w-2 rounded-full bg-green-500" />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium font-mono">
+                  <div className="flex items-start space-x-3 min-w-0 flex-1">
+                    <div className="h-2 w-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-medium font-mono break-all">
                           {node.nodeId}
                         </p>
-                        <CopyButton text={node.nodeId} />
+                        <CopyButton
+                          text={node.nodeId}
+                          className="flex-shrink-0"
+                        />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-muted-foreground">
+                      <div className="flex items-start gap-2 flex-wrap">
+                        <p className="text-xs text-muted-foreground break-all">
                           Ceramic peer ID:{" "}
                           <span className="font-mono">
                             {node.ceramicPeerId}
                           </span>
                         </p>
-                        <CopyButton text={node.ceramicPeerId} />
+                        <CopyButton
+                          text={node.ceramicPeerId}
+                          className="flex-shrink-0"
+                        />
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right flex-shrink-0">
                     <p className="text-xs text-muted-foreground">
                       Last seen: {format(new Date(node.lastSeenAt), "pp")}
                     </p>
