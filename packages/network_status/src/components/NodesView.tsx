@@ -23,6 +23,7 @@ import { NodesViewSkeleton } from "./NodesViewSkeleton";
 import { NodesMap } from "./NodesMap";
 import { PageContainer } from "./layout/PageContainer";
 import { FetchIndicator } from "./animations/FetchIndicator";
+import { CountBadge } from "./CountBadge";
 
 export function NodesView() {
   const { data: nodes, isLoading, isFetching } = useNodes();
@@ -52,11 +53,11 @@ export function NodesView() {
           <FetchIndicator isVisible={isFetching && !isLoading} />
         </div>
         <div className="flex items-center space-x-4">
-          <Badge variant="outline">
-            {nodes?.filter((n) => isNodeActive(n.lastSeenAt)).length || 0}{" "}
-            Active
-          </Badge>
-          <Badge variant="outline">{nodes?.length || 0} Total</Badge>
+          <CountBadge
+            count={nodes?.filter((n) => isNodeActive(n.lastSeenAt)).length}
+            label="Active"
+          />
+          <CountBadge count={nodes?.length} />
         </div>
       </div>
 

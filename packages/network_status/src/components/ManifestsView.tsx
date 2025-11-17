@@ -16,6 +16,7 @@ import { Database, Users } from "lucide-react";
 import { ManifestsViewSkeleton } from "./ManifestsViewSkeleton";
 import { PageContainer } from "./layout/PageContainer";
 import { FetchIndicator } from "./animations/FetchIndicator";
+import { CountBadge } from "./CountBadge";
 
 export function ManifestsView() {
   const [page, setPage] = useState(1);
@@ -53,10 +54,7 @@ export function ManifestsView() {
           <h2 className="text-3xl font-bold tracking-tight">Manifests</h2>
           <FetchIndicator isVisible={isFetching && !isLoading} />
         </div>
-        <Badge variant="outline">
-          <Database className="h-3 w-3 mr-1" />
-          {pagination?.total.toLocaleString() || 0} Total
-        </Badge>
+        <CountBadge count={pagination?.total} icon={Database} />
       </div>
 
       <Card>
