@@ -9,6 +9,7 @@ import {
   FileCode,
   Menu,
   X,
+  CircleHelp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -46,6 +47,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     { to: "/nodes", label: "Nodes", icon: Network },
     { to: "/manifests", label: "Manifests", icon: Database },
     { to: "/streams", label: "Streams", icon: FileCode },
+    { to: "/faq", label: "FAQ", icon: CircleHelp },
   ];
 
   return (

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StreamsRouteImport } from './routes/streams'
 import { Route as NodesRouteImport } from './routes/nodes'
 import { Route as ManifestsRouteImport } from './routes/manifests'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as IndexRouteImport } from './routes/index'
 
 const StreamsRoute = StreamsRouteImport.update({
@@ -29,6 +30,11 @@ const ManifestsRoute = ManifestsRouteImport.update({
   path: '/manifests',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/faq': typeof FaqRoute
   '/manifests': typeof ManifestsRoute
   '/nodes': typeof NodesRoute
   '/streams': typeof StreamsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/faq': typeof FaqRoute
   '/manifests': typeof ManifestsRoute
   '/nodes': typeof NodesRoute
   '/streams': typeof StreamsRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/faq': typeof FaqRoute
   '/manifests': typeof ManifestsRoute
   '/nodes': typeof NodesRoute
   '/streams': typeof StreamsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/manifests' | '/nodes' | '/streams'
+  fullPaths: '/' | '/faq' | '/manifests' | '/nodes' | '/streams'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/manifests' | '/nodes' | '/streams'
-  id: '__root__' | '/' | '/manifests' | '/nodes' | '/streams'
+  to: '/' | '/faq' | '/manifests' | '/nodes' | '/streams'
+  id: '__root__' | '/' | '/faq' | '/manifests' | '/nodes' | '/streams'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FaqRoute: typeof FaqRoute
   ManifestsRoute: typeof ManifestsRoute
   NodesRoute: typeof NodesRoute
   StreamsRoute: typeof StreamsRoute
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManifestsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FaqRoute: FaqRoute,
   ManifestsRoute: ManifestsRoute,
   NodesRoute: NodesRoute,
   StreamsRoute: StreamsRoute,
