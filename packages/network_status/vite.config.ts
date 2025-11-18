@@ -5,6 +5,17 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
+import { execSync } from "child_process";
+
+// Get the current git commit hash
+function getGitCommitHash() {
+  try {
+    return execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
+  } catch (error) {
+    console.warn("Could not get git commit hash:", error);
+    return "unknown";
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -19,6 +30,10 @@ export default defineConfig({
     }),
     ...(process.env.ANALYZE ? [analyzer()] : []),
   ],
+  define: {
+    __COMMIT_HASH__: JSON.stringify(getGitCommitHash()),
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
   ssr: {
     noExternal: ["@tanstack/react-start", "@tanstack/react-router"],
   },

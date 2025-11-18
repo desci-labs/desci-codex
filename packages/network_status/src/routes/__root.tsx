@@ -10,6 +10,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { RouteLoader } from "@/components/RouteLoader";
+import { BuildInfo } from "@/components/BuildInfo";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import appCss from "../index.css?url";
@@ -115,6 +116,7 @@ function RootComponent() {
             </Suspense>
           </>
         )}
+        <BuildInfo />
       </QueryClientProvider>
     </RootDocument>
   );
