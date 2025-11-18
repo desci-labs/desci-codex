@@ -431,13 +431,13 @@ importers:
         version: 7.0.4
       '@desci-labs/desci-codex-lib':
         specifier: workspace:*
-        version: file:packages/lib(encoding@0.1.13)(typescript@5.8.3)
+        version: link:../lib
       '@desci-labs/desci-codex-metrics':
         specifier: workspace:*
         version: link:../metrics
       '@desci-labs/desci-codex-models':
         specifier: workspace:*
-        version: file:packages/models(typescript@5.8.3)(zod@3.25.76)
+        version: link:../models
       '@helia/block-brokers':
         specifier: ^4.2.2
         version: 4.2.2
@@ -1444,13 +1444,6 @@ packages:
 
   '@desci-labs/desci-codex-composedb@2.0.2':
     resolution: {integrity: sha512-AEnWKXFqZFNhdCqyVTHwbdPcvb9+R3sZ6A0X6jAN7iS+J/0MHmv2muTEe1dbDcSZ6SteBTFc8p1wXqangwuegQ==}
-
-  '@desci-labs/desci-codex-lib@file:packages/lib':
-    resolution: {directory: packages/lib, type: directory}
-
-  '@desci-labs/desci-codex-models@file:packages/models':
-    resolution: {directory: packages/models, type: directory}
-    hasBin: true
 
   '@didtools/cacao@2.1.0':
     resolution: {integrity: sha512-35gopj+mOmAlA3nHoHiYMvNMXJtbJDJnVpIlCf/Wf/+/x+uG9aIQefXfF35D6JuaTCZ0apabjpT2umL5h3EXcw==}
@@ -11470,31 +11463,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@ceramicnetwork/blockchain-utils-validation@5.15.0(encoding@0.1.13)(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/blockchain-utils-linking': 5.6.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ethersproject/contracts': 5.8.0
-      '@ethersproject/providers': 5.8.0
-      '@ethersproject/wallet': 5.8.0
-      '@noble/curves': 1.9.2
-      '@polkadot/util-crypto': 7.9.2(@polkadot/util@7.9.2)
-      '@smontero/eosio-signing-tools': 0.0.6(encoding@0.1.13)
-      '@taquito/utils': 11.2.0
-      '@tendermint/sig': 0.6.0
-      '@zondax/filecoin-signing-tools': 0.18.6
-      caip: 1.1.1
-      tweetnacl: 1.0.3
-      uint8arrays: 5.1.0
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - bufferutil
-      - debug
-      - encoding
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@ceramicnetwork/cli@5.16.0(@polkadot/util@7.9.2)(@types/express@5.0.5)(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)':
     dependencies:
       '@awaitjs/express': 0.9.0(@types/express@5.0.5)(express@4.21.2)
@@ -11699,74 +11667,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@ceramicnetwork/core@5.16.0(encoding@0.1.13)(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/anchor-listener': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/anchor-utils': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/codecs': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/indexing': 4.16.0(encoding@0.1.13)(pg@8.16.3)(sqlite3@5.1.7)(typescript@5.8.3)
-      '@ceramicnetwork/ipfs-topology': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/job-queue': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/node-metrics': 1.0.5(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/observability': 1.5.7
-      '@ceramicnetwork/pinning-aggregation': 5.15.0
-      '@ceramicnetwork/pinning-ipfs-backend': 5.15.0(encoding@0.1.13)
-      '@ceramicnetwork/stream-caip10-link': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-caip10-link-handler': 5.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-handler-common': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model-handler': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model-instance-handler': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-tile': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-tile-handler': 5.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/streamid': 5.6.0
-      '@ceramicnetwork/wasm-bloom-filter': 0.1.0
-      '@datastructures-js/priority-queue': 6.3.3
-      '@ethersproject/providers': 5.8.0
-      '@ipld/dag-cbor': 7.0.3
-      '@scarf/scarf': 1.4.0
-      '@stablelib/random': 1.0.2
-      '@stablelib/sha256': 1.0.1
-      '@stablelib/uuid': 1.0.2
-      ajv: 8.17.1
-      ajv-formats: 2.1.1(ajv@8.17.1)
-      await-semaphore: 0.1.3
-      cartonne: 3.0.1
-      codeco: 1.4.3
-      dag-jose: 4.0.0
-      dids: 5.0.3(typescript@5.8.3)(zod@3.25.76)
-      it-all: 3.0.9
-      it-batch: 3.0.9
-      it-first: 3.0.9
-      knex: 2.5.1(mysql2@3.15.3)(pg@8.16.3)(sqlite3@5.1.7)
-      least-recent: 1.0.3
-      level: 8.0.1
-      lodash.clonedeep: 4.5.0
-      mapmoize: 1.2.1
-      multiformats: 13.3.7
-      p-queue: 8.1.0
-      pg: 8.16.3
-      rxjs: 7.8.2
-      sqlite3: 5.1.7
-      uint8arrays: 5.1.0
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@ceramicnetwork/http-client@5.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)':
     dependencies:
       '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
@@ -11781,37 +11681,6 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - encoding
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@ceramicnetwork/indexing@4.16.0(encoding@0.1.13)(pg@8.16.3)(sqlite3@5.1.7)(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/anchor-listener': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/anchor-utils': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/job-queue': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/streamid': 5.6.0
-      '@ethersproject/providers': 5.8.0
-      knex: 2.5.1(mysql2@3.15.3)(pg@8.16.3)(sqlite3@5.1.7)
-      lodash.clonedeep: 4.5.0
-      multiformats: 13.3.7
-      p-queue: 8.1.0
-      pg-boss: 8.4.2
-      rxjs: 7.8.2
-      uint8arrays: 5.1.0
-    transitivePeerDependencies:
-      - better-sqlite3
-      - bufferutil
-      - encoding
-      - mysql
-      - mysql2
-      - pg
-      - pg-native
-      - sqlite3
-      - supports-color
-      - tedious
       - typescript
       - utf-8-validate
       - zod
@@ -11940,21 +11809,6 @@ snapshots:
   '@ceramicnetwork/stream-caip10-link-handler@5.16.0(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)':
     dependencies:
       '@ceramicnetwork/blockchain-utils-validation': 5.15.0(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-caip10-link': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-handler-common': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - bufferutil
-      - debug
-      - encoding
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@ceramicnetwork/stream-caip10-link-handler@5.16.0(encoding@0.1.13)(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/blockchain-utils-validation': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
       '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
       '@ceramicnetwork/stream-caip10-link': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
       '@ceramicnetwork/stream-handler-common': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
@@ -12259,36 +12113,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@composedb/client@0.7.1(encoding@0.1.13)(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@composedb/constants': 0.7.1
-      '@composedb/graphql-scalars': 0.7.1(encoding@0.1.13)(typescript@5.8.3)
-      '@composedb/runtime': 0.7.1(encoding@0.1.13)(typescript@5.8.3)
-      '@graphql-tools/batch-execute': 9.0.17(graphql@16.11.0)
-      '@graphql-tools/stitch': 9.4.26(graphql@16.11.0)
-      '@graphql-tools/utils': 10.8.6(graphql@16.11.0)
-      dataloader: 2.2.3
-      graphql: 16.11.0
-      graphql-relay: 0.10.2(graphql@16.11.0)
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@composedb/constants@0.7.1': {}
 
   '@composedb/devtools-node@0.7.1(@composedb/devtools@0.7.1(@polkadot/util@7.9.2)(encoding@0.1.13)(graphql@16.11.0)(typescript@5.8.3)(zod@3.25.76))(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)':
@@ -12372,30 +12196,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@composedb/graphql-scalars@0.7.1(encoding@0.1.13)(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/streamid': 5.6.0
-      '@composedb/types': 0.7.1(encoding@0.1.13)(typescript@5.8.3)
-      caip: 1.1.1
-      graphql: 16.11.0
-      graphql-scalars: 1.24.2(graphql@16.11.0)
-      multiformats: 13.3.7
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@composedb/loader@0.7.1(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)':
     dependencies:
       '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
@@ -12415,32 +12215,6 @@ snapshots:
       '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
       '@ceramicnetwork/streamid': 5.6.0
       '@composedb/graphql-scalars': 0.7.1(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@composedb/loader': 0.7.1(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      graphql: 16.11.0
-      graphql-relay: 0.10.2(graphql@16.11.0)
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@composedb/runtime@0.7.1(encoding@0.1.13)(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/streamid': 5.6.0
-      '@composedb/graphql-scalars': 0.7.1(encoding@0.1.13)(typescript@5.8.3)
       '@composedb/loader': 0.7.1(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
       graphql: 16.11.0
       graphql-relay: 0.10.2(graphql@16.11.0)
@@ -12488,31 +12262,6 @@ snapshots:
     dependencies:
       '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
       '@ceramicnetwork/core': 5.16.0(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      dids: 5.0.3(typescript@5.8.3)(zod@3.25.76)
-      json-schema-typed: 8.0.1
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@composedb/types@0.7.1(encoding@0.1.13)(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/core': 5.16.0(encoding@0.1.13)(typescript@5.8.3)
       '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
       '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
       '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
@@ -12607,25 +12356,6 @@ snapshots:
     dependencies:
       lodash-es: 4.17.21
 
-  '@desci-labs/desci-codex-composedb@2.0.2(encoding@0.1.13)(typescript@5.8.3)':
-    dependencies:
-      '@composedb/types': 0.7.1(encoding@0.1.13)(typescript@5.8.3)
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@desci-labs/desci-codex-composedb@2.0.2(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)':
     dependencies:
       '@composedb/types': 0.7.1(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
@@ -12641,61 +12371,6 @@ snapshots:
       - pg-native
       - supports-color
       - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@desci-labs/desci-codex-lib@file:packages/lib(encoding@0.1.13)(typescript@5.8.3)':
-    dependencies:
-      '@ceramic-sdk/flight-sql-client': 0.11.0
-      '@ceramic-sdk/identifiers': 0.11.0
-      '@ceramic-sdk/model-client': 0.11.0(typescript@5.8.3)(zod@3.25.76)
-      '@ceramic-sdk/model-instance-client': 0.11.0(typescript@5.8.3)
-      '@ceramic-sdk/stream-client': 0.11.0(typescript@5.8.3)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)(zod@3.25.76)
-      '@ceramicnetwork/streamid': 5.6.0
-      '@composedb/client': 0.7.1(encoding@0.1.13)(typescript@5.8.3)
-      '@desci-labs/desci-codex-composedb': 2.0.2(encoding@0.1.13)(typescript@5.8.3)
-      '@desci-labs/desci-codex-models': file:packages/models(typescript@5.8.3)(zod@3.25.76)
-      apache-arrow: 19.0.1
-      dids: 5.0.3(typescript@5.8.3)(zod@3.25.76)
-      gql-query-builder: 3.8.0
-      graphql: 16.11.0
-      key-did-provider-ed25519: 4.0.2(typescript@5.8.3)(zod@3.25.76)
-      key-did-resolver: 4.0.0
-      pino-std-serializers: 7.0.0
-      uint8arrays: 4.0.10
-    transitivePeerDependencies:
-      - '@75lb/nature'
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@desci-labs/desci-codex-models@file:packages/models(typescript@5.8.3)(zod@3.25.76)':
-    dependencies:
-      '@ceramic-sdk/http-client': 0.2.1(typescript@5.8.3)
-      '@ceramic-sdk/model-client': 0.9.0(typescript@5.8.3)(zod@3.25.76)
-      '@ceramic-sdk/model-protocol': 0.2.1(typescript@5.8.3)(zod@3.25.76)
-      dids: 5.0.3(typescript@5.8.3)(zod@3.25.76)
-      dotenv: 16.6.1
-      key-did-provider-ed25519: 4.0.2(typescript@5.8.3)(zod@3.25.76)
-      key-did-resolver: 4.0.0
-      pino-std-serializers: 7.0.0
-      uint8arrays: 4.0.10
-    transitivePeerDependencies:
-      - bufferutil
       - typescript
       - utf-8-validate
       - zod
