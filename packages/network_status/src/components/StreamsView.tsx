@@ -11,9 +11,9 @@ import { useState } from "react";
 import { FileCode } from "lucide-react";
 import { StreamsViewSkeleton } from "./StreamsViewSkeleton";
 import { PageContainer } from "./layout/PageContainer";
-import { FetchIndicator } from "./animations/FetchIndicator";
 import { StreamCard } from "./StreamCard";
 import { CountBadge } from "./CountBadge";
+import { PageHeader } from "@/components/ui/page-header";
 
 export function StreamsView() {
   const [page, setPage] = useState(1);
@@ -45,38 +45,40 @@ export function StreamsView() {
   const pagination = streamsResponse?.pagination;
 
   return (
-    <PageContainer>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="text-3xl font-bold tracking-tight">Streams</h2>
-          <FetchIndicator isVisible={isFetching && !isLoading} />
-        </div>
+    <>
+      <PageHeader
+        title="Streams"
+        description="View all streams in the network. A stream encodes the history of a research object, and its events correspond to the individual versions."
+        isFetching={isFetching && !isLoading}
+      >
         <CountBadge count={pagination?.total} icon={FileCode} />
-      </div>
+      </PageHeader>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Streams</CardTitle>
-          <CardDescription>Data streams in the network</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            {streams.map((stream) => (
-              <StreamCard key={stream.streamId} stream={stream} />
-            ))}
-          </div>
-
-          {pagination && (
-            <div className="pt-4 border-t">
-              <Pagination
-                pagination={pagination}
-                onPageChange={handlePageChange}
-                onLimitChange={handleLimitChange}
-              />
+      <PageContainer>
+        <Card>
+          <CardHeader>
+            <CardTitle>All Streams</CardTitle>
+            <CardDescription>Data streams in the network</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              {streams.map((stream) => (
+                <StreamCard key={stream.streamId} stream={stream} />
+              ))}
             </div>
-          )}
-        </CardContent>
-      </Card>
-    </PageContainer>
+
+            {pagination && (
+              <div className="pt-4 border-t">
+                <Pagination
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                  onLimitChange={handleLimitChange}
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </PageContainer>
+    </>
   );
 }

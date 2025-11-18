@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   Activity,
   Database,
@@ -6,6 +7,7 @@ import {
   Network,
   TrendingUp,
   LucideIcon,
+  CircleQuestionMark,
 } from "lucide-react";
 import { StaggeredItem } from "../animations/StaggeredList";
 
@@ -14,6 +16,11 @@ interface StatCard {
   value: number;
   icon: LucideIcon;
   description: string;
+  tooltip: {
+    title: string;
+    description: string;
+    note?: string;
+  };
   trend?: string | null;
 }
 
@@ -33,10 +40,16 @@ interface StatCardsProps {
 export function StatCards({ stats }: StatCardsProps) {
   const statCards: StatCard[] = [
     {
-      title: "Total Nodes",
+      title: "Nodes",
       value: stats?.totalNodes || 0,
       icon: Network,
       description: `${stats?.activeNodes || 0} active`,
+      tooltip: {
+        title: "Nodes",
+        description:
+          "Total number of P2P nodes that have participated in the network.",
+        note: "Active nodes are those seen within the last hour.",
+      },
       trend:
         stats?.activeNodes && stats?.totalNodes
           ? ((stats.activeNodes / stats.totalNodes) * 100).toFixed(1) +
@@ -47,19 +60,35 @@ export function StatCards({ stats }: StatCardsProps) {
       title: "Manifests",
       value: stats?.totalManifests || 0,
       icon: Database,
-      description: "Unique manifests",
+      description: "unique manifests",
+      tooltip: {
+        title: "Data manifests",
+        description:
+          "Schema encoding the files and metadata of a research publication.",
+        note: "Contains content-addressed references to arbitrary file structures on IPFS.",
+      },
     },
     {
       title: "Streams",
       value: stats?.totalStreams || 0,
       icon: FileCode,
-      description: "Active streams",
+      description: "known streams",
+      tooltip: {
+        title: "Streams",
+        description: "Unique research publications.",
+        note: "A stream is an unique chain of events, encoding the history of a publication.",
+      },
     },
     {
       title: "Events",
       value: stats?.totalEvents || 0,
       icon: Activity,
-      description: "Total events",
+      description: "known events",
+      tooltip: {
+        title: "Events",
+        description: "Individual versions of research publications.",
+        note: "The building block of streams, enabling each intermediate state to be resolved.",
+      },
     },
   ];
 
@@ -71,9 +100,19 @@ export function StatCards({ stats }: StatCardsProps) {
           <StaggeredItem key={stat.title}>
             <Card className="h-full p-3 sm:p-4">
               <div className="flex flex-row items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    {stat.title}
+                  </h3>
+                  <Tooltip
+                    title={stat.tooltip.title}
+                    description={stat.tooltip.description}
+                    note={stat.tooltip.note}
+                    side="top"
+                  >
+                    <CircleQuestionMark className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                  </Tooltip>
+                </div>
                 <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               </div>
               <div className="text-2xl sm:text-3xl font-bold">
