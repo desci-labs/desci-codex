@@ -1,12 +1,11 @@
 # CODEX Metrics Server
 
-A Node.js backend service to collect and visualize metrics from community CODEX nodes using PostgreSQL and Grafana.
+A Node.js backend service to collect metrics from community CODEX nodes using PostgreSQL.
 
 ## Features
 
 - **Centralized Metrics Collection**: Collects metrics from multiple CODEX nodes
 - **PostgreSQL Database**: Reliable and scalable database for metrics storage
-- **Grafana Dashboards**: Real-time visualization of network metrics
 - **Metrics push endpoint**: Simple HTTP endpoints for metrics submission
 
 
@@ -22,7 +21,6 @@ A Node.js backend service to collect and visualize metrics from community CODEX 
 This will start:
 - PostgreSQL 15
 - Metrics Server
-- Grafana
 
 ```bash
 docker-compose ../../compose.metrics.yml up
@@ -67,33 +65,9 @@ The node_metrics table stores node health and capacity metrics:
 - `total_pinned_cids`: Number of pinned CIDs on the node
 
 
-## Grafana Integration
+## Visualisation
 
-The Grafana configuration includes a PostgreSQL datasource:
-
-```yaml
-# grafana/provisioning/datasources/postgresql.yml
-datasources:
-  - name: PostgreSQL
-    type: postgres
-    url: postgres:5432
-    database: codex_metrics
-    user: postgres
-    jsonData:
-      sslmode: disable
-      postgresVersion: 1500
-```
-
-The dashboard is bundled into the grafana image at build time.
-
-### Dashboard Features
-
-The provided dashboard includes:
-- Active node count
-- Total pinned CIDs and streams
-- Average metrics per node
-- Time-series charts for node activity
-
+See the [network_status package](/packages/network_status/README.md).
 
 ## Troubleshooting
 
@@ -105,9 +79,6 @@ kubectl logs -f deployment/metrics-server -n codex
 
 # Database logs (if using Docker)
 docker logs codex-postgres
-
-# Grafana logs
-docker logs grafana
 ```
 
 ## License

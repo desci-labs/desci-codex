@@ -10,7 +10,7 @@ Use the convenience script for easy management. Note it detaches, so you need to
 # Start development services only (ceramic + codex-node)
 ./run-dev.sh dev
 
-# Start development services, including a local metrics server and grafana instances
+# Start development services, including a local metrics server and database
 ./run-dev.sh dev-metrics
 
 # Start metrics stack only
@@ -40,18 +40,17 @@ Use the convenience script for easy management. Note it detaches, so you need to
 
 ### `compose.dev-with-metrics.yaml` - Testnet development with local metrics metrics
 - **Purpose**: Development environment with full metrics stack
-- **Services**: ceramic (testnet) + codex-node + postgres + metrics-server + grafana
+- **Services**: ceramic (testnet) + codex-node + postgres + metrics-server
 - **Use case**: Development with metrics collection and visualization
 - **Ports**:
-  - All dev ports + Metrics Server: 3001, Grafana: 3002
+  - All dev ports + Metrics Server: 3001
 
 ### `compose.metrics.yml` - Metrics Stack Only
 - **Purpose**: Standalone metrics collection and visualization
-- **Services**: postgres + metrics-server + grafana
+- **Services**: postgres + metrics-server
 - **Use case**: Running metrics infrastructure independently
 - **Ports**:
   - Metrics Server: 3001
-  - Grafana: 3002 (admin/admin)
 
 ## Environment Variables
 
@@ -107,13 +106,11 @@ codex-node ──> ceramic
 ```
 codex-node ──> ceramic
 codex-node ──> metrics-server ──> postgres
-grafana ──> metrics-server
 ```
 
 ### Metrics Only (`compose.metrics.yml`)
 ```
 metrics-server ──> postgres
-grafana ──> postgres
 ```
 
 ## Health Checks
@@ -130,7 +127,6 @@ All services include health checks to ensure proper startup order:
 - **Ceramic data**: Stored in `../local-data/testnet/ceramic-one` (dev) or `../local-data/local/ceramic-one` (local)
 - **Codex Node data**: Stored in `../local-data/testnet/codex-node` (dev) or `../local-data/local/codex-node` (local)
 - **PostgreSQL**: Docker volume `postgres-data` (metrics only)
-- **Grafana**: Docker volume `grafana-data` (metrics only)
 
 ## Troubleshooting
 
@@ -147,4 +143,3 @@ docker compose -f compose.dev.yaml logs -f codex-node
 1. Ensure the metrics stack is running: `./run-dev.sh metrics`
 2. Check that `METRICS_BACKEND_URL` is set correctly
 3. Verify metrics-server is healthy: `curl http://localhost:3001/health`
-4. Check Grafana: http://localhost:3002 (admin/admin)

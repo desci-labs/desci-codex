@@ -39,28 +39,5 @@ services:
       postgres:
         condition: service_healthy
 
-  grafana:
-    container_name: codex-metrics-grafana
-    build:
-      context: ../packages/metrics_server
-      dockerfile: Dockerfile.grafana
-    ports:
-      - "3002:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=codex_metrics
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_SSL=disable
-    volumes:
-      - grafana-data:/var/lib/grafana
-    restart: unless-stopped
-    depends_on:
-      - metrics-server
-      - postgres
-
 volumes:
   postgres-data:
-  grafana-data:

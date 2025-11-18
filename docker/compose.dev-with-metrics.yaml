@@ -27,11 +27,5 @@ services:
       file: compose.metrics.yml
       service: metrics-server
 
-  grafana:
-    extends:
-      file: compose.metrics.yml
-      service: grafana
-
 volumes:
   postgres-data:
-  grafana-data:

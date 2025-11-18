@@ -14,7 +14,7 @@ function show_usage() {
     echo "Commands:"
     echo "  dev          Run development services only (ceramic + codex-node)"
     echo "  dev-metrics  Run development services with metrics (ceramic + codex-node + metrics stack)"
-    echo "  metrics      Run metrics stack only (postgres + metrics-server + grafana)"
+    echo "  metrics      Run metrics stack only (postgres + metrics-server)"
     echo "  local        Run local development (inmemory ceramic + codex-node)"
     echo "  stop         Stop all running containers"
     echo "  logs         Show logs for running containers"
@@ -40,7 +40,6 @@ function run_dev_metrics() {
     echo "  - Ceramic: http://localhost:5101"
     echo "  - Codex Node: http://localhost:3000"
     echo "  - Metrics Server: http://localhost:3001"
-    echo "  - Grafana: http://localhost:3002 (admin/admin)"
 }
 
 function run_metrics() {
@@ -48,7 +47,6 @@ function run_metrics() {
     docker compose -f compose.metrics.yml up --build -d
     echo "✅ Metrics stack started!"
     echo "  - Metrics Server: http://localhost:3001"
-    echo "  - Grafana: http://localhost:3002 (admin/admin)"
 }
 
 function run_local() {
