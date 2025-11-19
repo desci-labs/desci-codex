@@ -21,6 +21,5 @@ jobs:
       - run: pnpm i --frozen-lockfile
       - run: |
           pnpm --filter @desci-labs/desci-codex-lib doPublish
-          pnpm --filter @desci-labs/desci-codex-metrics doPublish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

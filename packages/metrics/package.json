@@ -6,17 +6,11 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "package.json",
-    "src"
-  ],
   "scripts": {
     "build": "rm -rf ./dist && tsc --build tsconfig.json",
     "clean": "tsc --build --clean",
     "test": "vitest run",
-    "test:watch": "vitest watch",
-    "doPublish": "pnpm run build && cd ../.. && pnpm publish --access public --filter @desci-labs/desci-codex-metrics --no-git-checks"
+    "test:watch": "vitest watch"
   },
   "devDependencies": {
     "@libp2p/crypto": "^5.0.0",
