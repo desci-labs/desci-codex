@@ -8,6 +8,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rm -rf ./dist && tsc --build tsconfig.json",
+    "prepare": "pnpm run build",
     "clean": "tsc --build --clean",
     "test": "vitest run",
     "test:watch": "vitest watch"
