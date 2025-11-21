@@ -1,14 +1,29 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@/lib/db";
 
+function getTimespanInterval(timespan: "1week" | "1month") {
+  switch (timespan) {
+    case "1week":
+      return "INTERVAL '7 days'";
+    case "1month":
+      return "INTERVAL '30 days'";
+  }
+}
+
 export const getNetworkStats = createServerFn({ method: "GET" })
-  .inputValidator((data: { environment: "testnet" | "mainnet" }) => data)
+  .inputValidator(
+    (data: {
+      environment: "testnet" | "mainnet";
+      timespan: "1week" | "1month";
+    }) => data,
+  )
   .handler(async ({ data }) => {
     const client = createClient();
     try {
       await client.connect();
       const now = new Date();
       const activeThreshold = new Date(now.getTime() - 60 * 60 * 1000); // 1 hour ago
+      const interval = getTimespanInterval(data.timespan);
 
       // Get basic stats
       const statsResult = await client.query(
@@ -24,13 +39,12 @@ export const getNetworkStats = createServerFn({ method: "GET" })
       );
       const stats = statsResult.rows[0];
 
-      // Get active nodes over time (last 7 days, daily buckets, filled with zeros)
-      // Uses the node_activity table which tracks daily node activity efficiently
+      // Get active nodes over time using daily buckets from node_activity table
       const nodesOverTimeResult = await client.query(
         `
         WITH date_series AS (
           SELECT generate_series(
-            DATE_TRUNC('day', NOW() - INTERVAL '7 days'),
+            DATE_TRUNC('day', NOW() - ${interval}),
             DATE_TRUNC('day', NOW()),
             INTERVAL '1 day'
           )::date AS date
@@ -46,13 +60,12 @@ export const getNetworkStats = createServerFn({ method: "GET" })
         [data.environment],
       );
 
-      // Get discovery activity over time (last 7 days, daily buckets, filled with zeros)
-      // Shows how many new events and streams were discovered each day
+      // Get discovery activity over time using daily buckets
       const discoveryOverTimeResult = await client.query(
         `
         WITH date_series AS (
           SELECT generate_series(
-            DATE_TRUNC('day', NOW() - INTERVAL '7 days'),
+            DATE_TRUNC('day', NOW() - ${interval}),
             DATE_TRUNC('day', NOW()),
             INTERVAL '1 day'
           ) AS date
@@ -62,7 +75,7 @@ export const getNetworkStats = createServerFn({ method: "GET" })
             DATE_TRUNC('day', first_seen_at) as discovery_date,
             COUNT(*) as new_events
           FROM events
-          WHERE first_seen_at >= NOW() - INTERVAL '7 days' AND environment = $1
+          WHERE first_seen_at >= NOW() - ${interval} AND environment = $1
           GROUP BY DATE_TRUNC('day', first_seen_at)
         ),
         daily_stream_discovery AS (
@@ -70,7 +83,7 @@ export const getNetworkStats = createServerFn({ method: "GET" })
             DATE_TRUNC('day', first_seen_at) as discovery_date,
             COUNT(*) as new_streams
           FROM streams
-          WHERE first_seen_at >= NOW() - INTERVAL '7 days' AND environment = $1
+          WHERE first_seen_at >= NOW() - ${interval} AND environment = $1
           GROUP BY DATE_TRUNC('day', first_seen_at)
         )
         SELECT 

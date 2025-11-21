@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type Environment = "testnet" | "mainnet";
+type Timespan = "1week" | "1month";
 
 interface UIStore {
   isDarkMode: boolean;
@@ -12,6 +13,8 @@ interface UIStore {
   setRefreshInterval: (interval: number) => void;
   environment: Environment;
   setEnvironment: (environment: Environment) => void;
+  timespan: Timespan;
+  setTimespan: (timespan: Timespan) => void;
   initializeTheme: () => void;
 }
 
@@ -40,6 +43,8 @@ export const useUIStore = create<UIStore>()(
       setRefreshInterval: (interval) => set({ refreshInterval: interval }),
       environment: "testnet",
       setEnvironment: (environment) => set({ environment }),
+      timespan: "1week",
+      setTimespan: (timespan) => set({ timespan }),
       initializeTheme: () => {
         if (typeof window === "undefined") {
           return;
@@ -63,6 +68,7 @@ export const useUIStore = create<UIStore>()(
         isDarkMode: state.isDarkMode,
         refreshInterval: state.refreshInterval,
         environment: state.environment,
+        timespan: state.timespan,
       }),
       storage: {
         getItem: (name) => {

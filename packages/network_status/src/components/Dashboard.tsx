@@ -49,8 +49,8 @@ export function Dashboard() {
             },
           }}
         >
-          <NodeActivityChart data={stats?.nodesOverTime || null} />
-          <ContentDiscoveryChart data={stats?.discoveryOverTime || null} />
+          <NodeActivityChart />
+          <ContentDiscoveryChart />
         </motion.div>
 
         <RecentNodesList nodes={recentNodes} onNodeClick={handleNodeClick} />

@@ -12,17 +12,31 @@ import {
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
 import { motion } from "motion/react";
+import { useNetworkStats } from "@/hooks/useMetrics";
+import { ChartTimespanSwitch } from "@/components/ChartTimespanSwitch";
+import { useState } from "react";
 
-interface ContentDiscoveryChartProps {
-  data: Array<{ date: string; streams: number; events: number }> | null;
+function getTimespanLabel(timespan: string) {
+  switch (timespan) {
+    case "1week":
+      return "7 days";
+    case "1month":
+      return "30 days";
+    default:
+      return timespan;
+  }
 }
 
-export function ContentDiscoveryChart({ data }: ContentDiscoveryChartProps) {
+export function ContentDiscoveryChart() {
+  const [timespan, setTimespan] = useState<"1week" | "1month">("1week");
+  const { data: stats } = useNetworkStats(timespan);
+
+  const data = stats?.discoveryOverTime || [];
+
   return (
     <motion.div
       variants={{
@@ -32,24 +46,45 @@ export function ContentDiscoveryChart({ data }: ContentDiscoveryChartProps) {
     >
       <Card>
         <CardHeader>
-          <CardTitle>Content Discovery (7 days)</CardTitle>
-          <CardDescription>
-            New events and streams discovered each day
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>
+                Content Discovery ({getTimespanLabel(timespan)})
+              </CardTitle>
+              <CardDescription>
+                New events and streams discovered over time
+              </CardDescription>
+            </div>
+            <ChartTimespanSwitch
+              timespan={timespan}
+              onTimespanChange={setTimespan}
+              layoutId="contentDiscoveryTimespanBackground"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={data || []}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <BarChart data={data || []} key={`content-discovery-${timespan}`}>
               <XAxis
                 dataKey="date"
+                type="category"
                 tickFormatter={(value) => format(new Date(value), "MMM d")}
                 className="fill-muted-foreground text-xs"
                 tick={{ fontSize: 12 }}
+                interval="preserveStartEnd"
+                axisLine={false}
+                tickLine={false}
               />
               <YAxis
+                scale="sqrt"
+                domain={[0, (dataMax) => Math.max(100, dataMax * 1.15)]}
+                allowDecimals={false}
                 className="fill-muted-foreground text-xs"
                 tick={{ fontSize: 12 }}
+                tickFormatter={(value) => {
+                  if (value < 1000) return value.toString();
+                  return `${(value / 1000).toFixed(0)}K`;
+                }}
               />
               <Tooltip
                 cursor={{
@@ -69,12 +104,18 @@ export function ContentDiscoveryChart({ data }: ContentDiscoveryChartProps) {
                 fill="hsl(142, 60%, 65%)"
                 radius={[2, 2, 0, 0]}
                 name="Streams"
+                animationBegin={0}
+                animationDuration={600}
+                animationEasing="ease-out"
               />
               <Bar
                 dataKey="events"
                 fill="hsl(217, 70%, 70%)"
                 radius={[2, 2, 0, 0]}
                 name="Events"
+                animationBegin={100}
+                animationDuration={600}
+                animationEasing="ease-out"
               />
             </BarChart>
           </ResponsiveContainer>

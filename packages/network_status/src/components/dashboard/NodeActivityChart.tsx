@@ -12,17 +12,30 @@ import {
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
 import { motion } from "motion/react";
+import { useNetworkStats } from "@/hooks/useMetrics";
+import { ChartTimespanSwitch } from "@/components/ChartTimespanSwitch";
+import { useState } from "react";
 
-interface NodeActivityChartProps {
-  data: Array<{ date: string; count: number }> | null;
+function getTimespanLabel(timespan: string) {
+  switch (timespan) {
+    case "1week":
+      return "7 days";
+    case "1month":
+      return "30 days";
+    default:
+      return timespan;
+  }
 }
 
-export function NodeActivityChart({ data }: NodeActivityChartProps) {
+export function NodeActivityChart() {
+  const [timespan, setTimespan] = useState<"1week" | "1month">("1week");
+  const { data: stats } = useNetworkStats(timespan);
+  const data = stats?.nodesOverTime || [];
+
   return (
     <motion.div
       variants={{
@@ -32,22 +45,38 @@ export function NodeActivityChart({ data }: NodeActivityChartProps) {
     >
       <Card>
         <CardHeader>
-          <CardTitle>Node Activity (7 days)</CardTitle>
-          <CardDescription>Number of nodes active each day</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>
+                Node Activity ({getTimespanLabel(timespan)})
+              </CardTitle>
+              <CardDescription>
+                Number of nodes active over time
+              </CardDescription>
+            </div>
+            <ChartTimespanSwitch
+              timespan={timespan}
+              onTimespanChange={setTimespan}
+              layoutId="nodeActivityTimespanBackground"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={data || []}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <LineChart data={data || []} key={`node-activity-${timespan}`}>
               <XAxis
                 dataKey="date"
+                type="category"
                 tickFormatter={(value) => format(new Date(value), "MMM d")}
                 className="fill-muted-foreground text-xs"
                 tick={{ fontSize: 12 }}
+                interval="preserveStartEnd"
               />
               <YAxis
                 className="fill-muted-foreground text-xs"
                 tick={{ fontSize: 12 }}
+                allowDecimals={false}
+                domain={[0, (dataMax) => dataMax * 1.1]}
               />
               <Tooltip
                 content={(props) => (

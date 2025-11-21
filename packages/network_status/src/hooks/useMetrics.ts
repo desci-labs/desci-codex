@@ -5,13 +5,16 @@ import { getManifests } from "@/server/manifests";
 import { getStreams, getStreamEvents } from "@/server/streams";
 import { useUIStore } from "@/store/uiStore";
 
-export function useNetworkStats() {
+export function useNetworkStats(timespan?: "1week" | "1month") {
   const refreshInterval = useUIStore((state) => state.refreshInterval);
   const environment = useUIStore((state) => state.environment);
+  const globalTimespan = useUIStore((state) => state.timespan);
+  const actualTimespan = timespan || globalTimespan;
 
   return useQuery({
-    queryKey: ["networkStats", environment],
-    queryFn: () => getNetworkStats({ data: { environment } }),
+    queryKey: ["networkStats", environment, actualTimespan],
+    queryFn: () =>
+      getNetworkStats({ data: { environment, timespan: actualTimespan } }),
     refetchInterval: refreshInterval,
   });
 }
