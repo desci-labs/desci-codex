@@ -206,7 +206,7 @@ export async function uploadFolder(
 
   // Upload files one at a time for better error handling
   let successCount = 0;
-  let skipCount = 0;
+  let overwriteCount = 0;
   const errors: string[] = [];
 
   for (const dir of dirs) {
@@ -228,10 +228,29 @@ export async function uploadFolder(
           response?: { status?: number; data?: unknown };
         };
 
-        // 409 Conflict - file might already exist with same content, skip it
+        // 409 Conflict - file already exists, delete and retry to overwrite
         if (axiosErr.response?.status === 409) {
-          skipCount++;
-          // Still count as processed
+          try {
+            // Delete the existing file
+            const filePath = `${uploadPath}/${basename(file)}`;
+            await deleteData(uuid, filePath);
+
+            // Retry upload
+            result = await uploadFiles(uuid, [file], uploadPath);
+            overwriteCount++;
+            successCount++;
+          } catch (retryErr: unknown) {
+            // If retry also fails, log the error
+            const retryAxiosErr = retryErr as {
+              response?: { status?: number; data?: unknown };
+            };
+            const errorData = retryAxiosErr.response?.data;
+            const errorMsg =
+              typeof errorData === "object" && errorData !== null
+                ? JSON.stringify(errorData)
+                : String(errorData || (retryErr as Error).message);
+            errors.push(`${fileName}: ${errorMsg}`);
+          }
         } else {
           // Log error but continue with other files
           const errorData = axiosErr.response?.data;
@@ -247,8 +266,8 @@ export async function uploadFolder(
     }
   }
 
-  // If we had some successes or skips, consider it ok
-  if (successCount === 0 && skipCount === 0) {
+  // If we had some successes, consider it ok
+  if (successCount === 0) {
     if (errors.length > 0) {
       throw new Error(
         `All uploads failed:\n  ${errors.slice(0, 5).join("\n  ")}`,
@@ -257,13 +276,13 @@ export async function uploadFolder(
     throw new Error("Upload failed - no files were processed");
   }
 
+  if (overwriteCount > 0) {
+    console.log(`Overwrote ${overwriteCount} existing file(s)`);
+  }
+
   // If we had errors but also successes, warn but don't fail
   if (errors.length > 0) {
     console.warn(`Warning: ${errors.length} file(s) failed to upload`);
-  }
-
-  if (skipCount > 0) {
-    console.log(`Skipped ${skipCount} unchanged file(s)`);
   }
 
   // Get latest tree state if we don't have a result
