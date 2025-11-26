@@ -42,15 +42,6 @@ importers:
 
   packages/cli:
     dependencies:
-      '@desci-labs/desci-codex-lib':
-        specifier: workspace:*
-        version: file:packages/lib(typescript@5.8.3)
-      '@desci-labs/desci-models':
-        specifier: ^0.2.19
-        version: 0.2.28(web-streams-polyfill@3.3.3)
-      '@desci-labs/nodes-lib':
-        specifier: ^0.2.0-rc11
-        version: 0.2.0-rc11(typescript@5.8.3)(web-streams-polyfill@3.3.3)
       axios:
         specifier: ^1.6.5
         version: 1.10.0(debug@4.4.1)
@@ -60,9 +51,6 @@ importers:
       chalk:
         specifier: ^5.3.0
         version: 5.4.1
-      cli-progress:
-        specifier: ^3.12.0
-        version: 3.12.0
       commander:
         specifier: ^12.1.0
         version: 12.1.0
@@ -91,9 +79,6 @@ importers:
         specifier: ^8.0.1
         version: 8.2.0
     devDependencies:
-      '@types/cli-progress':
-        specifier: ^3.11.5
-        version: 3.11.6
       '@types/gradient-string':
         specifier: ^1.1.6
         version: 1.1.6
@@ -940,29 +925,6 @@ packages:
   '@desci-labs/desci-codex-composedb@2.0.2':
     resolution: {integrity: sha512-AEnWKXFqZFNhdCqyVTHwbdPcvb9+R3sZ6A0X6jAN7iS+J/0MHmv2muTEe1dbDcSZ6SteBTFc8p1wXqangwuegQ==}
 
-  '@desci-labs/desci-codex-lib@2.0.0-rc8':
-    resolution: {integrity: sha512-T3DkkDv2ycK5+BxiAhzl8bpwEdWBu9PPmKNh1gJreF8pMPtqZvX6V2w1JY4ShqqTEne954Ql5T7sRM2k8zd8qA==}
-
-  '@desci-labs/desci-codex-lib@file:packages/lib':
-    resolution: {directory: packages/lib, type: directory}
-
-  '@desci-labs/desci-codex-models@1.0.0-rc3':
-    resolution: {integrity: sha512-pvqaIZnyaF0pBDf0pt4PpyFMtSWvvlyds8Mp2auCpvOJzVZ9ZWDnVz6rtGsWkGk91YZwllMr2hVF0YDND/H5Eg==}
-    hasBin: true
-
-  '@desci-labs/desci-codex-models@file:packages/models':
-    resolution: {directory: packages/models, type: directory}
-    hasBin: true
-
-  '@desci-labs/desci-contracts@0.2.7':
-    resolution: {integrity: sha512-T5XhH0qn7z93jb9MlGd68i4mf0tJP+ppfyWKfFBjp+dCUC4GeTMM3Z/6eqaD8QXsBpvRfi+cvb0or3BY47MR2A==}
-
-  '@desci-labs/desci-models@0.2.28':
-    resolution: {integrity: sha512-u4+PIgQ9rcLbWwhj5gD9qKGo+Nf9IaGU1yvB/BwaxgAw/fObzODjeiTOz4CY8aI58wXhKWtbkqzUfx9FFHGr3A==}
-
-  '@desci-labs/nodes-lib@0.2.0-rc11':
-    resolution: {integrity: sha512-EkDGvK2Thz7iVhgO2lhFj84TJheffYe3XIzX1qyjbvDTR4XeDdpFVA9JyPdt1WrCTAobpq2IQX005Y8NqNdmqQ==}
-
   '@didtools/cacao@2.1.0':
     resolution: {integrity: sha512-35gopj+mOmAlA3nHoHiYMvNMXJtbJDJnVpIlCf/Wf/+/x+uG9aIQefXfF35D6JuaTCZ0apabjpT2umL5h3EXcw==}
     engines: {node: '>=14.14'}
@@ -983,20 +945,12 @@ packages:
     resolution: {integrity: sha512-MkOqAiRBcRO64PMVfSFAB0SUIJMk+L8QyymE9dknjmfSKgD/ZKz7cw4pFV6IUNin75/DLrlDSfmCIIjYokivvQ==}
     engines: {node: '>=14.14'}
 
-  '@didtools/key-webcrypto@0.2.0':
-    resolution: {integrity: sha512-5WK2Np0Tb6ApDoK71vYmEGiIdwLKzaEjr5KTK6RXFdl5xJnOYOHGkn4Ohco9D0UsoUGyDZE/ztlXmPQIbzHXQA==}
-    engines: {node: '>=14.14'}
-
   '@didtools/pkh-ethereum@0.2.1':
     resolution: {integrity: sha512-apQefbOqqy8HQMDNVG0ITxHLr9I5iZrjADX+mPB+ie1ue8MO8pOHMifLQ3j0R6RjS2einCd+hEZ4Ib4AKs3Xlw==}
     engines: {node: '>=14.14'}
 
   '@didtools/pkh-ethereum@0.4.1':
     resolution: {integrity: sha512-oE5bbyTauJ/WddaWnDK7bWns2E2LG4Ut33ICEcEQdlMoXM0902/vnGm8+6QE/yuLOyAllgf7DnDKvERF5IY6uQ==}
-    engines: {node: '>=14.14'}
-
-  '@didtools/pkh-ethereum@0.5.0':
-    resolution: {integrity: sha512-2S+TS/I2jVTNnkgyslxQvSjCzzLsCabjXD2UWjJnVkAoxeJgPE9GvY1JhTDgvVLfxLPnYwTIP/O1WR9wJcDkFg==}
     engines: {node: '>=14.14'}
 
   '@didtools/pkh-ethereum@0.6.0':
@@ -1022,10 +976,6 @@ packages:
   '@didtools/siwx@2.0.0':
     resolution: {integrity: sha512-eqBtI5dZrptXTCyadnhvU0di/KvumoByT7F8KB/8BLU7M1lltfEmvf/c5AnsyrWO9338ygCs2u5mKz1p1Zdj5A==}
     engines: {node: '>=14.14'}
-
-  '@digitalbazaar/http-client@3.4.1':
-    resolution: {integrity: sha512-Ahk1N+s7urkgj7WvvUND5f8GiWEPfUw0D41hdElaqLgu8wZScI8gdI0q+qWw5N1d35x7GCRH2uk9mi+Uzo9M3g==}
-    engines: {node: '>=14.0'}
 
   '@envelop/core@5.3.0':
     resolution: {integrity: sha512-xvUkOWXI8JsG2OOnqiI2tOkEc52wbmIqWORr7yGc8B8E53Oh1MMGGGck4mbR80s25LnHVzfNIiIlNkuDgZRuuA==}
@@ -1420,17 +1370,11 @@ packages:
   '@ethersproject/signing-key@5.8.0':
     resolution: {integrity: sha512-LrPW2ZxoigFi6U6aVkFN/fa9Yx/+4AtIUe4/HACTvKJdhm0eeb107EVCIQcrLZkxaSIgc/eCrX8Q1GtbH+9n3w==}
 
-  '@ethersproject/solidity@5.8.0':
-    resolution: {integrity: sha512-4CxFeCgmIWamOHwYN9d+QWGxye9qQLilpgTU0XhYs1OahkclF+ewO+3V1U0mvpiuQxm5EHHmv8f7ClVII8EHsA==}
-
   '@ethersproject/strings@5.8.0':
     resolution: {integrity: sha512-qWEAk0MAvl0LszjdfnZ2uC8xbR2wdv4cDabyHiBh3Cldq/T8dPH3V4BbBsAYJUeonwD+8afVXld274Ls+Y1xXg==}
 
   '@ethersproject/transactions@5.8.0':
     resolution: {integrity: sha512-UglxSDjByHG0TuU17bDfCemZ3AnKO2vYrL5/2n2oXvKzvb7Cz+W9gOWXKARjp2URVwcWlQlPOEQyAviKwT4AHg==}
-
-  '@ethersproject/units@5.8.0':
-    resolution: {integrity: sha512-lxq0CAnc5kMGIiWW4Mr041VT8IhNM+Pn5T3haO74XZWFulk7wH1Gv64HqE96hT4a7iiNMdOCFEBgaxWuk8ETKQ==}
 
   '@ethersproject/wallet@5.8.0':
     resolution: {integrity: sha512-G+jnzmgg6UxurVKRKvw27h0kvG75YKXZKdlLYmAHeF32TGUzHkOFd7Zn6QHOTYRFWnfjtSSFjBowKo7vfrXzPA==}
@@ -2521,9 +2465,6 @@ packages:
   '@types/chai@4.3.20':
     resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
 
-  '@types/cli-progress@3.11.6':
-    resolution: {integrity: sha512-cE3+jb9WRlu+uOSAugewNpITJDt1VF8dHOopPO4IABFc3SXYL5WE/+PTz/FCdZRRfIujiWW3n3aMbv1eIGVRWA==}
-
   '@types/command-line-args@5.2.3':
     resolution: {integrity: sha512-uv0aG6R0Y8WHZLTamZwtfsDLVRnOa+n+n5rEvFWL5Na5gZ8V2Teab/duDPFzIIIhs9qizDpcavCusCLJZu62Kw==}
 
@@ -3239,9 +3180,6 @@ packages:
   caniuse-lite@1.0.30001727:
     resolution: {integrity: sha512-pB68nIHmbN6L/4C6MH1DokyR3bYqFwjaSs/sWDHGj4CTcFtQUQMuJftVwWkXq7mNWOybD3KhUv3oWHoGxgP14Q==}
 
-  canonicalize@1.0.8:
-    resolution: {integrity: sha512-0CNTVCLZggSh7bc5VkX5WWPWO+cyZbNd07IHIsSXLia/eAq+r836hgk+8BKoEh7949Mda87VUOitx5OddVj64A==}
-
   canonicalize@2.1.0:
     resolution: {integrity: sha512-F705O3xrsUtgt98j7leetNhTWPe+5S72rlL5O4jA1pKqBVQ/dT1O1D6PFxmSXvc0SUOinWS57DKx0I3CHrXJHQ==}
     hasBin: true
@@ -3334,10 +3272,6 @@ packages:
   cli-cursor@5.0.0:
     resolution: {integrity: sha512-aCj4O5wKyszjMmDT4tZj93kxyydN/K5zPWSCe6/0AV/AA1pqe5ZBIw0a2ZfPQV7lL5/yb5HsUreJ6UFAF1tEQw==}
     engines: {node: '>=18'}
-
-  cli-progress@3.12.0:
-    resolution: {integrity: sha512-tRkV3HJ1ASwm19THiiLIXLO7Im7wlTuKnvkYaTkyoAPefqjNg7W7DHKUlGRxy9vxDvbyCYQkQozvptuMkGCg8A==}
-    engines: {node: '>=4'}
 
   cli-spinners@2.9.2:
     resolution: {integrity: sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==}
@@ -3505,10 +3439,6 @@ packages:
   dag-jose@5.1.1:
     resolution: {integrity: sha512-9alfZ8Wh1XOOMel8bMpDqWsDT72ojFQCJPtwZSev9qh4f8GoCV9qrJW8jcOUhcstO8Kfm09FHGo//jqiZq3z9w==}
 
-  data-uri-to-buffer@4.0.1:
-    resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
-    engines: {node: '>= 12'}
-
   dataloader@2.2.3:
     resolution: {integrity: sha512-y2krtASINtPFS1rSDjacrFgn1dcUuoREVabwlOGOe4SdxenREqwjwjElAdwvbGM7kgZz9a3KVicWR7vcz8rnzA==}
 
@@ -3634,10 +3564,6 @@ packages:
 
   did-resolver@4.1.0:
     resolution: {integrity: sha512-S6fWHvCXkZg2IhS4RcVHxwuyVejPR7c+a4Go0xbQ9ps5kILa8viiYQgrM4gfTyeTjJ0ekgJH9gk/BawTpmkbZA==}
-
-  did-session@4.0.0:
-    resolution: {integrity: sha512-qxZD208F7HCQppDjLxSkWG5/6MtcyzU2+Lm/KBtWH2WLuuzusu4ce8KWJ2Vd0sG5MyvgNWaECzXZsc8OQZTfZw==}
-    engines: {node: '>=14.14'}
 
   dids@4.0.4:
     resolution: {integrity: sha512-PKxQP0QFqgeMe0dbL7LCRdPJVhZU2ejj8RWCfJ6vro3a+o5o32cWNM1X6YXpdIWq6G5fTJw9KO2dHj2ZzYDc7w==}
@@ -3874,9 +3800,6 @@ packages:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
 
-  ethers@5.8.0:
-    resolution: {integrity: sha512-DUq+7fHrCg1aPDFCHx6UIPb3nmt2XMpM7Y/g2gLhsl3lIBqeAfOJIl1qEvRf2uq3BiKxmh6Fh5pfp2ieyek7Kg==}
-
   event-iterator@2.0.0:
     resolution: {integrity: sha512-KGft0ldl31BZVV//jj+IAIGCxkvvUkkON+ScH6zfoX+l+omX6001ggyRSpI0Io2Hlro0ThXotswCtfzS8UkIiQ==}
 
@@ -3965,10 +3888,6 @@ packages:
 
   fb-watchman@2.0.2:
     resolution: {integrity: sha512-p5161BqbuCaSnB8jIbzQHOlpgsPmK5rJVDfDKO91Axs5NC1uu3HRQm6wt9cd9/+GtQQIO53JdGXXoyDpTAsgYA==}
-
-  fetch-blob@3.2.0:
-    resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
-    engines: {node: ^12.20 || >= 14.13}
 
   fflate@0.8.2:
     resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
@@ -4066,10 +3985,6 @@ packages:
   form-data@4.0.3:
     resolution: {integrity: sha512-qsITQPfmvMOSAdeyZ+12I1c+CKSstAFAwu+97zrnWAbIr5u8wfsExUzCesVLC8NgHuRUqNN4Zy6UPWUTRGslcA==}
     engines: {node: '>= 6'}
-
-  formdata-polyfill@4.0.10:
-    resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
-    engines: {node: '>=12.20.0'}
 
   forwarded@0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
@@ -4942,10 +4857,6 @@ packages:
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
-  jsonld@8.3.3:
-    resolution: {integrity: sha512-9YcilrF+dLfg9NTEof/mJLMtbdX1RJ8dbWtJgE00cMOIohb1lIyJl710vFiTaiHTl6ZYODJuBd32xFvUhmv3kg==}
-    engines: {node: '>=14'}
-
   jsontokens@4.0.1:
     resolution: {integrity: sha512-+MO415LEN6M+3FGsRz4wU20g7N2JA+2j9d9+pGaNJHviG4L8N0qzavGyENw6fJqsq9CcrHOIL6iWX5yeTZ86+Q==}
 
@@ -4995,20 +4906,6 @@ packages:
   kubo-rpc-client@3.0.4:
     resolution: {integrity: sha512-MV8XFG8ikSPZJkzN/h50SH60kyFz6d3hBcHE/ChhLmbzT3TM8n/I9fq0+5IL5dFSwJo5YrpZqDgsFhNgMSeztg==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
-
-  ky-universal@0.11.0:
-    resolution: {integrity: sha512-65KyweaWvk+uKKkCrfAf+xqN2/epw1IJDtlyCPxYffFCMR8u1sp2U65NtWpnozYfZxQ6IUzIlvUcw+hQ82U2Xw==}
-    engines: {node: '>=14.16'}
-    peerDependencies:
-      ky: '>=0.31.4'
-      web-streams-polyfill: '>=3.2.1'
-    peerDependenciesMeta:
-      web-streams-polyfill:
-        optional: true
-
-  ky@0.33.3:
-    resolution: {integrity: sha512-CasD9OCEQSFIam2U8efFK81Yeg8vNMTBUqtMOHlrcWQHqUX3HeCl9Dr31u4toV7emlH8Mymk5+9p0lL6mKb/Xw==}
-    engines: {node: '>=14.16'}
 
   least-recent@1.0.3:
     resolution: {integrity: sha512-PH9ZuFAKFf5fY7j0wizus6f/Ni2wSaby4eQYEUmR+sK6lY7OEbVz/iEh/tTgEmgOivWJhay89wVyUe5VnXoUSQ==}
@@ -5533,11 +5430,6 @@ packages:
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
 
-  node-domexception@1.0.0:
-    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
-    engines: {node: '>=10.5.0'}
-    deprecated: Use your platform's native DOMException instead
-
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
     engines: {node: 4.x || >=6.0.0}
@@ -5546,10 +5438,6 @@ packages:
     peerDependenciesMeta:
       encoding:
         optional: true
-
-  node-fetch@3.3.2:
-    resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   node-forge@1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
@@ -6072,10 +5960,6 @@ packages:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
 
-  rdf-canonize@3.4.0:
-    resolution: {integrity: sha512-fUeWjrkOO0t1rg7B2fdyDTvngj+9RlUyL92vOdiB7c0FPguWVsniIMjEtHH+meLBO9rzkUlUzBVXgWrjI8P9LA==}
-    engines: {node: '>=12'}
-
   react-devtools-core@6.1.5:
     resolution: {integrity: sha512-ePrwPfxAnB+7hgnEr8vpKxL9cmnp7F322t8oqcPshbIQQhDKgFDW4tjhF2wjVbdXF9O/nyuy3sQWd9JGpiLPvA==}
 
@@ -6281,9 +6165,6 @@ packages:
   scheduler@0.26.0:
     resolution: {integrity: sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==}
 
-  schema-dts@1.1.5:
-    resolution: {integrity: sha512-RJr9EaCmsLzBX2NDiO5Z3ux2BVosNZN5jo0gWgsyKvxKIUL5R3swNvoorulAeL9kLB0iTSX7V6aokhla2m7xbg==}
-
   scrypt-js@3.0.1:
     resolution: {integrity: sha512-cdwTTnqPu0Hyvf5in5asVdZocVDTNRmR7XEcJuIzMjJeSHybHl7vpB66AzwTaIg6CLSbtjcxc8fqcySfnTkccA==}
 
@@ -6332,9 +6213,6 @@ packages:
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
-
-  setimmediate@1.0.5:
-    resolution: {integrity: sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==}
 
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
@@ -6914,9 +6792,6 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  url-safe-base64@1.2.0:
-    resolution: {integrity: sha512-F6LUjoQiTpMWzOQGVHE0jqoOgTkE+mwg82So5dC1AifmxqpTMg8LE5AterdJZ8yvfrL3fBj7TRiu9Yz+bGUX4g==}
-
   url@0.10.3:
     resolution: {integrity: sha512-hzSUW2q06EqL1gKM/a+obYHLIO6ct2hwPuviqTTOcfFVc61UbfJ2Q32+uGL/HCPxKqrdGB5QUwIe7UqlDgwsOQ==}
 
@@ -7086,10 +6961,6 @@ packages:
 
   weald@1.0.4:
     resolution: {integrity: sha512-+kYTuHonJBwmFhP1Z4YQK/dGi3jAnJGCYhyODFpHK73rbxnp9lnZQj7a2m+WVgn8fXr5bJaxUpF6l8qZpPeNWQ==}
-
-  web-streams-polyfill@3.3.3:
-    resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
-    engines: {node: '>= 8'}
 
   webcrypto-core@1.8.1:
     resolution: {integrity: sha512-P+x1MvlNCXlKbLSOY4cYrdreqPG5hbzkmawbcXLKN/mf6DZW0SdNNkZ+sjwsqVkI4A4Ko2sPZmkZtCKY58w83A==}
@@ -7811,31 +7682,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@ceramicnetwork/blockchain-utils-validation@5.15.0(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/blockchain-utils-linking': 5.6.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ethersproject/contracts': 5.8.0
-      '@ethersproject/providers': 5.8.0
-      '@ethersproject/wallet': 5.8.0
-      '@noble/curves': 1.9.2
-      '@polkadot/util-crypto': 7.9.2(@polkadot/util@7.9.2)
-      '@smontero/eosio-signing-tools': 0.0.6(encoding@0.1.13)
-      '@taquito/utils': 11.2.0
-      '@tendermint/sig': 0.6.0
-      '@zondax/filecoin-signing-tools': 0.18.6
-      caip: 1.1.1
-      tweetnacl: 1.0.3
-      uint8arrays: 5.1.0
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - bufferutil
-      - debug
-      - encoding
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@ceramicnetwork/cli@5.16.0(@polkadot/util@7.9.2)(@types/express@4.17.23)(encoding@0.1.13)(typescript@5.8.3)':
     dependencies:
       '@awaitjs/express': 0.9.0(@types/express@4.17.23)(express@4.21.2)
@@ -8040,74 +7886,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@ceramicnetwork/core@5.16.0(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/anchor-listener': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/anchor-utils': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/codecs': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/indexing': 4.16.0(pg@8.16.3)(sqlite3@5.1.7)(typescript@5.8.3)
-      '@ceramicnetwork/ipfs-topology': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/job-queue': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/node-metrics': 1.0.5(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/observability': 1.5.7
-      '@ceramicnetwork/pinning-aggregation': 5.15.0
-      '@ceramicnetwork/pinning-ipfs-backend': 5.15.0(encoding@0.1.13)
-      '@ceramicnetwork/stream-caip10-link': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-caip10-link-handler': 5.16.0(typescript@5.8.3)
-      '@ceramicnetwork/stream-handler-common': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model-handler': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model-instance-handler': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-tile': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-tile-handler': 5.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/streamid': 5.6.0
-      '@ceramicnetwork/wasm-bloom-filter': 0.1.0
-      '@datastructures-js/priority-queue': 6.3.3
-      '@ethersproject/providers': 5.8.0
-      '@ipld/dag-cbor': 7.0.3
-      '@scarf/scarf': 1.4.0
-      '@stablelib/random': 1.0.2
-      '@stablelib/sha256': 1.0.1
-      '@stablelib/uuid': 1.0.2
-      ajv: 8.17.1
-      ajv-formats: 2.1.1(ajv@8.17.1)
-      await-semaphore: 0.1.3
-      cartonne: 3.0.1
-      codeco: 1.4.3
-      dag-jose: 4.0.0
-      dids: 5.0.3(typescript@5.8.3)
-      it-all: 3.0.9
-      it-batch: 3.0.9
-      it-first: 3.0.9
-      knex: 2.5.1(pg@8.16.3)(sqlite3@5.1.7)
-      least-recent: 1.0.3
-      level: 8.0.1
-      lodash.clonedeep: 4.5.0
-      mapmoize: 1.2.1
-      multiformats: 13.3.7
-      p-queue: 8.1.0
-      pg: 8.16.3
-      rxjs: 7.8.2
-      sqlite3: 5.1.7
-      uint8arrays: 5.1.0
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@ceramicnetwork/http-client@5.16.0(encoding@0.1.13)(typescript@5.8.3)':
     dependencies:
       '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
@@ -8127,37 +7905,6 @@ snapshots:
       - zod
 
   '@ceramicnetwork/indexing@4.16.0(encoding@0.1.13)(pg@8.16.3)(sqlite3@5.1.7)(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/anchor-listener': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/anchor-utils': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/job-queue': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/streamid': 5.6.0
-      '@ethersproject/providers': 5.8.0
-      knex: 2.5.1(pg@8.16.3)(sqlite3@5.1.7)
-      lodash.clonedeep: 4.5.0
-      multiformats: 13.3.7
-      p-queue: 8.1.0
-      pg-boss: 8.4.2
-      rxjs: 7.8.2
-      uint8arrays: 5.1.0
-    transitivePeerDependencies:
-      - better-sqlite3
-      - bufferutil
-      - encoding
-      - mysql
-      - mysql2
-      - pg
-      - pg-native
-      - sqlite3
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@ceramicnetwork/indexing@4.16.0(pg@8.16.3)(sqlite3@5.1.7)(typescript@5.8.3)':
     dependencies:
       '@ceramicnetwork/anchor-listener': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
       '@ceramicnetwork/anchor-utils': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
@@ -8281,21 +8028,6 @@ snapshots:
   '@ceramicnetwork/stream-caip10-link-handler@5.16.0(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)':
     dependencies:
       '@ceramicnetwork/blockchain-utils-validation': 5.15.0(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-caip10-link': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-handler-common': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - bufferutil
-      - debug
-      - encoding
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@ceramicnetwork/stream-caip10-link-handler@5.16.0(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/blockchain-utils-validation': 5.15.0(typescript@5.8.3)
       '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
       '@ceramicnetwork/stream-caip10-link': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
       '@ceramicnetwork/stream-handler-common': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
@@ -8556,36 +8288,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@composedb/client@0.7.1(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@composedb/constants': 0.7.1
-      '@composedb/graphql-scalars': 0.7.1(typescript@5.8.3)
-      '@composedb/runtime': 0.7.1(typescript@5.8.3)
-      '@graphql-tools/batch-execute': 9.0.17(graphql@16.11.0)
-      '@graphql-tools/stitch': 9.4.26(graphql@16.11.0)
-      '@graphql-tools/utils': 10.8.6(graphql@16.11.0)
-      dataloader: 2.2.3
-      graphql: 16.11.0
-      graphql-relay: 0.10.2(graphql@16.11.0)
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@composedb/constants@0.7.1': {}
 
   '@composedb/devtools-node@0.7.1(@composedb/devtools@0.7.1(@polkadot/util@7.9.2)(encoding@0.1.13)(graphql@16.11.0)(typescript@5.8.3))(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)':
@@ -8669,30 +8371,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@composedb/graphql-scalars@0.7.1(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/streamid': 5.6.0
-      '@composedb/types': 0.7.1(typescript@5.8.3)
-      caip: 1.1.1
-      graphql: 16.11.0
-      graphql-scalars: 1.24.2(graphql@16.11.0)
-      multiformats: 13.3.7
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@composedb/loader@0.7.1(encoding@0.1.13)(typescript@5.8.3)':
     dependencies:
       '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
@@ -8712,32 +8390,6 @@ snapshots:
       '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
       '@ceramicnetwork/streamid': 5.6.0
       '@composedb/graphql-scalars': 0.7.1(@polkadot/util@7.9.2)(encoding@0.1.13)(typescript@5.8.3)
-      '@composedb/loader': 0.7.1(encoding@0.1.13)(typescript@5.8.3)
-      graphql: 16.11.0
-      graphql-relay: 0.10.2(graphql@16.11.0)
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@composedb/runtime@0.7.1(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/streamid': 5.6.0
-      '@composedb/graphql-scalars': 0.7.1(typescript@5.8.3)
       '@composedb/loader': 0.7.1(encoding@0.1.13)(typescript@5.8.3)
       graphql: 16.11.0
       graphql-relay: 0.10.2(graphql@16.11.0)
@@ -8806,31 +8458,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@composedb/types@0.7.1(typescript@5.8.3)':
-    dependencies:
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/core': 5.16.0(typescript@5.8.3)
-      '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model': 4.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/stream-model-instance': 4.16.0(encoding@0.1.13)(typescript@5.8.3)
-      dids: 5.0.3(typescript@5.8.3)
-      json-schema-typed: 8.0.1
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
   '@datastructures-js/heap@4.3.3': {}
 
   '@datastructures-js/priority-queue@6.3.3':
@@ -8854,180 +8481,6 @@ snapshots:
       - tedious
       - typescript
       - utf-8-validate
-      - zod
-
-  '@desci-labs/desci-codex-composedb@2.0.2(typescript@5.8.3)':
-    dependencies:
-      '@composedb/types': 0.7.1(typescript@5.8.3)
-    transitivePeerDependencies:
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@desci-labs/desci-codex-lib@2.0.0-rc8(typescript@5.8.3)':
-    dependencies:
-      '@ceramic-sdk/flight-sql-client': 0.11.0
-      '@ceramic-sdk/identifiers': 0.11.0
-      '@ceramic-sdk/model-client': 0.11.0(typescript@5.8.3)
-      '@ceramic-sdk/model-instance-client': 0.11.0(typescript@5.8.3)
-      '@ceramic-sdk/stream-client': 0.11.0(typescript@5.8.3)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/streamid': 5.6.0
-      '@composedb/client': 0.7.1(typescript@5.8.3)
-      '@desci-labs/desci-codex-composedb': 2.0.2(typescript@5.8.3)
-      '@desci-labs/desci-codex-models': 1.0.0-rc3(typescript@5.8.3)
-      apache-arrow: 19.0.1
-      dids: 5.0.3(typescript@5.8.3)
-      gql-query-builder: 3.8.0
-      graphql: 16.11.0
-      key-did-provider-ed25519: 4.0.2(typescript@5.8.3)
-      key-did-resolver: 4.0.0
-      pino-std-serializers: 7.0.0
-      uint8arrays: 4.0.10
-    transitivePeerDependencies:
-      - '@75lb/nature'
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@desci-labs/desci-codex-lib@file:packages/lib(typescript@5.8.3)':
-    dependencies:
-      '@ceramic-sdk/flight-sql-client': 0.11.0
-      '@ceramic-sdk/identifiers': 0.11.0
-      '@ceramic-sdk/model-client': 0.11.0(typescript@5.8.3)
-      '@ceramic-sdk/model-instance-client': 0.11.0(typescript@5.8.3)
-      '@ceramic-sdk/stream-client': 0.11.0(typescript@5.8.3)
-      '@ceramicnetwork/common': 5.15.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/http-client': 5.16.0(encoding@0.1.13)(typescript@5.8.3)
-      '@ceramicnetwork/streamid': 5.6.0
-      '@composedb/client': 0.7.1(typescript@5.8.3)
-      '@desci-labs/desci-codex-composedb': 2.0.2(typescript@5.8.3)
-      '@desci-labs/desci-codex-models': file:packages/models(typescript@5.8.3)
-      apache-arrow: 19.0.1
-      dids: 5.0.3(typescript@5.8.3)
-      gql-query-builder: 3.8.0
-      graphql: 16.11.0
-      key-did-provider-ed25519: 4.0.2(typescript@5.8.3)
-      key-did-resolver: 4.0.0
-      pino-std-serializers: 7.0.0
-      uint8arrays: 4.0.10
-    transitivePeerDependencies:
-      - '@75lb/nature'
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@desci-labs/desci-codex-models@1.0.0-rc3(typescript@5.8.3)':
-    dependencies:
-      '@ceramic-sdk/http-client': 0.2.1(typescript@5.8.3)
-      '@ceramic-sdk/model-client': 0.9.0(typescript@5.8.3)
-      '@ceramic-sdk/model-protocol': 0.2.1(typescript@5.8.3)
-      dids: 5.0.3(typescript@5.8.3)
-      dotenv: 16.6.1
-      key-did-provider-ed25519: 4.0.2(typescript@5.8.3)
-      key-did-resolver: 4.0.0
-      pino-std-serializers: 7.0.0
-      uint8arrays: 4.0.10
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@desci-labs/desci-codex-models@file:packages/models(typescript@5.8.3)':
-    dependencies:
-      '@ceramic-sdk/http-client': 0.2.1(typescript@5.8.3)
-      '@ceramic-sdk/model-client': 0.9.0(typescript@5.8.3)
-      '@ceramic-sdk/model-protocol': 0.2.1(typescript@5.8.3)
-      dids: 5.0.3(typescript@5.8.3)
-      dotenv: 16.6.1
-      key-did-provider-ed25519: 4.0.2(typescript@5.8.3)
-      key-did-resolver: 4.0.0
-      pino-std-serializers: 7.0.0
-      uint8arrays: 4.0.10
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
-
-  '@desci-labs/desci-contracts@0.2.7': {}
-
-  '@desci-labs/desci-models@0.2.28(web-streams-polyfill@3.3.3)':
-    dependencies:
-      jsonld: 8.3.3(web-streams-polyfill@3.3.3)
-      schema-dts: 1.1.5
-    transitivePeerDependencies:
-      - web-streams-polyfill
-
-  '@desci-labs/nodes-lib@0.2.0-rc11(typescript@5.8.3)(web-streams-polyfill@3.3.3)':
-    dependencies:
-      '@desci-labs/desci-codex-lib': 2.0.0-rc8(typescript@5.8.3)
-      '@desci-labs/desci-codex-models': 1.0.0-rc3(typescript@5.8.3)
-      '@desci-labs/desci-contracts': 0.2.7
-      '@desci-labs/desci-models': 0.2.28(web-streams-polyfill@3.3.3)
-      '@didtools/cacao': 3.0.1(typescript@5.8.3)
-      '@didtools/pkh-ethereum': 0.5.0(typescript@5.8.3)
-      '@stablelib/random': 1.0.2
-      axios: 1.10.0(debug@4.4.1)
-      caip: 1.1.1
-      did-session: 4.0.0(typescript@5.8.3)
-      ethers: 5.8.0
-      form-data: 4.0.3
-      mime-types: 2.1.35
-      multiformats: 13.3.7
-      pino-std-serializers: 7.0.0
-      url-safe-base64: 1.2.0
-    transitivePeerDependencies:
-      - '@75lb/nature'
-      - '@polkadot/util'
-      - better-sqlite3
-      - bluebird
-      - bufferutil
-      - debug
-      - encoding
-      - mysql
-      - mysql2
-      - pg-native
-      - supports-color
-      - tedious
-      - typescript
-      - utf-8-validate
-      - web-streams-polyfill
       - zod
 
   '@didtools/cacao@2.1.0':
@@ -9082,13 +8535,6 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@didtools/key-webcrypto@0.2.0':
-    dependencies:
-      fast-json-stable-stringify: 2.1.0
-      rpc-utils: 0.6.2
-      uint8arrays: 5.1.0
-      varint: 6.0.0
-
   '@didtools/pkh-ethereum@0.2.1':
     dependencies:
       '@didtools/cacao': 2.1.0
@@ -9103,19 +8549,6 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@stablelib/random': 1.0.2
       caip: 1.1.1
-
-  '@didtools/pkh-ethereum@0.5.0(typescript@5.8.3)':
-    dependencies:
-      '@didtools/cacao': 3.0.1(typescript@5.8.3)
-      '@noble/curves': 1.9.2
-      '@noble/hashes': 1.8.0
-      '@stablelib/random': 1.0.2
-      caip: 1.1.1
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
 
   '@didtools/pkh-ethereum@0.6.0(typescript@5.8.3)':
     dependencies:
@@ -9180,14 +8613,6 @@ snapshots:
   '@didtools/siwx@2.0.0':
     dependencies:
       codeco: 1.4.3
-
-  '@digitalbazaar/http-client@3.4.1(web-streams-polyfill@3.3.3)':
-    dependencies:
-      ky: 0.33.3
-      ky-universal: 0.11.0(ky@0.33.3)(web-streams-polyfill@3.3.3)
-      undici: 5.29.0
-    transitivePeerDependencies:
-      - web-streams-polyfill
 
   '@envelop/core@5.3.0':
     dependencies:
@@ -9564,15 +8989,6 @@ snapshots:
       elliptic: 6.6.1
       hash.js: 1.1.7
 
-  '@ethersproject/solidity@5.8.0':
-    dependencies:
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
-      '@ethersproject/keccak256': 5.8.0
-      '@ethersproject/logger': 5.8.0
-      '@ethersproject/sha2': 5.8.0
-      '@ethersproject/strings': 5.8.0
-
   '@ethersproject/strings@5.8.0':
     dependencies:
       '@ethersproject/bytes': 5.8.0
@@ -9590,12 +9006,6 @@ snapshots:
       '@ethersproject/properties': 5.8.0
       '@ethersproject/rlp': 5.8.0
       '@ethersproject/signing-key': 5.8.0
-
-  '@ethersproject/units@5.8.0':
-    dependencies:
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/constants': 5.8.0
-      '@ethersproject/logger': 5.8.0
 
   '@ethersproject/wallet@5.8.0':
     dependencies:
@@ -11589,10 +10999,6 @@ snapshots:
 
   '@types/chai@4.3.20': {}
 
-  '@types/cli-progress@3.11.6':
-    dependencies:
-      '@types/node': 20.19.6
-
   '@types/command-line-args@5.2.3': {}
 
   '@types/command-line-usage@5.0.4': {}
@@ -12532,8 +11938,6 @@ snapshots:
 
   caniuse-lite@1.0.30001727: {}
 
-  canonicalize@1.0.8: {}
-
   canonicalize@2.1.0: {}
 
   capability@0.2.5: {}
@@ -12634,10 +12038,6 @@ snapshots:
   cli-cursor@5.0.0:
     dependencies:
       restore-cursor: 5.1.0
-
-  cli-progress@3.12.0:
-    dependencies:
-      string-width: 4.2.3
 
   cli-spinners@2.9.2: {}
 
@@ -12834,8 +12234,6 @@ snapshots:
       '@ipld/dag-cbor': 9.2.4
       multiformats: 13.1.3
 
-  data-uri-to-buffer@4.0.1: {}
-
   dataloader@2.2.3: {}
 
   datastore-core@10.0.4:
@@ -12948,21 +12346,6 @@ snapshots:
       uint8arrays: 3.1.1
 
   did-resolver@4.1.0: {}
-
-  did-session@4.0.0(typescript@5.8.3):
-    dependencies:
-      '@didtools/key-webcrypto': 0.2.0
-      '@stablelib/random': 1.0.2
-      caip: 1.1.1
-      dids: 5.0.3(typescript@5.8.3)
-      key-did-provider-ed25519: 4.0.2(typescript@5.8.3)
-      key-did-resolver: 4.0.0
-      uint8arrays: 5.1.0
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-      - zod
 
   dids@4.0.4:
     dependencies:
@@ -13302,42 +12685,6 @@ snapshots:
 
   etag@1.8.1: {}
 
-  ethers@5.8.0:
-    dependencies:
-      '@ethersproject/abi': 5.8.0
-      '@ethersproject/abstract-provider': 5.8.0
-      '@ethersproject/abstract-signer': 5.8.0
-      '@ethersproject/address': 5.8.0
-      '@ethersproject/base64': 5.8.0
-      '@ethersproject/basex': 5.8.0
-      '@ethersproject/bignumber': 5.8.0
-      '@ethersproject/bytes': 5.8.0
-      '@ethersproject/constants': 5.8.0
-      '@ethersproject/contracts': 5.8.0
-      '@ethersproject/hash': 5.8.0
-      '@ethersproject/hdnode': 5.8.0
-      '@ethersproject/json-wallets': 5.8.0
-      '@ethersproject/keccak256': 5.8.0
-      '@ethersproject/logger': 5.8.0
-      '@ethersproject/networks': 5.8.0
-      '@ethersproject/pbkdf2': 5.8.0
-      '@ethersproject/properties': 5.8.0
-      '@ethersproject/providers': 5.8.0
-      '@ethersproject/random': 5.8.0
-      '@ethersproject/rlp': 5.8.0
-      '@ethersproject/sha2': 5.8.0
-      '@ethersproject/signing-key': 5.8.0
-      '@ethersproject/solidity': 5.8.0
-      '@ethersproject/strings': 5.8.0
-      '@ethersproject/transactions': 5.8.0
-      '@ethersproject/units': 5.8.0
-      '@ethersproject/wallet': 5.8.0
-      '@ethersproject/web': 5.8.0
-      '@ethersproject/wordlists': 5.8.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   event-iterator@2.0.0: {}
 
   event-target-shim@5.0.1: {}
@@ -13457,11 +12804,6 @@ snapshots:
     dependencies:
       bser: 2.1.1
 
-  fetch-blob@3.2.0:
-    dependencies:
-      node-domexception: 1.0.0
-      web-streams-polyfill: 3.3.3
-
   fflate@0.8.2: {}
 
   figures@6.1.0:
@@ -13569,10 +12911,6 @@ snapshots:
       es-set-tostringtag: 2.1.0
       hasown: 2.0.2
       mime-types: 2.1.35
-
-  formdata-polyfill@4.0.10:
-    dependencies:
-      fetch-blob: 3.2.0
 
   forwarded@0.2.0: {}
 
@@ -14676,15 +14014,6 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
-  jsonld@8.3.3(web-streams-polyfill@3.3.3):
-    dependencies:
-      '@digitalbazaar/http-client': 3.4.1(web-streams-polyfill@3.3.3)
-      canonicalize: 1.0.8
-      lru-cache: 6.0.0
-      rdf-canonize: 3.4.0
-    transitivePeerDependencies:
-      - web-streams-polyfill
-
   jsontokens@4.0.1:
     dependencies:
       '@noble/hashes': 1.8.0
@@ -14771,16 +14100,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
       - supports-color
-
-  ky-universal@0.11.0(ky@0.33.3)(web-streams-polyfill@3.3.3):
-    dependencies:
-      abort-controller: 3.0.0
-      ky: 0.33.3
-      node-fetch: 3.3.2
-    optionalDependencies:
-      web-streams-polyfill: 3.3.3
-
-  ky@0.33.3: {}
 
   least-recent@1.0.3:
     dependencies:
@@ -14959,6 +14278,7 @@ snapshots:
   lru-cache@6.0.0:
     dependencies:
       yallist: 4.0.0
+    optional: true
 
   ltgt@2.2.1: {}
 
@@ -15417,19 +14737,11 @@ snapshots:
 
   node-addon-api@7.1.1: {}
 
-  node-domexception@1.0.0: {}
-
   node-fetch@2.7.0(encoding@0.1.13):
     dependencies:
       whatwg-url: 5.0.0
     optionalDependencies:
       encoding: 0.1.13
-
-  node-fetch@3.3.2:
-    dependencies:
-      data-uri-to-buffer: 4.0.1
-      fetch-blob: 3.2.0
-      formdata-polyfill: 4.0.10
 
   node-forge@1.3.1: {}
 
@@ -16002,10 +15314,6 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  rdf-canonize@3.4.0:
-    dependencies:
-      setimmediate: 1.0.5
-
   react-devtools-core@6.1.5:
     dependencies:
       shell-quote: 1.8.3
@@ -16268,8 +15576,6 @@ snapshots:
 
   scheduler@0.26.0: {}
 
-  schema-dts@1.1.5: {}
-
   scrypt-js@3.0.1: {}
 
   scryptsy@2.1.0: {}
@@ -16336,8 +15642,6 @@ snapshots:
       get-intrinsic: 1.3.0
       gopd: 1.2.0
       has-property-descriptors: 1.0.2
-
-  setimmediate@1.0.5: {}
 
   setprototypeof@1.2.0: {}
 
@@ -16909,8 +16213,6 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  url-safe-base64@1.2.0: {}
-
   url@0.10.3:
     dependencies:
       punycode: 1.3.2
@@ -17101,8 +16403,6 @@ snapshots:
     dependencies:
       ms: 3.0.0-canary.1
       supports-color: 9.4.0
-
-  web-streams-polyfill@3.3.3: {}
 
   webcrypto-core@1.8.1:
     dependencies:
