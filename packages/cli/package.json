@@ -1,0 +1,58 @@
+{
+  "name": "@desci-labs/codex-cli",
+  "version": "0.1.0",
+  "description": "A user-friendly CLI for pushing/pulling folders to/from DeSci Nodes",
+  "type": "module",
+  "bin": {
+    "codex": "./dist/index.js",
+    "desci": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "desci",
+    "codex",
+    "nodes",
+    "cli",
+    "ipfs",
+    "research"
+  ],
+  "author": "DeSci Labs",
+  "license": "MIT",
+  "dependencies": {
+    "@desci-labs/desci-codex-lib": "workspace:*",
+    "@desci-labs/nodes-lib": "^0.2.0-rc11",
+    "@desci-labs/desci-models": "^0.2.19",
+    "axios": "^1.6.5",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "conf": "^13.0.1",
+    "enquirer": "^2.4.1",
+    "form-data": "^4.0.0",
+    "glob": "^10.3.10",
+    "ora": "^8.0.1",
+    "figures": "^6.1.0",
+    "cli-progress": "^3.12.0",
+    "boxen": "^8.0.1",
+    "gradient-string": "^3.0.0",
+    "open": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.5",
+    "@types/gradient-string": "^1.1.6",
+    "@types/node": "^20.11.5",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist"
+  ]
+}
+
