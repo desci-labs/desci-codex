@@ -34,8 +34,6 @@ describe("Serialization", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1"],
           },
         ],

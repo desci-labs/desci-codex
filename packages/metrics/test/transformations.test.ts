@@ -29,8 +29,6 @@ describe("Transformations", () => {
       streams: [
         {
           streamId: "stream1",
-          streamCid:
-            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
           eventIds: ["event1", "event2"],
         },
       ],
@@ -49,8 +47,6 @@ describe("Transformations", () => {
       streams: [
         {
           streamId: "stream1",
-          streamCid:
-            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
           eventIds: ["event1", "event2"],
         },
       ],
@@ -107,7 +103,6 @@ describe("Transformations", () => {
       expect(Array.isArray(granular.manifests)).toBe(true);
       expect(Array.isArray(granular.streams)).toBe(true);
       expect(granular.streams[0]).toHaveProperty("streamId");
-      expect(granular.streams[0]).toHaveProperty("streamCid");
       expect(granular.streams[0]).toHaveProperty("eventIds");
     });
 

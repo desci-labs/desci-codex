@@ -18,7 +18,6 @@ export const SignatureSchema = z.array(
  */
 export const StreamSchema = z.object({
   streamId: z.string().min(1),
-  streamCid: z.string().min(1),
   eventIds: z.array(z.string().min(1)),
 });
 

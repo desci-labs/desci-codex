@@ -68,7 +68,6 @@ export function isValidInternalFormat(
         s !== null &&
         typeof s === "object" &&
         typeof (s as Record<string, unknown>).streamId === "string" &&
-        typeof (s as Record<string, unknown>).streamCid === "string" &&
         Array.isArray((s as Record<string, unknown>).eventIds) &&
         ((s as Record<string, unknown>).eventIds as unknown[]).every(
           (e: unknown) => typeof e === "string",

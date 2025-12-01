@@ -40,8 +40,6 @@ describe("End-to-End Integration Tests", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -78,8 +76,6 @@ describe("End-to-End Integration Tests", () => {
         streams: [
           {
             streamId: "stream42",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1"],
           },
         ],
@@ -156,8 +152,6 @@ describe("End-to-End Integration Tests", () => {
         streams: [
           {
             streamId: "stream10",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1"],
           },
         ],

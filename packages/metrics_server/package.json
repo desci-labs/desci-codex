@@ -17,7 +17,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:erd": "tsx scripts/generate-dbml.ts",
-    "db:legacy:migrate": "node dist/migrations/migrate.js"
+    "migrate:cids": "tsx scripts/migrate-cids.ts",
+    "migrate:cids:dry-run": "tsx scripts/migrate-cids.ts --dry-run"
   },
   "devDependencies": {
     "@dbml/cli": "^5.0.0",
@@ -34,6 +35,7 @@
     "vitest-github-actions-reporter": "^0.10.0"
   },
   "dependencies": {
+    "@ceramic-sdk/identifiers": "^0.11.0",
     "@desci-labs/desci-codex-metrics": "workspace:*",
     "@libp2p/crypto": "^5.1.7",
     "@libp2p/interface": "^2.10.5",

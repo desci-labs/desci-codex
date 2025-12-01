@@ -130,7 +130,6 @@ describe("Metrics API Contract", () => {
 
       if (metrics.streams.length > 0) {
         expect(metrics.streams[0]).toHaveProperty("streamId");
-        expect(metrics.streams[0]).toHaveProperty("streamCid");
         expect(metrics.streams[0]).toHaveProperty("eventIds");
         expect(Array.isArray(metrics.streams[0].eventIds)).toBe(true);
       }

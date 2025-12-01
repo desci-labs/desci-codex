@@ -137,7 +137,6 @@ describe("Node Metrics Service", () => {
         // Verify granular stream details
         if (testCase.expectedCount > 0) {
           expect(metrics.streams[0]).toHaveProperty("streamId");
-          expect(metrics.streams[0]).toHaveProperty("streamCid");
           expect(metrics.streams[0]).toHaveProperty("eventIds");
         }
       }

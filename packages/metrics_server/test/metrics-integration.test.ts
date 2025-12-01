@@ -37,8 +37,6 @@ describe("Metrics Server Processing", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -68,7 +66,6 @@ describe("Metrics Server Processing", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid: "streamCid1",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -107,12 +104,10 @@ describe("Metrics Server Processing", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid: "streamCid1",
             eventIds: ["event1"],
           },
           {
             streamId: "stream2",
-            streamCid: "streamCid2",
             eventIds: ["event2", "event3"],
           },
         ],
@@ -197,7 +192,6 @@ describe("Metrics Server Processing", () => {
           streams: [
             {
               streamId: "stream1",
-              streamCid: "streamCid1",
               eventIds: ["event1"],
             },
           ],
@@ -226,7 +220,6 @@ describe("Metrics Server Processing", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid: "streamCid1",
             eventIds: ["event1", "event2"],
           },
         ],

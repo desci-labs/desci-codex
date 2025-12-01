@@ -32,7 +32,6 @@ describe("Metrics Server Validation", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid: "streamCid1",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -76,7 +75,6 @@ describe("Metrics Server Validation", () => {
           streams: [
             {
               streamId: "stream1",
-              streamCid: "streamCid1",
               eventIds: ["event1"],
             },
           ],

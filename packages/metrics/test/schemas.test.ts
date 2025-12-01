@@ -45,8 +45,6 @@ describe("Zod Schemas", () => {
     it("should validate valid stream", () => {
       const stream = {
         streamId: "stream123",
-        streamCid:
-          "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
         eventIds: ["event1", "event2", "event3"],
       };
       expect(StreamSchema.parse(stream)).toEqual(stream);
@@ -54,21 +52,15 @@ describe("Zod Schemas", () => {
 
     it("should reject invalid stream", () => {
       expect(() =>
-        StreamSchema.parse({ streamId: "", streamCid: "cid", eventIds: [] }),
-      ).toThrow();
-      expect(() =>
-        StreamSchema.parse({ streamId: "id", streamCid: "", eventIds: [] }),
+        StreamSchema.parse({ streamId: "", eventIds: [] }),
       ).toThrow();
       expect(() =>
         StreamSchema.parse({
           streamId: "id",
-          streamCid: "cid",
           eventIds: [""],
         }),
       ).toThrow();
-      expect(() =>
-        StreamSchema.parse({ streamId: "id", streamCid: "cid" }),
-      ).toThrow();
+      expect(() => StreamSchema.parse({ streamId: "id" })).toThrow();
     });
   });
 
@@ -85,8 +77,6 @@ describe("Zod Schemas", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -108,8 +98,6 @@ describe("Zod Schemas", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -134,8 +122,6 @@ describe("Zod Schemas", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -215,8 +201,6 @@ describe("Zod Schemas", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -239,8 +223,6 @@ describe("Zod Schemas", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -268,8 +250,6 @@ describe("Zod Schemas", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid:
-              "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
             eventIds: ["event1", "event2"],
           },
         ],
@@ -300,7 +280,6 @@ describe("Zod Schemas", () => {
         streams: [
           {
             streamId: "stream1",
-            streamCid: "streamCid1",
             eventIds: ["event1"],
           },
         ],

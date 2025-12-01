@@ -46,7 +46,6 @@ export function createMetricsService(
         // Transform ceramic streams into granular streams with events
         const streams: Stream[] = ceramicStats.streams.map((streamData) => ({
           streamId: streamData.id,
-          streamCid: streamData.id, // In the future, this might be different
           eventIds: streamData.versions, // Using versions as event IDs
         }));
 

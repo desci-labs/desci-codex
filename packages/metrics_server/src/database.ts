@@ -12,6 +12,7 @@ import {
   nodeEvents,
   nodeActivity,
 } from "./drizzleSchema.js";
+import { StreamID, CommitID } from "@ceramic-sdk/identifiers";
 import logger from "./logger.js";
 
 const log = logger.child({ module: "database" });
@@ -110,12 +111,15 @@ export class DatabaseService {
 
         // Upsert streams and events
         for (const stream of metrics.streams) {
+          // Derive streamCid from streamId
+          const streamCid = StreamID.fromString(stream.streamId).cid.toString();
+
           // Upsert stream
           await tx
             .insert(streams)
             .values({
               streamId: stream.streamId,
-              streamCid: stream.streamCid,
+              streamCid: streamCid,
               environment: metrics.environment,
               firstSeenAt: new Date(metrics.collectedAt),
             })
@@ -134,13 +138,16 @@ export class DatabaseService {
 
           // Upsert events
           for (const eventId of stream.eventIds) {
+            // Derive eventCid from eventId (which is a CommitID)
+            const eventCid = CommitID.fromString(eventId).commit.toString();
+
             // Upsert event
             await tx
               .insert(events)
               .values({
                 eventId: eventId,
                 streamId: stream.streamId,
-                eventCid: `${eventId}-cid`, // Placeholder - actual implementation would have real CID
+                eventCid: eventCid,
                 environment: metrics.environment,
                 firstSeenAt: new Date(metrics.collectedAt),
               })
