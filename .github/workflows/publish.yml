@@ -1,4 +1,4 @@
-name: Publish codex-lib to npmjs
+name: Publish packages to npmjs
 on:
   push:
     branches: [main]

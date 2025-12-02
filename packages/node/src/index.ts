@@ -225,6 +225,13 @@ app.listen(port, async () => {
     // Get the private key after IPFS node is started
     const privateKey = await ipfsNode.getPrivateKey();
 
+    // Ensure we have an Ed25519 key for metrics signing
+    if (privateKey.type !== "Ed25519") {
+      throw new Error(
+        `Metrics requires Ed25519 keys, but got ${privateKey.type}`,
+      );
+    }
+
     log.info("Registering model interests...");
     try {
       await registerModelInterests(CERAMIC_ONE_RPC_URL);
@@ -244,7 +251,7 @@ app.listen(port, async () => {
       eventsService: ceramicEventsService,
       ipfsNode: ipfsNode,
       environment: CODEX_ENVIRONMENT,
-      privateKey,
+      privateKey: privateKey as import("@libp2p/interface").Ed25519PrivateKey,
     });
 
     // Create metrics pusher if backend URL is configured and not in local environment

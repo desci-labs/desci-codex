@@ -14,7 +14,8 @@ COPY . .
 # First install ALL dependencies (including devDependencies)
 RUN pnpm install --frozen-lockfile
 
-# Build while we still have dev dependencies
+# Build dependencies first, then the node package
+RUN pnpm --filter @desci-labs/desci-codex-metrics build
 # RUN pnpm --filter @desci-labs/desci-codex-models build
 # RUN ls -lA /build/packages/models/dist
 RUN pnpm --filter @desci-labs/desci-codex-node build

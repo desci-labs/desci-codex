@@ -1,31 +1,25 @@
 import logger from "./logger.js";
 import type { CeramicEventsService } from "./events.js";
 import type { IPFSNode } from "./ipfs.js";
-import { loadOrCreateSelfKey } from "@libp2p/config";
+import {
+  signMetrics,
+  type NodeMetricsSignable,
+  type NodeMetricsGranular,
+  type Stream,
+} from "@desci-labs/desci-codex-metrics";
+import type { Ed25519PrivateKey } from "@libp2p/interface";
 
 const log = logger.child({ module: "metrics" });
 
 export interface MetricsService {
-  getMetrics: () => Promise<{
-    identity: {
-      ipfs: string;
-      ceramic: string;
-    };
-    environment: "testnet" | "mainnet" | "local";
-    summary: {
-      totalStreams: number;
-      totalPinnedCids: number;
-      collectedAt: string;
-    };
-    signature: number[];
-  }>;
+  getMetrics: () => Promise<NodeMetricsGranular>;
 }
 
 export interface MetricsServiceConfig {
   eventsService: CeramicEventsService;
   ipfsNode: IPFSNode;
   environment: "testnet" | "mainnet" | "local";
-  privateKey: Awaited<ReturnType<typeof loadOrCreateSelfKey>>;
+  privateKey: Ed25519PrivateKey;
 }
 
 export function createMetricsService(
@@ -34,7 +28,7 @@ export function createMetricsService(
   return {
     async getMetrics() {
       try {
-        log.info("Collecting metrics from services");
+        log.info("Collecting granular metrics from services");
 
         // Get events from the events service
         const ceramicStats = await config.eventsService.stats();
@@ -42,41 +36,49 @@ export function createMetricsService(
         // Get pinned CIDs from the IPFS service
         const pinnedCids = await config.ipfsNode.listPins();
 
-        const summary = {
-          totalStreams: ceramicStats.streams.length,
-          totalPinnedCids: pinnedCids.length,
+        const ipfsPeerId = (await config.ipfsNode.libp2pInfo()).peerId;
+        const nodeId = ipfsPeerId;
+        const ceramicPeerId = ceramicStats.peerId;
+
+        // Transform pinned CIDs into manifests (now just strings)
+        const manifests: string[] = pinnedCids.map((cid) => cid.toString());
+
+        // Transform ceramic streams into granular streams with events
+        const streams: Stream[] = ceramicStats.streams.map((streamData) => ({
+          streamId: streamData.id,
+          eventIds: streamData.versions, // Using versions as event IDs
+        }));
+
+        // Create the signable granular metrics data
+        const signableData: NodeMetricsSignable = {
+          nodeId: nodeId,
+          ceramicPeerId: ceramicPeerId,
+          environment: config.environment,
+          manifests: manifests,
+          streams: streams,
           collectedAt: new Date().toISOString(),
         };
 
-        const ipfsPeerId = (await config.ipfsNode.libp2pInfo()).peerId;
-
-        // Create the metrics data that will be sent to backend
-        const metricsForBackend = {
-          ipfsPeerId: ipfsPeerId,
-          ceramicPeerId: ceramicStats.peerId,
-          environment: config.environment,
-          totalStreams: summary.totalStreams,
-          totalPinnedCids: summary.totalPinnedCids,
-          collectedAt: summary.collectedAt,
-        };
-
-        // Sign the exact data that will be sent to backend
-        const metricsBytes = new TextEncoder().encode(
-          JSON.stringify(metricsForBackend),
+        // Sign the metrics using the @desci-labs/desci-codex-metrics library
+        const signedMetrics = await signMetrics(
+          signableData,
+          config.privateKey,
         );
-        const signature = await config.privateKey.sign(metricsBytes);
 
-        return {
-          identity: {
-            ipfs: ipfsPeerId,
-            ceramic: ceramicStats.peerId,
+        log.info(
+          {
+            nodeId,
+            ceramicPeerId: ceramicPeerId,
+            manifestCount: manifests.length,
+            streamCount: streams.length,
+            totalEvents: streams.reduce((sum, s) => sum + s.eventIds.length, 0),
           },
-          environment: config.environment,
-          summary,
-          signature: Array.from(signature), // Convert to array for JSON serialization
-        };
+          "Collected granular metrics",
+        );
+
+        return signedMetrics;
       } catch (error) {
-        log.error(error, "Error collecting metrics");
+        log.error(error, "Error collecting granular metrics");
         throw error;
       }
     },

@@ -33,13 +33,6 @@ jobs:
           dockerfile-path: packages/metrics_server/Dockerfile
           build-context: .
 
-      - name: Build and push grafana image
-        uses: ./.github/actions/docker-build-push
-        with:
-          image-name: codex-metrics-grafana
-          dockerfile-path: packages/metrics_server/Dockerfile.grafana
-          build-context: packages/metrics_server
-
   deploy:
     runs-on: ubuntu-latest
     needs:
@@ -53,12 +46,11 @@ jobs:
         with:
           kube-config-data: ${{ secrets.KUBE_CONFIG_DATA }}
 
-      - name: Deploy metrics service to EKS
-        run: |
-          kubectl apply -f packages/metrics_server/k8s/deployment.yaml
-          kubectl set image deployment/codex-metrics metrics-server=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-metrics-server:${{ github.sha }}
-          kubectl set image deployment/codex-metrics grafana=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/codex-metrics-grafana:${{ github.sha }}
-
-      - name: Verify deployment rollout
-        run: |
-          kubectl rollout status deployment/codex-metrics --timeout=300s
+      - name: Deploy metrics-server to EKS
+        uses: ./.github/actions/k8s-deploy
+        with:
+          manifest-path: packages/metrics_server/k8s/deployment.yaml
+          deployment-type: deployment
+          deployment-name: codex-metrics
+          container-name: metrics-server
+          image-name: codex-metrics-server

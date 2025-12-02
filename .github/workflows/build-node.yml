@@ -48,11 +48,20 @@ jobs:
         with:
           kube-config-data: ${{ secrets.KUBE_CONFIG_DATA }}
 
-      - name: Deploy codex-node to EKS
+      - name: Deploy testnet codex-node to EKS
         uses: ./.github/actions/k8s-deploy
         with:
           manifest-path: packages/node/k8s/dev/deployment.yaml
           deployment-type: statefulset
           deployment-name: codex-node-dev
+          container-name: codex-node
+          image-name: codex-node
+
+      - name: Deploy mainnet codex-node to EKS
+        uses: ./.github/actions/k8s-deploy
+        with:
+          manifest-path: packages/node/k8s/prod/deployment.yaml
+          deployment-type: statefulset
+          deployment-name: codex-node-prod
           container-name: codex-node
           image-name: codex-node

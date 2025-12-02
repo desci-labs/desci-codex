@@ -2,12 +2,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createMetricsService } from "../src/metrics.js";
 import type { CeramicEventsService, CeramicNodeStats } from "../src/events.js";
 import type { IPFSNode } from "../src/ipfs.js";
-import { peerIdFromPrivateKey, peerIdFromString } from "@libp2p/peer-id";
+import { peerIdFromPrivateKey } from "@libp2p/peer-id";
 import { generateKeyPair } from "@libp2p/crypto/keys";
 import { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
 import { metricsToPayload } from "../src/metrics-pusher.js";
 
-describe("Metrics Signing", () => {
+/**
+ * Tests for node-specific metrics collection and service integration.
+ * Cryptographic validation is handled by \@desci-labs/desci-codex-metrics library tests.
+ * These tests focus on service integration and data collection accuracy.
+ */
+describe("Node Metrics Service", () => {
   let mockEventsService: CeramicEventsService;
   let mockIpfsNode: IPFSNode;
   let privateKey: Ed25519PrivateKey;
@@ -45,8 +50,8 @@ describe("Metrics Signing", () => {
     };
   });
 
-  describe("createMetricsService", () => {
-    it("should create a metrics service with signing capability", () => {
+  describe("Service Creation and Data Collection", () => {
+    it("should create a metrics service", () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
@@ -58,125 +63,135 @@ describe("Metrics Signing", () => {
       expect(typeof metricsService.getMetrics).toBe("function");
     });
 
-    it("should collect metrics and sign them correctly", async () => {
+    it("should collect accurate granular metrics from integrated services", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
-        environment: "testnet",
+        environment: "mainnet",
         privateKey,
       });
 
       const metrics = await metricsService.getMetrics();
 
-      // Verify the metrics structure
-      expect(metrics).toHaveProperty("identity");
-      expect(metrics).toHaveProperty("environment");
-      expect(metrics).toHaveProperty("summary");
-      expect(metrics).toHaveProperty("signature");
+      // Verify granular service integration - data comes from mocked services
+      expect(metrics.ceramicPeerId).toBe(peerId.toString());
+      expect(metrics.nodeId).toBe(peerId.toString());
+      expect(metrics.environment).toBe("mainnet");
+      expect(metrics.manifests).toHaveLength(3); // From mockIpfsNode.listPins
+      expect(metrics.streams).toHaveLength(2); // From mockEventsService
+      expect(metrics.streams[0].eventIds).toEqual(["v1", "v2"]); // First stream versions
+      expect(metrics.streams[1].eventIds).toEqual(["v1"]); // Second stream versions
+      expect(metrics.collectedAt).toBeDefined();
+      expect(new Date(metrics.collectedAt)).toBeInstanceOf(Date);
+    });
 
-      expect(metrics.identity.ipfs).toBe(peerId.toString());
-      expect(metrics.identity.ceramic).toBe(peerId.toString());
-      expect(metrics.environment).toBe("testnet");
-      expect(metrics.summary.totalStreams).toBe(2);
-      expect(metrics.summary.totalPinnedCids).toBe(3);
-      expect(metrics.summary.collectedAt).toBeDefined();
-      expect(metrics.signature).toBeInstanceOf(Array);
-      expect(metrics.signature.length).toBeGreaterThan(0);
+    it("should handle different environments correctly", async () => {
+      const environments = ["testnet", "mainnet", "local"] as const;
+
+      for (const environment of environments) {
+        const metricsService = createMetricsService({
+          eventsService: mockEventsService,
+          ipfsNode: mockIpfsNode,
+          environment,
+          privateKey,
+        });
+
+        const metrics = await metricsService.getMetrics();
+        expect(metrics.environment).toBe(environment);
+      }
     });
   });
 
-  describe("Simulated backend verification", () => {
-    it("can validate legitimate signature", async () => {
-      const metricsService = createMetricsService({
-        eventsService: mockEventsService,
-        ipfsNode: mockIpfsNode,
-        environment: "testnet",
-        privateKey,
-      });
+  describe("Service Integration Accuracy", () => {
+    it("should accurately reflect changes in ceramic streams", async () => {
+      // Test with different stream counts
+      const testCases = [
+        { streams: [], expectedCount: 0 },
+        { streams: [{ id: "stream1", versions: ["v1"] }], expectedCount: 1 },
+        {
+          streams: [
+            { id: "stream1", versions: ["v1", "v2"] },
+            { id: "stream2", versions: ["v1"] },
+            { id: "stream3", versions: ["v1", "v2", "v3"] },
+          ],
+          expectedCount: 3,
+        },
+      ];
 
-      const metrics = await metricsService.getMetrics();
+      for (const testCase of testCases) {
+        mockEventsService.stats = vi.fn().mockResolvedValue({
+          peerId: peerId.toString(),
+          streams: testCase.streams,
+        });
 
-      const receivedPayload = metricsToPayload(metrics);
-      const { signature, ...dataToVerify } = receivedPayload;
+        const metricsService = createMetricsService({
+          eventsService: mockEventsService,
+          ipfsNode: mockIpfsNode,
+          environment: "testnet",
+          privateKey,
+        });
 
-      const peerIdFromPayload = peerIdFromString(receivedPayload.ipfsPeerId);
-      const publicKeyFromPeerId = peerIdFromPayload.publicKey!;
+        const metrics = await metricsService.getMetrics();
+        expect(metrics.streams).toHaveLength(testCase.expectedCount);
 
-      const dataBytes = new TextEncoder().encode(JSON.stringify(dataToVerify));
-      const signatureBytes = new Uint8Array(signature);
-
-      const isValid = await publicKeyFromPeerId.verify(
-        dataBytes,
-        signatureBytes,
-      );
-      expect(isValid).toBe(true);
+        // Verify granular stream details
+        if (testCase.expectedCount > 0) {
+          expect(metrics.streams[0]).toHaveProperty("streamId");
+          expect(metrics.streams[0]).toHaveProperty("eventIds");
+        }
+      }
     });
 
-    it("can reject tampered data", async () => {
-      const metricsService = createMetricsService({
-        eventsService: mockEventsService,
-        ipfsNode: mockIpfsNode,
-        environment: "testnet",
-        privateKey,
-      });
+    it("should accurately reflect changes in pinned CIDs as manifests", async () => {
+      // Test with different pin counts
+      const testCases = [
+        { pins: [], expectedCount: 0 },
+        { pins: ["cid1"], expectedCount: 1 },
+        { pins: ["cid1", "cid2", "cid3", "cid4", "cid5"], expectedCount: 5 },
+      ];
 
-      const metrics = await metricsService.getMetrics();
+      for (const testCase of testCases) {
+        mockIpfsNode.listPins = vi.fn().mockResolvedValue(testCase.pins);
 
-      const legitimatePayload = metricsToPayload(metrics);
+        const metricsService = createMetricsService({
+          eventsService: mockEventsService,
+          ipfsNode: mockIpfsNode,
+          environment: "testnet",
+          privateKey,
+        });
 
-      const tamperedPayload = {
-        ...legitimatePayload,
-        totalStreams: legitimatePayload.totalStreams + 1, // Tampered value
-      };
+        const metrics = await metricsService.getMetrics();
+        expect(metrics.manifests).toHaveLength(testCase.expectedCount);
 
-      const { signature, ...dataToVerify } = tamperedPayload;
-      const peerIdFromPayload = peerIdFromString(tamperedPayload.ipfsPeerId);
-      const publicKeyFromPeerId = peerIdFromPayload.publicKey!;
-
-      const dataBytes = new TextEncoder().encode(JSON.stringify(dataToVerify));
-      const signatureBytes = new Uint8Array(signature);
-
-      // Verify should fail for tampered data
-      const isValid = await publicKeyFromPeerId.verify(
-        dataBytes,
-        signatureBytes,
-      );
-      expect(isValid).toBe(false);
+        // Verify manifest structure
+        if (testCase.expectedCount > 0) {
+          expect(typeof metrics.manifests[0]).toBe("string");
+        }
+      }
     });
+  });
 
-    it("can reject signature from different key (peer impersonation)", async () => {
+  describe("metricsToPayload Integration", () => {
+    it("should transform granular metrics correctly for transmission", async () => {
       const metricsService = createMetricsService({
         eventsService: mockEventsService,
         ipfsNode: mockIpfsNode,
-        environment: "testnet",
+        environment: "local",
         privateKey,
       });
 
       const metrics = await metricsService.getMetrics();
+      const payload = metricsToPayload(metrics);
 
-      const legitimatePayload = metricsToPayload(metrics);
-
-      const attackerPrivateKey = await generateKeyPair("Ed25519");
-
-      const { signature: _, ...dataToSign } = legitimatePayload;
-      const dataBytes = new TextEncoder().encode(JSON.stringify(dataToSign));
-
-      const attackerSignature = await attackerPrivateKey.sign(dataBytes);
-
-      const maliciousPayload = {
-        ...dataToSign,
-        signature: Array.from(attackerSignature),
-      };
-
-      const victimPeerId = peerIdFromString(maliciousPayload.ipfsPeerId);
-      const victimPublicKey = victimPeerId.publicKey!;
-      const attackerSignatureBytes = new Uint8Array(maliciousPayload.signature);
-
-      const isValid = await victimPublicKey.verify(
-        dataBytes,
-        attackerSignatureBytes,
-      );
-      expect(isValid).toBe(false);
+      // Verify payload is ready for granular metrics_server consumption
+      expect(payload).toBe(metrics); // Should be identity function now
+      expect(payload).toHaveProperty("nodeId");
+      expect(payload).toHaveProperty("ceramicPeerId");
+      expect(payload).toHaveProperty("environment");
+      expect(payload).toHaveProperty("manifests");
+      expect(payload).toHaveProperty("streams");
+      expect(payload).toHaveProperty("collectedAt");
+      expect(payload).toHaveProperty("signature");
     });
   });
 });

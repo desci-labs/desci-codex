@@ -1,6 +1,7 @@
 services:
   postgres:
     image: postgres:15
+    container_name: codex-metrics-db
     environment:
       POSTGRES_DB: codex_metrics
       POSTGRES_USER: postgres
@@ -17,6 +18,7 @@ services:
       retries: 5
 
   metrics-server:
+    container_name: codex-metrics-server
     build:
       context: ..
       dockerfile: packages/metrics_server/Dockerfile
@@ -37,27 +39,5 @@ services:
       postgres:
         condition: service_healthy
 
-  grafana:
-    build:
-      context: ../packages/metrics_server
-      dockerfile: Dockerfile.grafana
-    ports:
-      - "3002:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=codex_metrics
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_SSL=disable
-    volumes:
-      - grafana-data:/var/lib/grafana
-    restart: unless-stopped
-    depends_on:
-      - metrics-server
-      - postgres
-
 volumes:
   postgres-data:
-  grafana-data:

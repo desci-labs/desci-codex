@@ -81,7 +81,6 @@ To run your own Codex node, you can use these commands.
 - **Ceramic-one FlightSQL**: http://localhost:5102
 - **Codex Node API**: http://localhost:3000
 - **Metrics Server**: http://localhost:3001 (when enabled)
-- **Grafana**: http://localhost:3002 (when enabled)
 
 For detailed Docker configurations, see the [docker documentation](docker/README.md).
 

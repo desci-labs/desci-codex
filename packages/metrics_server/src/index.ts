@@ -3,9 +3,10 @@ import cors from "cors";
 import helmet from "helmet";
 import { DatabaseService } from "./database.js";
 import {
+  NodeMetricsGranularSchema,
   validateMetricsSignature,
-  type SignedNodeMetrics,
-} from "./validation.js";
+  type NodeMetricsGranular,
+} from "@desci-labs/desci-codex-metrics";
 import logger from "./logger.js";
 
 const app = express();
@@ -39,46 +40,25 @@ const apiV1 = express.Router();
 // POST /api/v1/metrics/node - Node health metrics
 apiV1.post("/metrics/node", async (req, res) => {
   try {
-    const signedMetrics: SignedNodeMetrics = req.body;
-
-    // Validate required fields
-    if (
-      !signedMetrics.ipfsPeerId ||
-      !signedMetrics.ceramicPeerId ||
-      !signedMetrics.environment
-    ) {
+    // Parse and validate structure using Zod schema
+    let metrics: NodeMetricsGranular;
+    try {
+      metrics = NodeMetricsGranularSchema.parse(req.body);
+    } catch (error) {
       return res.status(400).json({
-        error:
-          "Missing required fields: ipfsPeerId, ceramicPeerId, environment",
+        error: "Invalid metrics structure",
+        details:
+          error instanceof Error ? error.message : "Unknown validation error",
       });
-    }
-
-    // Validate signature is present
-    if (!signedMetrics.signature || !Array.isArray(signedMetrics.signature)) {
-      return res.status(400).json({
-        error: "Missing or invalid signature",
-      });
-    }
-
-    // Validate environment value
-    if (!["testnet", "mainnet", "local"].includes(signedMetrics.environment)) {
-      return res.status(400).json({
-        error:
-          "Invalid environment value. Must be 'testnet', 'mainnet', or 'local'",
-      });
-    }
-
-    // Set collectedAt if not provided
-    if (!signedMetrics.collectedAt) {
-      signedMetrics.collectedAt = new Date().toISOString();
     }
 
     // Validate cryptographic signature
-    const validationResult = await validateMetricsSignature(signedMetrics);
+    const validationResult = await validateMetricsSignature(metrics);
     if (!validationResult.isValid) {
       log.warn(
         {
-          ipfsPeerId: signedMetrics.ipfsPeerId,
+          nodeId: metrics.nodeId,
+          ceramicPeerId: metrics.ceramicPeerId,
           error: validationResult.error,
         },
         "Rejected metrics submission due to invalid signature",
@@ -89,13 +69,38 @@ apiV1.post("/metrics/node", async (req, res) => {
       });
     }
 
-    // Extract metrics without signature for database storage
-    const { signature: _, ...metrics } = signedMetrics;
-    await databaseService.writeNodeMetrics(metrics);
+    // Get geographical information from Cloudflare headers (if available)
+    // CF-Connecting-IP: The actual client IP
+    // CF-IPCountry: Two-letter country code (e.g., "US", "GB")
+    // CF-IPCity: City name
+    const clientIp =
+      req.headers["cf-connecting-ip"] ||
+      req.headers["x-forwarded-for"] ||
+      req.socket.remoteAddress;
+    const ip = Array.isArray(clientIp) ? clientIp[0] : clientIp?.toString();
+    const country = req.headers["cf-ipcountry"] as string | undefined;
+    const city = req.headers["cf-ipcity"] as string | undefined;
+    // Only create metadata object if we have at least one field
+    let metadata: { ip?: string; country?: string; city?: string } | undefined;
+    if (ip || country || city) {
+      metadata = {};
+      if (ip) metadata.ip = ip;
+      if (country) metadata.country = country;
+      if (city) metadata.city = city;
+    }
+
+    // Store granular metrics directly in database using drizzle
+    await databaseService.writeNodeMetrics(metrics, metadata);
 
     log.info(
-      { ipfsPeerId: metrics.ipfsPeerId, environment: metrics.environment },
-      "Successfully processed and validated node metrics",
+      {
+        nodeId: metrics.nodeId,
+        ceramicPeerId: metrics.ceramicPeerId,
+        environment: metrics.environment,
+        manifestCount: metrics.manifests.length,
+        streamCount: metrics.streams.length,
+      },
+      "Successfully processed and validated granular node metrics",
     );
     return res.status(200).json({ success: true });
   } catch (error) {
@@ -160,9 +165,6 @@ process.on("SIGTERM", async () => {
 // Start server
 const startServer = async () => {
   try {
-    // Initialize database
-    await databaseService.initialize();
-
     app.listen(port, () => {
       log.info({ port }, "Metrics server started");
     });

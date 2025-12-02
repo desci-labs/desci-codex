@@ -1,64 +1,64 @@
-# Multi-stage build for production
+###################
+### Build stage ###
+###################
 FROM node:22-slim AS builder
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN corepack enable && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack prepare pnpm@10.8.0 --activate
 
-# Set working directory
-WORKDIR /app
+WORKDIR /build
 
-# Copy workspace configuration and lockfile
-COPY pnpm-workspace.yaml pnpm-lock.yaml ./
+# Copy all files needed for build
+COPY . .
 
-# Copy package.json files
-COPY package.json ./
-COPY packages/metrics_server/package.json ./packages/metrics_server/
+# First install ALL dependencies (including devDependencies)
+RUN pnpm install --frozen-lockfile
 
-# Install dependencies
-RUN pnpm install
+# Build dependencies first, then the metrics server
+RUN pnpm --filter @desci-labs/desci-codex-metrics build
+RUN pnpm --filter @desci-labs/desci-codex-node-metrics build
 
-# Copy source code
-COPY packages/metrics_server ./packages/metrics_server
+# Now create the production deployment (which will exclude devDependencies)
+RUN pnpm deploy --prod --filter @desci-labs/desci-codex-node-metrics /prod
 
-# Build the application
-WORKDIR /app/packages/metrics_server
-RUN pnpm build
+########################
+### Production stage ###
+########################
+FROM node:22-slim AS final
 
-# Production stage
-FROM node:22-slim AS production
+# Install utils
+RUN apt-get update && apt-get install -y curl jq socat less vim dumb-init && rm -rf /var/lib/apt/lists/*
+
+# Install pnpm
+RUN corepack enable && COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack prepare pnpm@10.8.0 --activate
 
 # Create non-root user
 RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
 
-# Set working directory
+# Create app directory with flexible permissions
 WORKDIR /app
-
-# Install dumb-init for proper signal handling
-RUN apt-get update && apt-get install -y dumb-init jq vim socat && rm -rf /var/lib/apt/lists/*
-
-# Install pnpm
-RUN npm install -g pnpm
-
-# Copy package.json and install production dependencies
-COPY --from=builder /app/packages/metrics_server/package.json ./
-RUN pnpm install --prod
-
-# Copy built application from builder stage
-COPY --from=builder --chown=nodejs:nodejs /app/packages/metrics_server/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /prod .
 
 # Create necessary directories and set permissions
-RUN mkdir -p /app/logs && \
-    chown -R nodejs:nodejs /app
+RUN chown -R nodejs:nodejs /app
 
 # Switch to non-root user
 USER nodejs
+
+# Set NODE_ENV
+ENV NODE_ENV=production \
+    PORT=3001
 
 # Expose port
 EXPOSE 3001
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:$PORT/health || exit 1
+
+LABEL org.opencontainers.image.source="https://github.com/desci-labs/desci-codex" \
+    org.opencontainers.image.description="DeSci CODEX Metrics Server" \
+    org.opencontainers.image.licenses="MIT"
 
 # Start the application
 ENTRYPOINT ["dumb-init", "--"]

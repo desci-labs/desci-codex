@@ -1,13 +1,19 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
+  signMetrics,
   validateMetricsSignature,
-  type SignedNodeMetrics,
-} from "../src/validation.js";
+  type NodeMetricsSignable,
+} from "@desci-labs/desci-codex-metrics";
 import { generateKeyPair } from "@libp2p/crypto/keys";
 import { peerIdFromPrivateKey } from "@libp2p/peer-id";
 import type { Ed25519PrivateKey, PeerId } from "@libp2p/interface";
 
-describe("Metrics Signature Validation", () => {
+/**
+ * Tests for metrics_server validation module.
+ * Focuses on server-specific validation concerns and library integration.
+ * Detailed cryptographic validation is tested in \@desci-labs/desci-codex-metrics library.
+ */
+describe("Metrics Server Validation", () => {
   let privateKey: Ed25519PrivateKey;
   let peerId: PeerId;
 
@@ -16,135 +22,70 @@ describe("Metrics Signature Validation", () => {
     peerId = peerIdFromPrivateKey(privateKey);
   });
 
-  const createSignedMetrics = async (
-    data: Omit<SignedNodeMetrics, "signature">,
-    signingKey?: Ed25519PrivateKey,
-  ): Promise<SignedNodeMetrics> => {
-    const keyToUse = signingKey || privateKey;
-    const dataBytes = new TextEncoder().encode(JSON.stringify(data));
-    const signature = await keyToUse.sign(dataBytes);
-
-    return {
-      ...data,
-      signature: Array.from(signature),
-    };
-  };
-
-  describe("validateMetricsSignature", () => {
-    it("should validate legitimate signatures", async () => {
-      const metricsData = {
-        ipfsPeerId: peerId.toString(),
+  describe("Validation Module Integration", () => {
+    it("should correctly re-export @desci-labs/desci-codex-metrics validation function", async () => {
+      const metricsData: NodeMetricsSignable = {
+        nodeId: peerId.toString(),
         ceramicPeerId: peerId.toString(),
-        environment: "testnet" as const,
-        totalStreams: 5,
-        totalPinnedCids: 10,
+        environment: "testnet",
+        manifests: ["cid1", "cid2"],
+        streams: [
+          {
+            streamId: "stream1",
+            eventIds: ["event1", "event2"],
+          },
+        ],
         collectedAt: new Date().toISOString(),
       };
 
-      const signedMetrics = await createSignedMetrics(metricsData);
+      const signedMetrics = await signMetrics(metricsData, privateKey);
       const result = await validateMetricsSignature(signedMetrics);
 
       expect(result.isValid).toBe(true);
       expect(result.error).toBeUndefined();
     });
 
-    it("should reject metrics with missing signature", async () => {
-      const metricsData = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
+    it("should handle validation errors gracefully", async () => {
+      const invalidMetrics = {
+        nodeId: "node-123",
+        ceramicPeerId: "invalid-peer-id",
         environment: "testnet" as const,
-        totalStreams: 5,
-        totalPinnedCids: 10,
+        manifests: [],
+        streams: [],
         collectedAt: new Date().toISOString(),
-        signature: [], // Empty signature
+        signature: [1, 2, 3], // Invalid signature
       };
 
-      const result = await validateMetricsSignature(metricsData);
+      const result = await validateMetricsSignature(invalidMetrics);
 
       expect(result.isValid).toBe(false);
-      expect(result.error).toBe("Missing or invalid signature");
-    });
-
-    it("should reject metrics with invalid peer ID format", async () => {
-      const metricsData = {
-        ipfsPeerId: "invalid-peer-id",
-        ceramicPeerId: peerId.toString(),
-        environment: "testnet" as const,
-        totalStreams: 5,
-        totalPinnedCids: 10,
-        collectedAt: new Date().toISOString(),
-        signature: [1, 2, 3], // Dummy signature
-      };
-
-      const result = await validateMetricsSignature(metricsData);
-
-      expect(result.isValid).toBe(false);
+      expect(typeof result.error).toBe("string");
       expect(result.error).toContain("Invalid peer ID format");
     });
 
-    it("should reject tampered data", async () => {
-      const metricsData = {
-        ipfsPeerId: peerId.toString(),
-        ceramicPeerId: peerId.toString(),
-        environment: "testnet" as const,
-        totalStreams: 5,
-        totalPinnedCids: 10,
-        collectedAt: new Date().toISOString(),
-      };
-
-      const signedMetrics = await createSignedMetrics(metricsData);
-
-      // Tamper with the data after signing
-      signedMetrics.totalStreams = 999;
-
-      const result = await validateMetricsSignature(signedMetrics);
-
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe("Cryptographic signature verification failed");
-    });
-
-    it("should reject signatures from different keys (impersonation attempt)", async () => {
-      const attackerPrivateKey = await generateKeyPair("Ed25519");
-
-      const metricsData = {
-        ipfsPeerId: peerId.toString(), // Victim's peer ID
-        ceramicPeerId: peerId.toString(),
-        environment: "testnet" as const,
-        totalStreams: 5,
-        totalPinnedCids: 10,
-        collectedAt: new Date().toISOString(),
-      };
-
-      // Sign with attacker's key but claim victim's peer ID
-      const maliciousMetrics = await createSignedMetrics(
-        metricsData,
-        attackerPrivateKey,
-      );
-
-      const result = await validateMetricsSignature(maliciousMetrics);
-
-      expect(result.isValid).toBe(false);
-      expect(result.error).toBe("Cryptographic signature verification failed");
-    });
-
-    it("should validate metrics for all supported environments", async () => {
+    it("should support all required environments", async () => {
       const environments = ["testnet", "mainnet", "local"] as const;
 
       for (const environment of environments) {
-        const metricsData = {
-          ipfsPeerId: peerId.toString(),
+        const metricsData: NodeMetricsSignable = {
+          nodeId: peerId.toString(),
           ceramicPeerId: peerId.toString(),
           environment,
-          totalStreams: 5,
-          totalPinnedCids: 10,
+          manifests: ["cid1"],
+          streams: [
+            {
+              streamId: "stream1",
+              eventIds: ["event1"],
+            },
+          ],
           collectedAt: new Date().toISOString(),
         };
 
-        const signedMetrics = await createSignedMetrics(metricsData);
+        const signedMetrics = await signMetrics(metricsData, privateKey);
         const result = await validateMetricsSignature(signedMetrics);
 
         expect(result.isValid).toBe(true);
-        expect(result.error).toBeUndefined();
+        expect(signedMetrics.environment).toBe(environment);
       }
     });
   });

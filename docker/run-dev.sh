@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # CODEX Development Environment Runner
 # This script provides easy commands to run different development configurations
@@ -14,7 +14,7 @@ function show_usage() {
     echo "Commands:"
     echo "  dev          Run development services only (ceramic + codex-node)"
     echo "  dev-metrics  Run development services with metrics (ceramic + codex-node + metrics stack)"
-    echo "  metrics      Run metrics stack only (postgres + metrics-server + grafana)"
+    echo "  metrics      Run metrics stack only (postgres + metrics-server)"
     echo "  local        Run local development (inmemory ceramic + codex-node)"
     echo "  stop         Stop all running containers"
     echo "  logs         Show logs for running containers"
@@ -27,7 +27,7 @@ function show_usage() {
 
 function run_dev() {
     echo "Starting development services (ceramic + codex-node)..."
-    docker compose -f compose.dev.yaml up -d
+    docker compose -f compose.dev.yaml up --build -d
     echo "✅ Development services started!"
     echo "  - Ceramic: http://localhost:5101"
     echo "  - Codex Node: http://localhost:3000"
@@ -35,25 +35,23 @@ function run_dev() {
 
 function run_dev_metrics() {
     echo "Starting development services with metrics..."
-    docker compose -f compose.dev-with-metrics.yaml up -d
+    docker compose -f compose.dev-with-metrics.yaml up --build -d
     echo "✅ Development services with metrics started!"
     echo "  - Ceramic: http://localhost:5101"
     echo "  - Codex Node: http://localhost:3000"
     echo "  - Metrics Server: http://localhost:3001"
-    echo "  - Grafana: http://localhost:3002 (admin/admin)"
 }
 
 function run_metrics() {
     echo "Starting metrics stack only..."
-    docker compose -f compose.metrics.yml up -d
+    docker compose -f compose.metrics.yml up --build -d
     echo "✅ Metrics stack started!"
     echo "  - Metrics Server: http://localhost:3001"
-    echo "  - Grafana: http://localhost:3002 (admin/admin)"
 }
 
 function run_local() {
     echo "Starting local development (inmemory)..."
-    docker compose -f compose.yaml up -d
+    docker compose -f compose.yaml up --build -d
     echo "✅ Local development services started!"
     echo "  - Ceramic: http://localhost:5101"
     echo "  - Codex Node: http://localhost:3000"

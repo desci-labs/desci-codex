@@ -7,8 +7,7 @@ services:
     environment:
       CERAMIC_ONE_NETWORK: "testnet-clay"
       CERAMIC_ONE_ETHEREUM_RPC_URLS: "https://reverse-proxy-dev.desci.com/rpc_gnosis_mainnet"
-      # CERAMIC_ONE_EXTRA_CERAMIC_PEER_ADDRESSES: "/dns4/k8s-default-ceramicr-28d84f3c2a-fcc7b824aa77bcf6.elb.us-east-2.amazonaws.com/tcp/4101/p2p/12D3KooWPL8CgPzyeuY14Lv6EQhTkdLEEBRAtfzksYhiTE3zeBEo"
-      CERAMIC_ONE_EXTRA_CERAMIC_PEER_ADDRESSES: "/dns4/ceramic-one-dev.desci.com/tcp/4101/p2p/12D3KooWPL8CgPzyeuY14Lv6EQhTkdLEEBRAtfzksYhiTE3zeBEo"
+      CERAMIC_ONE_EXTRA_CERAMIC_PEER_ADDRESSES: "/dns4/ceramic-one-dev.desci.com/tcp/4101/p2p/12D3KooWA7rnYfXSv8B3LDHNuDrEAw7dHR9AGM2iRYJETc9Uk3hY"
     volumes:
       - ../local-data/testnet/ceramic-one:/data/ceramic-one
   codex-node:

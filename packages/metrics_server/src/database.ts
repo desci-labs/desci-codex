@@ -1,19 +1,25 @@
-import { Pool, type PoolClient } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { NodeMetricsGranular } from "@desci-labs/desci-codex-metrics";
+import {
+  nodes,
+  manifests,
+  streams,
+  events,
+  nodeManifests,
+  nodeStreams,
+  nodeEvents,
+  nodeActivity,
+} from "./drizzleSchema.js";
+import { StreamID, CommitID } from "@ceramic-sdk/identifiers";
 import logger from "./logger.js";
 
 const log = logger.child({ module: "database" });
 
-export interface NodeMetrics {
-  ipfsPeerId: string;
-  ceramicPeerId: string;
-  environment: "testnet" | "mainnet" | "local";
-  totalStreams: number;
-  totalPinnedCids: number;
-  collectedAt: string;
-}
-
 export class DatabaseService {
   private pool: Pool;
+  private db: NodePgDatabase;
 
   constructor() {
     this.pool = new Pool({
@@ -29,86 +35,163 @@ export class DatabaseService {
       connectionTimeoutMillis: 2000,
     });
 
+    this.db = drizzle(this.pool);
+
     // Handle pool errors
     this.pool.on("error", (err: Error) => {
       log.error(err, "Unexpected error on idle client");
     });
   }
 
-  async initialize(): Promise<void> {
-    try {
-      const client = await this.pool.connect();
-
-      // Create simplified node_metrics table with environment support
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS node_metrics (
-          time TIMESTAMPTZ NOT NULL,
-          ipfs_peer_id TEXT NOT NULL,
-          ceramic_peer_id TEXT NOT NULL,
-          environment TEXT NOT NULL CHECK (environment IN ('testnet', 'mainnet', 'local')),
-          total_streams INTEGER NOT NULL,
-          total_pinned_cids INTEGER NOT NULL,
-          created_at TIMESTAMPTZ DEFAULT NOW()
-        )
-      `);
-
-      // Create indexes for better query performance
-      await client.query(
-        "CREATE INDEX IF NOT EXISTS idx_node_metrics_time ON node_metrics (time DESC)",
-      );
-      await client.query(
-        "CREATE INDEX IF NOT EXISTS idx_node_metrics_ipfs_peer_id ON node_metrics (ipfs_peer_id, time DESC)",
-      );
-      await client.query(
-        "CREATE INDEX IF NOT EXISTS idx_node_metrics_environment ON node_metrics (environment, time DESC)",
-      );
-
-      client.release();
-      log.info("Database initialized successfully");
-    } catch (error) {
-      log.error(error, "Error initializing database");
-      throw error;
-    }
-  }
-
   async dbConnectionIsOk(): Promise<boolean> {
-    let client: PoolClient | undefined;
     try {
-      client = await this.pool.connect();
-      await client.query("SELECT * FROM node_metrics LIMIT 1");
+      await this.db.select().from(nodes).limit(1);
       return true;
     } catch (error) {
       log.error(error, "Database connection check failed");
       return false;
-    } finally {
-      client?.release();
     }
   }
 
-  async writeNodeMetrics(metrics: NodeMetrics): Promise<void> {
+  async writeNodeMetrics(
+    metrics: NodeMetricsGranular,
+    metadata?: { ip?: string; country?: string; city?: string },
+  ): Promise<void> {
     try {
-      const client = await this.pool.connect();
+      await this.db.transaction(async (tx) => {
+        // Upsert node - only update metadata if it's provided
+        const updateFields: {
+          lastSeenAt: Date;
+          metadata?: { ip?: string; country?: string; city?: string };
+        } = {
+          lastSeenAt: new Date(metrics.collectedAt),
+        };
 
-      await client.query(
-        `INSERT INTO node_metrics (time, ipfs_peer_id, ceramic_peer_id, environment, total_streams, total_pinned_cids)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          new Date(metrics.collectedAt),
-          metrics.ipfsPeerId,
-          metrics.ceramicPeerId,
-          metrics.environment,
-          metrics.totalStreams,
-          metrics.totalPinnedCids,
-        ],
-      );
+        // Only update metadata if it's provided (not undefined)
+        if (metadata !== undefined) {
+          updateFields.metadata = metadata;
+        }
+        await tx
+          .insert(nodes)
+          .values({
+            nodeId: metrics.nodeId,
+            ceramicPeerId: metrics.ceramicPeerId,
+            environment: metrics.environment,
+            metadata: metadata || null,
+            firstSeenAt: new Date(metrics.collectedAt),
+            lastSeenAt: new Date(metrics.collectedAt),
+          })
+          .onConflictDoUpdate({
+            target: nodes.nodeId,
+            set: updateFields,
+          });
 
-      client.release();
+        // Upsert manifests
+        for (const manifestCid of metrics.manifests) {
+          await tx
+            .insert(manifests)
+            .values({
+              manifestCid: manifestCid,
+              environment: metrics.environment,
+              firstSeenAt: new Date(metrics.collectedAt),
+            })
+            .onConflictDoNothing();
+
+          // Link node to manifest
+          await tx
+            .insert(nodeManifests)
+            .values({
+              nodeId: metrics.nodeId,
+              manifestCid: manifestCid,
+              environment: metrics.environment,
+              firstSeenAt: new Date(metrics.collectedAt),
+            })
+            .onConflictDoNothing();
+        }
+
+        // Upsert streams and events
+        for (const stream of metrics.streams) {
+          // Derive streamCid from streamId
+          const streamCid = StreamID.fromString(stream.streamId).cid.toString();
+
+          // Upsert stream
+          await tx
+            .insert(streams)
+            .values({
+              streamId: stream.streamId,
+              streamCid: streamCid,
+              environment: metrics.environment,
+              firstSeenAt: new Date(metrics.collectedAt),
+            })
+            .onConflictDoNothing();
+
+          // Link node to stream
+          await tx
+            .insert(nodeStreams)
+            .values({
+              nodeId: metrics.nodeId,
+              streamId: stream.streamId,
+              environment: metrics.environment,
+              firstSeenAt: new Date(metrics.collectedAt),
+            })
+            .onConflictDoNothing();
+
+          // Upsert events
+          for (const eventId of stream.eventIds) {
+            // Derive eventCid from eventId (which is a CommitID)
+            const eventCid = CommitID.fromString(eventId).commit.toString();
+
+            // Upsert event
+            await tx
+              .insert(events)
+              .values({
+                eventId: eventId,
+                streamId: stream.streamId,
+                eventCid: eventCid,
+                environment: metrics.environment,
+                firstSeenAt: new Date(metrics.collectedAt),
+              })
+              .onConflictDoNothing();
+
+            // Link node to event
+            await tx
+              .insert(nodeEvents)
+              .values({
+                nodeId: metrics.nodeId,
+                eventId: eventId,
+                environment: metrics.environment,
+                firstSeenAt: new Date(metrics.collectedAt),
+              })
+              .onConflictDoNothing();
+          }
+        }
+
+        // Upsert daily node activity
+        const currentDay = new Date(metrics.collectedAt)
+          .toISOString()
+          .split("T")[0]; // Format: YYYY-MM-DD
+        await tx
+          .insert(nodeActivity)
+          .values({
+            nodeId: metrics.nodeId,
+            day: currentDay,
+            environment: metrics.environment,
+          })
+          .onConflictDoNothing();
+      });
+
       log.info(
-        { ipfsPeerId: metrics.ipfsPeerId, environment: metrics.environment },
-        "Successfully wrote node metrics to database",
+        {
+          nodeId: metrics.nodeId,
+          ceramicPeerId: metrics.ceramicPeerId,
+          environment: metrics.environment,
+          manifestCount: metrics.manifests.length,
+          streamCount: metrics.streams.length,
+        },
+        "Successfully wrote granular metrics to database",
       );
     } catch (error) {
-      log.error(error, "Error writing node metrics to database");
+      log.error(error, "Error writing granular metrics to database");
       throw error;
     }
   }
