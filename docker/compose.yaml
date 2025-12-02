@@ -1,6 +1,6 @@
 services:
   ceramic:
-    image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.56.0
+    image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.56.2
     container_name: ceramic-one-local
     restart: on-failure
     # entrypoint: ["/bin/sh", "-c", "sleep infinity"]
