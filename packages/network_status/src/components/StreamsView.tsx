@@ -58,7 +58,11 @@ export function StreamsView() {
         <Card>
           <CardHeader>
             <CardTitle>All Streams</CardTitle>
-            <CardDescription>Data streams in the network</CardDescription>
+            <CardDescription>
+              Data streams in the network. The stream and event CIDs are
+              gossiped over the Recon libp2p protocol, and (probably) aren't
+              available directly over IPFS.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">

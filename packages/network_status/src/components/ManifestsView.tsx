@@ -62,7 +62,8 @@ export function ManifestsView() {
           <CardHeader>
             <CardTitle>All Manifests</CardTitle>
             <CardDescription>
-              Content manifests stored in the network
+              Content manifests stored in the network. These can be resolved
+              over IPFS.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
