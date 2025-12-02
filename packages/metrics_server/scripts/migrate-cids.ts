@@ -20,6 +20,7 @@ import { Pool } from "pg";
 import { eq } from "drizzle-orm";
 import { StreamID, CommitID } from "@ceramic-sdk/identifiers";
 import { streams, events } from "../src/drizzleSchema.js";
+import "dotenv/config";
 
 const isDryRun = process.argv.includes("--dry-run");
 
@@ -140,14 +141,19 @@ async function main() {
   }
 
   // Create database connection
-  const pool = new Pool({
+  const poolConfig = {
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432"),
     database: process.env.DB_NAME || "codex_metrics",
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "postgres",
     ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
+  };
+  console.log("ℹ️ Connecting to database with details:", {
+    ...poolConfig,
+    password: "[REDACTED]",
   });
+  const pool = new Pool(poolConfig);
 
   try {
     // Test connection
