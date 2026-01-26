@@ -86,12 +86,11 @@ spec:
       serviceAccountName: "vault-auth"
       containers:
         - name: ceramic-one
-          image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.56.2
+          image: public.ecr.aws/m3e8d9d6/desci-labs/ceramic-one:0.58.1
           command: ["bash", "-c"]
           args:
-            # - echo "Container idling..."; tail --follow /dev/null
-            - ceramic-one daemon
-              --external-swarm-addresses="$(< /config/external-multiaddr)"
+            # - apt-get update && apt-get install --yes curl jq sqlite3 && echo "Container idling..."; tail --follow /dev/null
+            - apt-get update && apt-get install --yes curl jq sqlite3 && ceramic-one daemon --external-swarm-addresses="$(< /config/external-multiaddr)"
           env:
             - name: BASH_ENV
               value: /vault/secrets/config
@@ -138,6 +137,16 @@ spec:
               mountPath: /config
         - name: codex-node
           image: 523044037273.dkr.ecr.us-east-2.amazonaws.com/codex-node:latest
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Waiting for ceramic-one to be ready..."
+              until curl -sf http://localhost:5101/ceramic/liveness >/dev/null 2>&1; do
+                echo "ceramic-one not ready, retrying in 2s..."
+                sleep 2
+              done
+              echo "ceramic-one is ready, starting codex-node"
+              exec node dist/index.js
           ports:
             - containerPort: 3000
               name: http
