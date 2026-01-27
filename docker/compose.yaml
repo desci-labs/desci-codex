@@ -1,6 +1,8 @@
+name: codex_nodes
+
 services:
   ceramic:
-    image: public.ecr.aws/r5b3e0r5/3box/ceramic-one:0.56.2
+    image: public.ecr.aws/m3e8d9d6/desci-labs/ceramic-one:0.58.1
     container_name: ceramic-one-local
     restart: on-failure
     # entrypoint: ["/bin/sh", "-c", "sleep infinity"]

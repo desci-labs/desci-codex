@@ -12,8 +12,9 @@ function show_usage() {
     echo "Usage: $0 [COMMAND]"
     echo ""
     echo "Commands:"
-    echo "  dev          Run development services only (ceramic + codex-node)"
+    echo "  dev          Run development services only (ceramic + codex-node) against testnet"
     echo "  dev-metrics  Run development services with metrics (ceramic + codex-node + metrics stack)"
+    echo "  prod         Run against mainnet (ceramic + codex-node)"
     echo "  metrics      Run metrics stack only (postgres + metrics-server)"
     echo "  local        Run local development (inmemory ceramic + codex-node)"
     echo "  stop         Stop all running containers"
@@ -21,6 +22,7 @@ function show_usage() {
     echo ""
     echo "Examples:"
     echo "  $0 dev          # Start just ceramic and codex-node for development"
+    echo "  $0 prod         # Start ceramic and codex-node against mainnet"
     echo "  $0 dev-metrics  # Start everything including metrics"
     echo "  $0 stop         # Stop all containers"
 }
@@ -42,6 +44,14 @@ function run_dev_metrics() {
     echo "  - Metrics Server: http://localhost:3001"
 }
 
+function run_prod() {
+    echo "Starting production services (ceramic + codex-node against mainnet)..."
+    docker compose -f compose.prod.yaml up --build -d
+    echo "✅ Production services started!"
+    echo "  - Ceramic: http://localhost:5101 (mainnet)"
+    echo "  - Codex Node: http://localhost:3000"
+}
+
 function run_metrics() {
     echo "Starting metrics stack only..."
     docker compose -f compose.metrics.yml up --build -d
@@ -59,20 +69,13 @@ function run_local() {
 
 function stop_all() {
     echo "Stopping all containers..."
-    docker compose -f compose.yaml down 2>/dev/null || true
-    docker compose -f compose.dev.yaml down 2>/dev/null || true
-    docker compose -f compose.dev-with-metrics.yaml down 2>/dev/null || true
-    docker compose -f compose.metrics.yml down 2>/dev/null || true
+    docker compose -p codex_nodes down 2>/dev/null || true
     echo "✅ All containers stopped!"
 }
 
 function show_logs() {
     echo "Showing logs for running containers..."
-    docker compose -f compose.yaml logs -f 2>/dev/null || \
-    docker compose -f compose.dev.yaml logs -f 2>/dev/null || \
-    docker compose -f compose.dev-with-metrics.yaml logs -f 2>/dev/null || \
-    docker compose -f compose.metrics.yml logs -f 2>/dev/null || \
-    echo "No running containers found"
+    docker compose -p codex_nodes logs -f
 }
 
 # Main script logic
@@ -82,6 +85,9 @@ case "${1:-}" in
         ;;
     "dev-metrics")
         run_dev_metrics
+        ;;
+    "prod")
+        run_prod
         ;;
     "metrics")
         run_metrics
