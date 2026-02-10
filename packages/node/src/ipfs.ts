@@ -104,7 +104,10 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
         const cidObj = CID.parse(cid);
         log.info({ cid }, "Fetching file from IPFS network/gateway");
         const chunks = [];
-        for await (const chunk of fs.cat(cidObj)) {
+        // Timeout prevents hanging on unresponsive bitswap/DHT peers
+        for await (const chunk of fs.cat(cidObj, {
+          signal: AbortSignal.timeout(30_000), // 30 seconds
+        })) {
           chunks.push(chunk);
         }
         return Buffer.concat(chunks);
@@ -130,7 +133,10 @@ export function createIPFSNode(config: IPFSNodeConfig): IPFSNode {
         }
 
         const startTime = Date.now();
-        const pinProgress = helia.pins.add(cidObj);
+        // Timeout prevents hanging on unresponsive bitswap/DHT peers
+        const pinProgress = helia.pins.add(cidObj, {
+          signal: AbortSignal.timeout(30_000), // 30 seconds
+        });
         for await (const pinnedCid of pinProgress) {
           log.debug(
             { cid, block: pinnedCid.toString(), time: Date.now() },

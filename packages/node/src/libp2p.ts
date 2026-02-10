@@ -71,9 +71,10 @@ export async function initLibp2p(
       dht: kadDHT({
         clientMode: true,
         protocol: "/ipfs/kad/1.0.0",
-        // This approximates kubo's acceleratedDhtClient mode
-        kBucketSize: Infinity,
+        kBucketSize: 20,
         kBucketSplitThreshold: 20,
+        maxInboundStreams: 32,
+        maxOutboundStreams: 64,
       }),
       identify: identify(),
       identifyPush: identifyPush(),
@@ -82,7 +83,9 @@ export async function initLibp2p(
       upnp: uPnPNAT(),
     },
     connectionManager: {
-      maxConnections: 500,
+      maxConnections: 100,
+      inboundConnectionThreshold: 50,
+      maxIncomingPendingConnections: 10,
     },
   });
 

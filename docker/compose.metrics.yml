@@ -1,3 +1,5 @@
+name: codex_nodes
+
 services:
   postgres:
     image: postgres:15

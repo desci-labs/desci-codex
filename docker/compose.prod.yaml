@@ -1,5 +1,10 @@
+name: codex_nodes
+
 services:
   ceramic:
+    extends:
+      file: compose.yaml
+      service: ceramic
     container_name: ceramic-one-mainnet
     environment:
       CERAMIC_ONE_NETWORK: "mainnet"
@@ -8,8 +13,12 @@ services:
     volumes:
       - ../local-data/mainnet/ceramic-one:/data/ceramic-one
   codex-node:
+    extends:
+      file: compose.yaml
+      service: codex-node
     container_name: codex-node-mainnet
     environment:
       - CODEX_ENVIRONMENT=mainnet
+      - METRICS_BACKEND_URL=https://codex-metrics.desci.com
     volumes:
       - ../local-data/mainnet/codex-node:/app/local-data/codex-node
