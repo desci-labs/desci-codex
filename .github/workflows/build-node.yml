@@ -1,7 +1,7 @@
 on:
   push:
     paths:
-      - .github/workflows/build-node.yml
+      - .github
       - packages/node/**
       - packages/lib/**
       - packages/models/**

@@ -1,7 +1,7 @@
 on:
   push:
     paths:
-      - .github/workflows/build-metrics-server.yml
+      - .github
       - packages/metrics_server/**
     branches:
       - main
