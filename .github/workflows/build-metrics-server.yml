@@ -1,7 +1,7 @@
 on:
   push:
     paths:
-      - .github
+      - .github/**
       - packages/metrics_server/**
     branches:
       - main
