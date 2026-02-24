@@ -3,8 +3,8 @@ on:
     branches:
       - main
     paths:
-      - 'packages/network_status/**'
-      - '.github/workflows/deploy-network-status.yml'
+      - "packages/network_status/**"
+      - ".github/workflows/deploy-network-status.yml"
   workflow_dispatch:
 
 jobs:
