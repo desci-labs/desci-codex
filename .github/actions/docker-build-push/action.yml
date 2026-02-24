@@ -1,41 +1,44 @@
-name: 'Build and Push Docker Image'
-description: 'Build Docker image and push to ECR with commit SHA and latest tags'
+name: "Build and Push Docker Image"
+description: "Build Docker image and push to ECR with commit SHA and latest tags"
 inputs:
   image-name:
-    description: 'Name of the Docker image (without registry prefix)'
+    description: "Name of the Docker image (without registry prefix)"
     required: true
   dockerfile-path:
-    description: 'Path to the Dockerfile'
+    description: "Path to the Dockerfile"
     required: true
   build-context:
-    description: 'Docker build context path'
-    default: '.'
+    description: "Docker build context path"
+    default: "."
   build-args:
-    description: 'Additional docker build arguments'
-    default: ''
+    description: "Additional docker build arguments"
+    default: ""
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Build Docker image
       shell: bash
       run: |
         echo "Building ${{ inputs.image-name }} from ${{ inputs.dockerfile-path }}"
+
         docker build \
-          -t ${{ inputs.image-name }}:${{ github.sha }} \
-          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ inputs.image-name }}:${{ github.sha }} \
-          -t ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ inputs.image-name }}:latest \
-          -f ${{ inputs.dockerfile-path }} \
+          -t "${{ inputs.image-name }}:latest" \
+          -f "${{ inputs.dockerfile-path }}" \
           ${{ inputs.build-args }} \
           ${{ inputs.build-context }}
 
-    - name: Login to ECR and push image
+    - name: Push image to ECR
       shell: bash
       run: |
-        echo "Logging into ECR and pushing ${{ inputs.image-name }}"
-        aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | \
-          docker login --username AWS --password-stdin \
-          ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com
+        # Used for sorting newest builds in flux image scanning
+        TIMESTAMP=$(date +%s)
+        SHORT_SHA="$(git rev-parse --short ${{ github.sha }})"
+        LOCAL_TAG=${{ inputs.image-name }}:latest
+        BUILD_TAG="$SHORT_SHA-$TIMESTAMP"
+        ECR_IMAGE="${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ inputs.image-name }}"
 
-        # Push both SHA and latest tags
-        docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ inputs.image-name }}:${{ github.sha }}
-        docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ inputs.image-name }}:latest
+        docker tag $LOCAL_TAG "$ECR_IMAGE:$BUILD_TAG"
+        docker tag $LOCAL_TAG "$ECR_IMAGE:latest"
+
+        docker push "$ECR_IMAGE:$BUILD_TAG"
+        docker push "$ECR_IMAGE:latest"

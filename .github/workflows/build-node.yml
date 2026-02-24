@@ -23,10 +23,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup AWS and Kubernetes
-        uses: ./.github/actions/setup-aws-k8s
-        with:
-          kube-config-data: ${{ secrets.KUBE_CONFIG_DATA }}
+      - name: Setup AWS and ECR
+        uses: ./.github/actions/setup-aws-ecr
 
       - name: Build and push codex-node image
         uses: ./.github/actions/docker-build-push
@@ -34,34 +32,3 @@ jobs:
           image-name: codex-node
           dockerfile-path: packages/node/Dockerfile
           build-context: .
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs:
-      - build-and-push-image
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup AWS and Kubernetes
-        uses: ./.github/actions/setup-aws-k8s
-        with:
-          kube-config-data: ${{ secrets.KUBE_CONFIG_DATA }}
-
-      - name: Deploy testnet codex-node to EKS
-        uses: ./.github/actions/k8s-deploy
-        with:
-          manifest-path: packages/node/k8s/dev/deployment.yaml
-          deployment-type: statefulset
-          deployment-name: codex-node-dev
-          container-name: codex-node
-          image-name: codex-node
-
-      - name: Deploy mainnet codex-node to EKS
-        uses: ./.github/actions/k8s-deploy
-        with:
-          manifest-path: packages/node/k8s/prod/deployment.yaml
-          deployment-type: statefulset
-          deployment-name: codex-node-prod
-          container-name: codex-node
-          image-name: codex-node

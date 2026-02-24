@@ -1,0 +1,16 @@
+name: "Setup AWS credentials and ECR auth"
+description: "Configure AWS credentials and ECR auth"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup AWS IAM Authenticator
+      uses: prepor/action-aws-iam-authenticator@master
+
+    - name: Verify IAM Authenticator
+      shell: bash
+      run: aws-iam-authenticator version
+
+    - name: Verify AWS authentication
+      shell: bash
+      run: |
+        aws sts get-caller-identity
