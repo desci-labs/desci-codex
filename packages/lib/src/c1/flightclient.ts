@@ -7,7 +7,7 @@ export const newFlightSqlClient = (flightUrl: string) => {
 
   return createFlightSqlClient({
     host: url.hostname,
-    port: parseInt(url.port),
+    port: parseInt(url.port) || (url.protocol === "https:" ? 443 : 80),
     tls: url.protocol === "https:",
     headers: [],
   });
